@@ -105,7 +105,7 @@ const CARDS = [
 {c:12,k:"list",q:"The three management accounting reports named by the syllabus",a:"<b>Cost schedules</b> — the cost of a product, job or department<br><b>Budgets</b> — a quantified plan for a future period<br><b>Variance reports</b> — actual against budget, directing attention by exception"},
 {c:12,k:"def",q:"Data vs information vs knowledge",a:"<b>Data</b> — raw, unprocessed facts.<br><b>Information</b> — data processed so it has meaning and value to the recipient.<br><b>Knowledge</b> — information applied with experience and judgement."},
 {c:12,k:"list",q:"ACCURATE — the qualities of good information",a:"<b>A</b>ccurate · <b>C</b>omplete · <b>C</b>ost-effective · <b>U</b>nderstandable · <b>R</b>elevant · <b>A</b>uthoritative · <b>T</b>imely · <b>E</b>asy to use"},
-{c:12,k:"def",q:"The accounting equation",a:"<b>Assets = Liabilities + Equity</b><br><br>Everything the business has came from somewhere."},
+{c:12,x:1,k:"def",q:"The accounting equation",a:"<b>Assets = Liabilities + Equity</b><br><br>Everything the business has came from somewhere."},
 
 {c:13,k:"def",q:"Internal control — the definition",a:"The process, effected by the board, management and other personnel, designed to provide <b>reasonable assurance</b> about the achievement of objectives in <b>operations, reporting and compliance</b>."},
 {c:13,k:"list",q:"SPAMSOAP",a:"<b>S</b>egregation of duties · <b>P</b>hysical · <b>A</b>uthorisation · <b>M</b>anagement · <b>S</b>upervision · <b>O</b>rganisation · <b>A</b>rithmetical and accounting · <b>P</b>ersonnel"},

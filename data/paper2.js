@@ -35,9 +35,9 @@ a1:[
  o:["True","False"], a:1,
  e:"They should be separate, so that no one individual has unfettered power over the board and the business."},
 
-{c:11, q:"Gearing measures:",
- o:["Profit relative to sales","Debt relative to equity","Current assets relative to current liabilities","Output relative to input"], a:1,
- e:"Gearing is debt over equity, or debt over debt plus equity. It tells a lender how much of the business is funded by borrowing."},
+{c:11, q:"Which of the following is an audit and assurance role rather than a financial accounting one?",
+ o:["Recording financial transactions","Codifying and processing financial information","Internal audit","Preparing the financial statements"], a:2,
+ e:"Financial accounting records transactions and prepares the statements. <b>Internal audit</b> gives independent assurance on risk, control and governance, and reports to the audit committee."},
 
 {c:12, q:"Which qualitative characteristic means information is capable of making a difference to a decision?",
  o:["Relevance","Comparability","Verifiability","Timeliness"], a:0,

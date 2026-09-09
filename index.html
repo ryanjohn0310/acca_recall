@@ -451,6 +451,47 @@ kbd{
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .chip.wide{font-size:var(--step-0)}
 
+/* the "how do you want to work" chooser */
+.viewpick{display:grid;gap:var(--s3);grid-template-columns:1fr}
+@media (min-width:760px){.viewpick{grid-template-columns:repeat(3,1fr)}}
+.viewopt{
+  text-align:left;padding:var(--s4);border:1px solid var(--line);border-bottom-width:2px;
+  border-radius:var(--r);background:var(--card);display:grid;gap:var(--s1);
+  transition:all var(--dur) var(--ease);
+}
+.viewopt:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow)}
+.viewopt .vi{font-size:22px;line-height:1}
+.viewopt .vn{font-weight:800;font-size:var(--step-1);color:var(--ink)}
+.viewopt .vd{font-size:var(--step--1);color:var(--muted);line-height:1.6}
+
+/* list view — a chapter printed to read straight through */
+.cardlist{counter-reset:cl}
+.cardlist li{
+  counter-increment:cl;padding:var(--s3) var(--s4);
+  border-bottom:1px solid var(--line-2);
+}
+.cardlist li:last-child{border-bottom:0}
+.cardlist li:nth-child(odd){background:var(--tint)}
+.cl-head{display:flex;align-items:flex-start;gap:var(--s2)}
+.cl-q{flex:1;font-weight:800;color:var(--ink);line-height:1.45}
+.cl-q::before{
+  content:counter(cl) ".";margin-right:6px;color:var(--muted);font-weight:700;
+}
+.cl-tag{
+  flex:none;font-size:var(--step--2);font-weight:700;color:var(--muted);
+  background:var(--sunk);border-radius:999px;padding:2px 9px;white-space:nowrap;
+}
+.cl-a{margin-top:var(--s2);padding-left:36px;line-height:1.75;color:var(--ink-2)}
+@media (max-width:600px){.cl-a{padding-left:0}.cl-tag{display:none}}
+.cl-note{
+  margin:var(--s1) 0 0 36px;font-size:var(--step--2);font-weight:700;
+  color:var(--warn);
+}
+@media (max-width:600px){.cl-note{margin-left:0}}
+.cardlist li.beyond .cl-q{color:var(--muted)}
+.cardlist .starbtn{width:24px;height:24px;font-size:15px}
+body.q-only .cl-a{display:none}
+
 /* ==========================================================================
    THE FLASHCARD — it physically turns over
    ========================================================================== */
@@ -822,16 +863,16 @@ body:not(.at-study) #study{display:none}
   </div>
 </section>
 
-<script src="data/cards.js?v=5c90da77"></script>
+<script src="data/cards.js?v=fe1e5bcb"></script>
 <script src="data/cards2.js?v=fc0c5540"></script>
-<script src="data/cards3.js?v=86b1b4b7"></script>
-<script src="data/cards4.js?v=59a0742a"></script>
+<script src="data/cards3.js?v=bdf48939"></script>
+<script src="data/cards4.js?v=c9f0d26e"></script>
 <script src="data/exam.js?v=a161572e"></script>
-<script src="data/paper1.js?v=dc14eb83"></script>
-<script src="data/paper2.js?v=c8b89636"></script>
-<script src="data/paper3.js?v=79647c89"></script>
+<script src="data/paper1.js?v=25bb350a"></script>
+<script src="data/paper2.js?v=52574548"></script>
+<script src="data/paper3.js?v=b31353f0"></script>
 <script src="data/paper4.js?v=146fd9ca"></script>
 <script src="data/paper5.js?v=417202f0"></script>
-<script src="app.js?v=2d17be53"></script>
+<script src="app.js?v=5c0de90c"></script>
 </body>
 </html>

@@ -451,6 +451,47 @@ kbd{
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .chip.wide{font-size:var(--step-0)}
 
+/* the "how do you want to work" chooser */
+.viewpick{display:grid;gap:var(--s3);grid-template-columns:1fr}
+@media (min-width:760px){.viewpick{grid-template-columns:repeat(3,1fr)}}
+.viewopt{
+  text-align:left;padding:var(--s4);border:1px solid var(--line);border-bottom-width:2px;
+  border-radius:var(--r);background:var(--card);display:grid;gap:var(--s1);
+  transition:all var(--dur) var(--ease);
+}
+.viewopt:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow)}
+.viewopt .vi{font-size:22px;line-height:1}
+.viewopt .vn{font-weight:800;font-size:var(--step-1);color:var(--ink)}
+.viewopt .vd{font-size:var(--step--1);color:var(--muted);line-height:1.6}
+
+/* list view — a chapter printed to read straight through */
+.cardlist{counter-reset:cl}
+.cardlist li{
+  counter-increment:cl;padding:var(--s3) var(--s4);
+  border-bottom:1px solid var(--line-2);
+}
+.cardlist li:last-child{border-bottom:0}
+.cardlist li:nth-child(odd){background:var(--tint)}
+.cl-head{display:flex;align-items:flex-start;gap:var(--s2)}
+.cl-q{flex:1;font-weight:800;color:var(--ink);line-height:1.45}
+.cl-q::before{
+  content:counter(cl) ".";margin-right:6px;color:var(--muted);font-weight:700;
+}
+.cl-tag{
+  flex:none;font-size:var(--step--2);font-weight:700;color:var(--muted);
+  background:var(--sunk);border-radius:999px;padding:2px 9px;white-space:nowrap;
+}
+.cl-a{margin-top:var(--s2);padding-left:36px;line-height:1.75;color:var(--ink-2)}
+@media (max-width:600px){.cl-a{padding-left:0}.cl-tag{display:none}}
+.cl-note{
+  margin:var(--s1) 0 0 36px;font-size:var(--step--2);font-weight:700;
+  color:var(--warn);
+}
+@media (max-width:600px){.cl-note{margin-left:0}}
+.cardlist li.beyond .cl-q{color:var(--muted)}
+.cardlist .starbtn{width:24px;height:24px;font-size:15px}
+body.q-only .cl-a{display:none}
+
 /* ==========================================================================
    THE FLASHCARD — it physically turns over
    ========================================================================== */
@@ -931,7 +972,7 @@ const CARDS = [
 {c:12,k:"list",q:"The three management accounting reports named by the syllabus",a:"<b>Cost schedules</b> — the cost of a product, job or department<br><b>Budgets</b> — a quantified plan for a future period<br><b>Variance reports</b> — actual against budget, directing attention by exception"},
 {c:12,k:"def",q:"Data vs information vs knowledge",a:"<b>Data</b> — raw, unprocessed facts.<br><b>Information</b> — data processed so it has meaning and value to the recipient.<br><b>Knowledge</b> — information applied with experience and judgement."},
 {c:12,k:"list",q:"ACCURATE — the qualities of good information",a:"<b>A</b>ccurate · <b>C</b>omplete · <b>C</b>ost-effective · <b>U</b>nderstandable · <b>R</b>elevant · <b>A</b>uthoritative · <b>T</b>imely · <b>E</b>asy to use"},
-{c:12,k:"def",q:"The accounting equation",a:"<b>Assets = Liabilities + Equity</b><br><br>Everything the business has came from somewhere."},
+{c:12,x:1,k:"def",q:"The accounting equation",a:"<b>Assets = Liabilities + Equity</b><br><br>Everything the business has came from somewhere."},
 
 {c:13,k:"def",q:"Internal control — the definition",a:"The process, effected by the board, management and other personnel, designed to provide <b>reasonable assurance</b> about the achievement of objectives in <b>operations, reporting and compliance</b>."},
 {c:13,k:"list",q:"SPAMSOAP",a:"<b>S</b>egregation of duties · <b>P</b>hysical · <b>A</b>uthorisation · <b>M</b>anagement · <b>S</b>upervision · <b>O</b>rganisation · <b>A</b>rithmetical and accounting · <b>P</b>ersonnel"},
@@ -1160,9 +1201,9 @@ CARDS.push(
 {c:3,k:"eqn",q:"Total cost",a:"<b>Fixed costs + variable costs</b><br><br>Fixed costs do not vary with output in the short run; variable costs do."},
 {c:2,k:"eqn",q:"The multiplier",a:"<b>1 ÷ (1 − marginal propensity to consume)</b><br><br>The higher the propensity to consume, the larger the eventual rise in national income from an initial injection. Savings, taxation and imports all shrink it."},
 {c:8,k:"eqn",q:"Capacity utilisation",a:"<b>Actual output ÷ maximum possible output × 100</b><br><br>A standard operations measure of how hard the available capacity is being worked."},
-{c:12,k:"eqn",q:"The accounting equation",a:"<b>Assets = Liabilities + Equity</b><br><br>Everything the business controls was funded either by borrowing or by its owners."},
+{c:12,x:1,k:"eqn",q:"The accounting equation",a:"<b>Assets = Liabilities + Equity</b><br><br>Everything the business controls was funded either by borrowing or by its owners."},
 {c:18,k:"eqn",q:"Vroom's expectancy theory",a:"<b>Force = Valence × Expectancy</b><br><br>It multiplies rather than adds, so if either term is zero, motivation is zero."},
-{c:1,k:"eqn",q:"Return on capital employed, as a measure of owner wealth",a:"<b>Operating profit ÷ capital employed × 100</b><br><br>One of the yardsticks by which a profit-seeking organisation's success is judged, alongside profit and share price."}
+{c:1,x:1,k:"eqn",q:"Return on capital employed, as a measure of owner wealth",a:"<b>Operating profit ÷ capital employed × 100</b><br><br>One of the yardsticks by which a profit-seeking organisation's success is judged, alongside profit and share price."}
 );
 
 </script>
@@ -1172,16 +1213,16 @@ CARDS.push(
    examining the arithmetic, but they belong in the equations section and the
    same section carries the heavier computation on other papers. */
 CARDS.push(
-{c:1,k:"eqn",q:"Earnings per share (EPS)",a:"<b>Profit after tax attributable to ordinary shareholders ÷ number of ordinary shares</b><br><br>One of the measures by which shareholders judge return on their investment."},
-{c:1,k:"eqn",q:"Profit margin",a:"<b>Profit ÷ revenue × 100</b><br><br>Expresses how much of each unit of sales is kept as profit."},
-{c:11,k:"eqn",q:"Gearing",a:"<b>Debt ÷ equity × 100</b> — or debt ÷ (debt + equity)<br><br>A measure lenders use to judge how much of the business is funded by borrowing."},
-{c:11,k:"eqn",q:"Interest cover",a:"<b>Operating profit ÷ interest payable</b><br><br>How many times over the profits could pay the interest bill. Lenders watch it closely."},
-{c:11,k:"eqn",q:"Receivable days",a:"<b>Receivables ÷ credit sales × 365</b><br><br>The average time customers take to pay — the core credit-control measure."},
-{c:11,k:"eqn",q:"Payable days",a:"<b>Payables ÷ credit purchases × 365</b><br><br>The average time taken to pay suppliers, and the measure they judge you by."},
-{c:8,k:"eqn",q:"Productivity",a:"<b>Output ÷ input</b> — for example units produced per labour hour.<br><br>Not the same as capacity utilisation, which compares actual output with the maximum possible."},
-{c:8,k:"eqn",q:"Market share",a:"<b>Our sales ÷ total market sales × 100</b><br><br>A competitive measure rather than a financial one, and the usual yardstick for marketing performance."},
-{c:19,k:"eqn",q:"Labour turnover",a:"<b>Leavers during the period ÷ average number employed × 100</b><br><br>A standard indicator of morale, and one of the signs of an ineffective team."},
-{c:20,k:"eqn",q:"Absenteeism rate",a:"<b>Working days lost ÷ working days available × 100</b><br><br>Read alongside turnover as a symptom of stress or poor supervision."}
+{c:1,x:1,k:"eqn",q:"Earnings per share (EPS)",a:"<b>Profit after tax attributable to ordinary shareholders ÷ number of ordinary shares</b><br><br>One of the measures by which shareholders judge return on their investment."},
+{c:1,x:1,k:"eqn",q:"Profit margin",a:"<b>Profit ÷ revenue × 100</b><br><br>Expresses how much of each unit of sales is kept as profit."},
+{c:11,x:1,k:"eqn",q:"Gearing",a:"<b>Debt ÷ equity × 100</b> — or debt ÷ (debt + equity)<br><br>A measure lenders use to judge how much of the business is funded by borrowing."},
+{c:11,x:1,k:"eqn",q:"Interest cover",a:"<b>Operating profit ÷ interest payable</b><br><br>How many times over the profits could pay the interest bill. Lenders watch it closely."},
+{c:11,x:1,k:"eqn",q:"Receivable days",a:"<b>Receivables ÷ credit sales × 365</b><br><br>The average time customers take to pay — the core credit-control measure."},
+{c:11,x:1,k:"eqn",q:"Payable days",a:"<b>Payables ÷ credit purchases × 365</b><br><br>The average time taken to pay suppliers, and the measure they judge you by."},
+{c:8,x:1,k:"eqn",q:"Productivity",a:"<b>Output ÷ input</b> — for example units produced per labour hour.<br><br>Not the same as capacity utilisation, which compares actual output with the maximum possible."},
+{c:8,x:1,k:"eqn",q:"Market share",a:"<b>Our sales ÷ total market sales × 100</b><br><br>A competitive measure rather than a financial one, and the usual yardstick for marketing performance."},
+{c:19,x:1,k:"eqn",q:"Labour turnover",a:"<b>Leavers during the period ÷ average number employed × 100</b><br><br>A standard indicator of morale, and one of the signs of an ineffective team."},
+{c:20,x:1,k:"eqn",q:"Absenteeism rate",a:"<b>Working days lost ÷ working days available × 100</b><br><br>Read alongside turnover as a symptom of stress or poor supervision."}
 );
 
 </script>
@@ -1525,9 +1566,12 @@ a1:[
  o:["Bank overdraft","Trade payables","Debentures","Factoring of receivables"], a:2,
  e:"Debentures are long-term borrowing. The other three are short-term working-capital sources."},
 
-{c:12, q:"Complete the accounting equation: Assets =",
- o:["Liabilities + Equity","Equity - Liabilities","Revenue - Expenses","Liabilities - Equity"], a:0,
- e:"Assets = Liabilities + Equity. Everything the business controls was funded either by borrowing or by its owners."},
+{c:12, q:"Why does a business prepare a statement of cash flows as well as a statement of profit or loss?",
+ o:["Because profit and cash are not the same, and the statement shows how cash was generated and spent",
+    "Because tax is charged on cash rather than on profit",
+    "Because the statement of profit or loss is not audited",
+    "Because it replaces the statement of financial position"], a:0,
+ e:"A profitable business can still run out of cash. The statement of cash flows shows where cash actually came from and went, which the statement of profit or loss does not."},
 
 {c:13, q:"Segregation of duties is best classified as which type of control?",
  o:["Detective","Preventive","Corrective","Directive"], a:1,
@@ -1612,9 +1656,9 @@ a2:[
  o:["Setting executive directors' pay","Reviewing the integrity of financial statements and the work of auditors","Appointing new executive directors","Approving the annual operating budget"], a:1,
  e:"Financial reporting integrity and oversight of internal and external audit. Pay belongs to the remuneration committee, appointments to nominations."},
 
-{c:11, q:"A company has operating profit of 600,000 and interest payable of 150,000. Its interest cover is:",
- o:["0.25 times","4 times","4.5 times","25%"], a:1,
- e:"Interest cover = operating profit / interest payable = 600,000 / 150,000 = 4 times. Lenders read it as a margin of safety."},
+{c:11, q:"Managing the levels of inventory, receivables and payables is best described as:",
+ o:["Managing working capital","Preparing the statutory accounts","Conducting the external audit","Setting the corporate strategy"], a:0,
+ e:"Working capital is the short-term money tied up in inventory and owed by or to the business. Managing it is a finance and treasury responsibility."},
 
 {c:11, q:"Which is the main role of the treasury function?",
  o:["Preparing the statutory financial statements","Managing cash, funding and financial risk","Calculating product costs for pricing","Auditing the internal control system"], a:1,
@@ -1781,9 +1825,9 @@ a1:[
  o:["True","False"], a:1,
  e:"They should be separate, so that no one individual has unfettered power over the board and the business."},
 
-{c:11, q:"Gearing measures:",
- o:["Profit relative to sales","Debt relative to equity","Current assets relative to current liabilities","Output relative to input"], a:1,
- e:"Gearing is debt over equity, or debt over debt plus equity. It tells a lender how much of the business is funded by borrowing."},
+{c:11, q:"Which of the following is an audit and assurance role rather than a financial accounting one?",
+ o:["Recording financial transactions","Codifying and processing financial information","Internal audit","Preparing the financial statements"], a:2,
+ e:"Financial accounting records transactions and prepares the statements. <b>Internal audit</b> gives independent assurance on risk, control and governance, and reports to the audit committee."},
 
 {c:12, q:"Which qualitative characteristic means information is capable of making a difference to a decision?",
  o:["Relevance","Comparability","Verifiability","Timeliness"], a:0,
@@ -2045,9 +2089,9 @@ a1:[
  o:["Approve the annual accounts","Set the pay of executive directors","Appoint the external auditor","Review the risk register"], a:1,
  e:"Executive pay, set by non-executives so directors do not decide their own rewards."},
 
-{c:11, q:"Return on capital employed is calculated as:",
- o:["Operating profit divided by capital employed","Profit after tax divided by revenue","Revenue divided by capital employed","Capital employed divided by operating profit"], a:0,
- e:"Operating profit over capital employed, expressed as a percentage. It measures how hard the invested money is working."},
+{c:11, q:"Calculating and mitigating the organisation's tax liabilities sits within which finance function?",
+ o:["Financial accounting","Management accounting","Finance and treasury","Internal audit"], a:2,
+ e:"The syllabus places tax alongside evaluating and obtaining finance, managing working capital, and treasury and risk management, all within the <b>finance and treasury</b> function."},
 
 {c:12, q:"Financial accounting is prepared mainly for internal management use.",
  o:["True","False"], a:1,
@@ -2815,6 +2859,12 @@ const highlight = html => String(html).replace(/<b>(.*?)<\/b>/g, "<mark>$1</mark
 
 const KIND = { def:"Definition", model:"Model", trap:"Distinction", list:"List", eqn:"Equation" };
 
+/* Cards marked x:1 are background rather than examinable. BT is tested purely
+   on the study guide, and the study guide asks for no calculations at all, so
+   the ratio formulas are worth knowing but will not be asked for. */
+const BEYOND = "Background \u00b7 not examinable in BT";
+function isBeyond(c) { return !!c.x; }
+
 /* ---- storage ------------------------------------------------------------- */
 const K = {
   prog:    "acca.recall.bt.progress.v2",   /* per-card schedule (SM-2) */
@@ -2854,6 +2904,8 @@ const state = {
   size: prefs.size || 20,
   diff: prefs.diff || 1,      /* 0 easy, 1 standard, 2 hard */
   focus: prefs.focus || "all",/* which slice of the bank to study */
+  view:  prefs.view  || null, /* cards view: null = show the chooser */
+  listQ: !!prefs.listQ,       /* list view: hide the answers */
   examTab: "brief",
   session: null, quiz: null, speed: null, trapRun: null, mock: null
 };
@@ -2865,7 +2917,7 @@ const trapScores = prefs.trapScores || {};
 function savePrefs() {
   write(K.prefs, {
     theme: state.theme, place: state.place, mode: state.mode,
-    size: state.size, diff: state.diff, focus: state.focus,
+    size: state.size, diff: state.diff, focus: state.focus, view: state.view, listQ: state.listQ,
     mixups, stars, bests, trapScores,
     speedBest: prefs.speedBest
   });
@@ -3173,8 +3225,9 @@ const stage = $("#stage");
 let keyHandler = null;
 
 function render() {
-  document.body.className = state.place === "home" ? "at-home"
-                          : state.place === "paper" ? "at-paper" : "at-study";
+  document.body.className = (state.place === "home" ? "at-home"
+                          : state.place === "paper" ? "at-paper" : "at-study") +
+                          (state.listQ && state.mode === "cards" && state.view === "list" ? " q-only" : "");
   savePrefs();
   if (state.place === "home") { renderHome(); window.scrollTo(0, 0); return; }
   if (state.place === "paper") { renderLanding(); return; }
@@ -3691,7 +3744,107 @@ function renderSessionDone() {
 /* ==========================================================================
    Mode: Cards — browse the bank
    ========================================================================== */
+/* Cards has three ways of working, chosen on entry and remembered after that.
+   Study is the full four-rating flashcard; Quick is the two-button version for
+   a fast pass; List drops the cards altogether and prints the chapter so it can
+   be read straight through. */
+const CARD_VIEWS = [
+  ["study", "Study", "Flashcards with the full Again / Hard / Good / Easy rating. This is what feeds the schedule.", "\u{1F504}"],
+  ["quick", "Quick", "The same flashcards with one button: did you know it or not. Faster when you just want a pass through.", "\u26A1"],
+  ["list",  "List",  "Every card in the chapter printed as a readable list, question and answer together. Best for a skim before an exam.", "\u2630"]
+];
+
 function renderCards() {
+  if (!state.view) return renderCardsChooser();
+  if (state.view === "list") return renderCardsList();
+  return renderCardsDeck();
+}
+
+function renderCardsChooser() {
+  const pool = poolNow();
+  stage.innerHTML =
+    scopeBar("Cards") +
+    panel("How would you like to work through them?", pool.length + " cards in scope",
+      '<div class="viewpick">' + CARD_VIEWS.map(v =>
+        '<button class="viewopt" data-view="' + v[0] + '">' +
+          '<span class="vi">' + v[3] + '</span>' +
+          '<span class="vn">' + v[1] + '</span>' +
+          '<span class="vd">' + esc(v[2]) + '</span>' +
+        '</button>').join("") + '</div>' +
+      '<p class="hint" style="margin-top:14px">You can switch at any time from the buttons at the top of the page.</p>');
+  wireScope();
+  $$("[data-view]").forEach(b => b.addEventListener("click", () => {
+    state.view = b.dataset.view; state.session = null; savePrefs(); render();
+  }));
+}
+
+/* The switcher shown once a view has been picked. */
+function viewSwitch() {
+  return '<div class="chips">' + CARD_VIEWS.map(v =>
+    '<button class="chip" data-view="' + v[0] + '" aria-pressed="' + (state.view === v[0]) + '">' +
+      v[3] + ' ' + v[1] + '</button>').join("") + '</div>';
+}
+function wireViewSwitch() {
+  $$("[data-view]").forEach(b => b.addEventListener("click", () => {
+    state.view = b.dataset.view; state.session = null; savePrefs(); render();
+  }));
+}
+
+/* ---- list view: read a whole chapter at once ----------------------------- */
+function renderCardsList() {
+  const pool = focusPool(poolNow());
+  const byCh = {};
+  pool.forEach(c => (byCh[c.c] = byCh[c.c] || []).push(c));
+  const chapters = Object.keys(byCh).map(Number).sort((a, b) => a - b);
+
+  stage.innerHTML =
+    scopeBar("Cards", '<button class="btn btn-sm" id="hideAnswers" aria-pressed="' +
+      (state.listQ ? "true" : "false") + '">' + (state.listQ ? "Show answers" : "Questions only") + '</button>') +
+    viewSwitch() +
+    '<div style="height:12px"></div>' +
+    focusChips(poolNow()) +
+    '<div style="height:14px"></div>' +
+    (state.listQ ? '<p class="hint" style="margin:0 0 14px">Answers hidden \u2014 read down the questions and check yourself.</p>' : "") +
+    (pool.length
+      ? chapters.map(n =>
+          '<section class="panel">' +
+            '<div class="panel-hd"><h3>Ch ' + pad2(n) + ' \u00b7 ' + esc(CHAPTERS[n]) + '</h3>' +
+              '<span class="sp"></span>' +
+              '<span class="meta">' + plural(byCh[n].length, "card") + '</span></div>' +
+            '<div class="panel-bd flush"><ol class="cardlist">' +
+              byCh[n].map(c =>
+                '<li' + (isBeyond(c) ? ' class="beyond"' : '') + '>' +
+                  '<div class="cl-head">' +
+                    '<button class="starbtn" data-star="' + c.id + '" aria-pressed="' + isStarred(c.id) + '" ' +
+                      'aria-label="Star this card">' + (isStarred(c.id) ? "\u2605" : "\u2606") + '</button>' +
+                    '<span class="cl-q">' + esc(c.q) + '</span>' +
+                    '<span class="cl-tag">' + KIND[c.k] + '</span>' +
+                  '</div>' +
+                  (isBeyond(c) ? '<p class="cl-note">' + BEYOND + '</p>' : '') +
+                  '<div class="cl-a">' + highlight(c.a) + '</div>' +
+                '</li>').join("") +
+            '</ol></div>' +
+          '</section>').join("")
+      : panel("Nothing here", focusDef()[1].toLowerCase(),
+          emptyState("No cards match this filter.", "Try another filter, or clear the chapter."), "flush"));
+
+  wireScope();
+  wireViewSwitch();
+  wireFocus();
+  $$("[data-star]").forEach(b => b.addEventListener("click", () => {
+    const on = toggleStar(b.dataset.star);
+    b.setAttribute("aria-pressed", String(on));
+    b.textContent = on ? "\u2605" : "\u2606";
+  }));
+  /* Questions only turns the list into a self-test you can read down. */
+  const hide = $("#hideAnswers");
+  if (hide) hide.addEventListener("click", () => { state.listQ = !state.listQ; savePrefs(); render(); });
+  keyHandler = null;
+}
+
+/* ---- deck view: one card at a time --------------------------------------- */
+function renderCardsDeck() {
+  const quick = state.view === "quick";
   const pool = focusPool(poolNow());
   if (!state.session || state.session.kind !== "browse" || state.session.key !== cardsKey()) {
     state.session = { kind: "browse", key: cardsKey(), cards: pool.slice(), i: 0, shown: false };
@@ -3700,12 +3853,12 @@ function renderCards() {
   const c = s.cards[s.i];
 
   if (!c) {
-    stage.innerHTML = scopeBar("Cards") +
+    stage.innerHTML = scopeBar("Cards") + viewSwitch() + '<div style="height:12px"></div>' +
       panel("Card bank", focusDef()[1].toLowerCase(),
         focusChips(poolNow()) +
         emptyState("Nothing in this selection.",
           "Try a different filter, or clear the chapter to see all " + CARDS.length + " cards."), "");
-    wireScope(); wireFocus();
+    wireScope(); wireViewSwitch(); wireFocus();
     return;
   }
 
@@ -3715,12 +3868,23 @@ function renderCards() {
     '<button class="btn btn-sm" id="next"' + (s.i >= s.cards.length - 1 ? " disabled" : "") + '>Next &rarr;</button>';
   const go = d => { s.i = Math.max(0, Math.min(s.cards.length - 1, s.i + d)); s.shown = false; render(); };
   const rate = r => { recordRating(c.id, r, "cards"); go(1); };
-  const reveal = () => { s.shown = true; flipOpen(c, rate, navFoot); };
+  const foot = quick ? quickFoot() : gradeFoot(c);
+  const reveal = () => {
+    s.shown = true;
+    const shell = $("#cardShell");
+    if (!shell || shell.classList.contains("is-flipped")) return;
+    turnCard(shell, true);
+    $("#cardFt").innerHTML = navFoot + foot;
+    wireCardNav();
+    wireRating(rate, quick);
+  };
 
   stage.innerHTML =
     scopeBar("Cards", '<button class="btn btn-sm" id="shuffleDeck">Shuffle</button>') +
+    viewSwitch() +
+    '<div style="height:12px"></div>' +
     focusChips(poolNow()) +
-    '<div class="scopebar" style="margin:12px 0 8px">' +
+    '<div class="scopebar" style="margin:14px 0 8px">' +
       '<span class="chip" style="cursor:default">' + (s.i + 1) + ' of ' + s.cards.length + '</span>' +
       '<span class="sp"></span>' +
       '<span class="hint">' + seenCount(pool) + ' seen \u00b7 ' + dueCount(pool) + ' due for review</span>' +
@@ -3728,28 +3892,43 @@ function renderCards() {
     bar(pct(s.i, s.cards.length)) +
     '<div style="height:12px"></div>' +
     cardShell(c, s.shown, cardMeta(c, st),
-      (s.shown ? navFoot + gradeFoot(c)
+      (s.shown ? navFoot + foot
         : navFoot +
           '<button class="btn btn-primary" id="reveal">Show the answer</button>' +
           '<span class="sp" style="flex:1"></span>' +
           '<span class="hand">space to turn</span>'));
 
   wireScope();
+  wireViewSwitch();
   wireFocus();
   wireCardNav();
   wireStar(c);
   if ($("#reveal")) $("#reveal").addEventListener("click", reveal);
   $("#flipZone").addEventListener("click", () => s.shown ? toggleCard() : reveal());
-  $$("[data-rate]").forEach(b => b.addEventListener("click", () => rate(+b.dataset.rate)));
+  wireRating(rate, quick);
   $("#shuffleDeck").addEventListener("click", () => { shuffle(s.cards); s.i = 0; s.shown = false; render(); });
 
   keyHandler = e => {
     if (e.key === " " || e.key === "Enter") { e.preventDefault(); s.shown ? toggleCard() : reveal(); }
     else if (e.key === "ArrowRight") go(1);
     else if (e.key === "ArrowLeft") go(-1);
-    else if (s.shown && "1234".indexOf(e.key) >= 0) rate("1234".indexOf(e.key));
+    else if (s.shown && quick && "12".indexOf(e.key) >= 0) rate(e.key === "1" ? RATE.AGAIN : RATE.GOOD);
+    else if (s.shown && !quick && "1234".indexOf(e.key) >= 0) rate("1234".indexOf(e.key));
     else if (e.key.toLowerCase() === "s") { const b = $("#starBtn"); if (b) b.click(); }
   };
+}
+
+/* The two-button footer: the simpler pass, mapped onto the same scheduler. */
+function quickFoot() {
+  return '<div class="grades">' +
+    '<button class="btn grade g0" data-rate="0"><span class="gn">Not yet</span>' +
+      '<span class="gi">today</span></button>' +
+    '<button class="btn grade g2" data-rate="2"><span class="gn">Got it</span>' +
+      '<span class="gi">scheduled</span></button>' +
+    '</div><span class="sp" style="flex:1"></span><span class="hand">press 1 or 2</span>';
+}
+function wireRating(rate, quick) {
+  $$("[data-rate]").forEach(b => b.addEventListener("click", () => rate(+b.dataset.rate)));
 }
 
 /* Rebuild the browse deck whenever the chapter or the focus filter changes. */

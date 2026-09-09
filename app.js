@@ -29,6 +29,12 @@ const highlight = html => String(html).replace(/<b>(.*?)<\/b>/g, "<mark>$1</mark
 
 const KIND = { def:"Definition", model:"Model", trap:"Distinction", list:"List", eqn:"Equation" };
 
+/* Cards marked x:1 are background rather than examinable. BT is tested purely
+   on the study guide, and the study guide asks for no calculations at all, so
+   the ratio formulas are worth knowing but will not be asked for. */
+const BEYOND = "Background \u00b7 not examinable in BT";
+function isBeyond(c) { return !!c.x; }
+
 /* ---- storage ------------------------------------------------------------- */
 const K = {
   prog:    "acca.recall.bt.progress.v2",   /* per-card schedule (SM-2) */
@@ -68,6 +74,8 @@ const state = {
   size: prefs.size || 20,
   diff: prefs.diff || 1,      /* 0 easy, 1 standard, 2 hard */
   focus: prefs.focus || "all",/* which slice of the bank to study */
+  view:  prefs.view  || null, /* cards view: null = show the chooser */
+  listQ: !!prefs.listQ,       /* list view: hide the answers */
   examTab: "brief",
   session: null, quiz: null, speed: null, trapRun: null, mock: null
 };
@@ -79,7 +87,7 @@ const trapScores = prefs.trapScores || {};
 function savePrefs() {
   write(K.prefs, {
     theme: state.theme, place: state.place, mode: state.mode,
-    size: state.size, diff: state.diff, focus: state.focus,
+    size: state.size, diff: state.diff, focus: state.focus, view: state.view, listQ: state.listQ,
     mixups, stars, bests, trapScores,
     speedBest: prefs.speedBest
   });
@@ -387,8 +395,9 @@ const stage = $("#stage");
 let keyHandler = null;
 
 function render() {
-  document.body.className = state.place === "home" ? "at-home"
-                          : state.place === "paper" ? "at-paper" : "at-study";
+  document.body.className = (state.place === "home" ? "at-home"
+                          : state.place === "paper" ? "at-paper" : "at-study") +
+                          (state.listQ && state.mode === "cards" && state.view === "list" ? " q-only" : "");
   savePrefs();
   if (state.place === "home") { renderHome(); window.scrollTo(0, 0); return; }
   if (state.place === "paper") { renderLanding(); return; }
@@ -905,7 +914,107 @@ function renderSessionDone() {
 /* ==========================================================================
    Mode: Cards — browse the bank
    ========================================================================== */
+/* Cards has three ways of working, chosen on entry and remembered after that.
+   Study is the full four-rating flashcard; Quick is the two-button version for
+   a fast pass; List drops the cards altogether and prints the chapter so it can
+   be read straight through. */
+const CARD_VIEWS = [
+  ["study", "Study", "Flashcards with the full Again / Hard / Good / Easy rating. This is what feeds the schedule.", "\u{1F504}"],
+  ["quick", "Quick", "The same flashcards with one button: did you know it or not. Faster when you just want a pass through.", "\u26A1"],
+  ["list",  "List",  "Every card in the chapter printed as a readable list, question and answer together. Best for a skim before an exam.", "\u2630"]
+];
+
 function renderCards() {
+  if (!state.view) return renderCardsChooser();
+  if (state.view === "list") return renderCardsList();
+  return renderCardsDeck();
+}
+
+function renderCardsChooser() {
+  const pool = poolNow();
+  stage.innerHTML =
+    scopeBar("Cards") +
+    panel("How would you like to work through them?", pool.length + " cards in scope",
+      '<div class="viewpick">' + CARD_VIEWS.map(v =>
+        '<button class="viewopt" data-view="' + v[0] + '">' +
+          '<span class="vi">' + v[3] + '</span>' +
+          '<span class="vn">' + v[1] + '</span>' +
+          '<span class="vd">' + esc(v[2]) + '</span>' +
+        '</button>').join("") + '</div>' +
+      '<p class="hint" style="margin-top:14px">You can switch at any time from the buttons at the top of the page.</p>');
+  wireScope();
+  $$("[data-view]").forEach(b => b.addEventListener("click", () => {
+    state.view = b.dataset.view; state.session = null; savePrefs(); render();
+  }));
+}
+
+/* The switcher shown once a view has been picked. */
+function viewSwitch() {
+  return '<div class="chips">' + CARD_VIEWS.map(v =>
+    '<button class="chip" data-view="' + v[0] + '" aria-pressed="' + (state.view === v[0]) + '">' +
+      v[3] + ' ' + v[1] + '</button>').join("") + '</div>';
+}
+function wireViewSwitch() {
+  $$("[data-view]").forEach(b => b.addEventListener("click", () => {
+    state.view = b.dataset.view; state.session = null; savePrefs(); render();
+  }));
+}
+
+/* ---- list view: read a whole chapter at once ----------------------------- */
+function renderCardsList() {
+  const pool = focusPool(poolNow());
+  const byCh = {};
+  pool.forEach(c => (byCh[c.c] = byCh[c.c] || []).push(c));
+  const chapters = Object.keys(byCh).map(Number).sort((a, b) => a - b);
+
+  stage.innerHTML =
+    scopeBar("Cards", '<button class="btn btn-sm" id="hideAnswers" aria-pressed="' +
+      (state.listQ ? "true" : "false") + '">' + (state.listQ ? "Show answers" : "Questions only") + '</button>') +
+    viewSwitch() +
+    '<div style="height:12px"></div>' +
+    focusChips(poolNow()) +
+    '<div style="height:14px"></div>' +
+    (state.listQ ? '<p class="hint" style="margin:0 0 14px">Answers hidden \u2014 read down the questions and check yourself.</p>' : "") +
+    (pool.length
+      ? chapters.map(n =>
+          '<section class="panel">' +
+            '<div class="panel-hd"><h3>Ch ' + pad2(n) + ' \u00b7 ' + esc(CHAPTERS[n]) + '</h3>' +
+              '<span class="sp"></span>' +
+              '<span class="meta">' + plural(byCh[n].length, "card") + '</span></div>' +
+            '<div class="panel-bd flush"><ol class="cardlist">' +
+              byCh[n].map(c =>
+                '<li' + (isBeyond(c) ? ' class="beyond"' : '') + '>' +
+                  '<div class="cl-head">' +
+                    '<button class="starbtn" data-star="' + c.id + '" aria-pressed="' + isStarred(c.id) + '" ' +
+                      'aria-label="Star this card">' + (isStarred(c.id) ? "\u2605" : "\u2606") + '</button>' +
+                    '<span class="cl-q">' + esc(c.q) + '</span>' +
+                    '<span class="cl-tag">' + KIND[c.k] + '</span>' +
+                  '</div>' +
+                  (isBeyond(c) ? '<p class="cl-note">' + BEYOND + '</p>' : '') +
+                  '<div class="cl-a">' + highlight(c.a) + '</div>' +
+                '</li>').join("") +
+            '</ol></div>' +
+          '</section>').join("")
+      : panel("Nothing here", focusDef()[1].toLowerCase(),
+          emptyState("No cards match this filter.", "Try another filter, or clear the chapter."), "flush"));
+
+  wireScope();
+  wireViewSwitch();
+  wireFocus();
+  $$("[data-star]").forEach(b => b.addEventListener("click", () => {
+    const on = toggleStar(b.dataset.star);
+    b.setAttribute("aria-pressed", String(on));
+    b.textContent = on ? "\u2605" : "\u2606";
+  }));
+  /* Questions only turns the list into a self-test you can read down. */
+  const hide = $("#hideAnswers");
+  if (hide) hide.addEventListener("click", () => { state.listQ = !state.listQ; savePrefs(); render(); });
+  keyHandler = null;
+}
+
+/* ---- deck view: one card at a time --------------------------------------- */
+function renderCardsDeck() {
+  const quick = state.view === "quick";
   const pool = focusPool(poolNow());
   if (!state.session || state.session.kind !== "browse" || state.session.key !== cardsKey()) {
     state.session = { kind: "browse", key: cardsKey(), cards: pool.slice(), i: 0, shown: false };
@@ -914,12 +1023,12 @@ function renderCards() {
   const c = s.cards[s.i];
 
   if (!c) {
-    stage.innerHTML = scopeBar("Cards") +
+    stage.innerHTML = scopeBar("Cards") + viewSwitch() + '<div style="height:12px"></div>' +
       panel("Card bank", focusDef()[1].toLowerCase(),
         focusChips(poolNow()) +
         emptyState("Nothing in this selection.",
           "Try a different filter, or clear the chapter to see all " + CARDS.length + " cards."), "");
-    wireScope(); wireFocus();
+    wireScope(); wireViewSwitch(); wireFocus();
     return;
   }
 
@@ -929,12 +1038,23 @@ function renderCards() {
     '<button class="btn btn-sm" id="next"' + (s.i >= s.cards.length - 1 ? " disabled" : "") + '>Next &rarr;</button>';
   const go = d => { s.i = Math.max(0, Math.min(s.cards.length - 1, s.i + d)); s.shown = false; render(); };
   const rate = r => { recordRating(c.id, r, "cards"); go(1); };
-  const reveal = () => { s.shown = true; flipOpen(c, rate, navFoot); };
+  const foot = quick ? quickFoot() : gradeFoot(c);
+  const reveal = () => {
+    s.shown = true;
+    const shell = $("#cardShell");
+    if (!shell || shell.classList.contains("is-flipped")) return;
+    turnCard(shell, true);
+    $("#cardFt").innerHTML = navFoot + foot;
+    wireCardNav();
+    wireRating(rate, quick);
+  };
 
   stage.innerHTML =
     scopeBar("Cards", '<button class="btn btn-sm" id="shuffleDeck">Shuffle</button>') +
+    viewSwitch() +
+    '<div style="height:12px"></div>' +
     focusChips(poolNow()) +
-    '<div class="scopebar" style="margin:12px 0 8px">' +
+    '<div class="scopebar" style="margin:14px 0 8px">' +
       '<span class="chip" style="cursor:default">' + (s.i + 1) + ' of ' + s.cards.length + '</span>' +
       '<span class="sp"></span>' +
       '<span class="hint">' + seenCount(pool) + ' seen \u00b7 ' + dueCount(pool) + ' due for review</span>' +
@@ -942,28 +1062,43 @@ function renderCards() {
     bar(pct(s.i, s.cards.length)) +
     '<div style="height:12px"></div>' +
     cardShell(c, s.shown, cardMeta(c, st),
-      (s.shown ? navFoot + gradeFoot(c)
+      (s.shown ? navFoot + foot
         : navFoot +
           '<button class="btn btn-primary" id="reveal">Show the answer</button>' +
           '<span class="sp" style="flex:1"></span>' +
           '<span class="hand">space to turn</span>'));
 
   wireScope();
+  wireViewSwitch();
   wireFocus();
   wireCardNav();
   wireStar(c);
   if ($("#reveal")) $("#reveal").addEventListener("click", reveal);
   $("#flipZone").addEventListener("click", () => s.shown ? toggleCard() : reveal());
-  $$("[data-rate]").forEach(b => b.addEventListener("click", () => rate(+b.dataset.rate)));
+  wireRating(rate, quick);
   $("#shuffleDeck").addEventListener("click", () => { shuffle(s.cards); s.i = 0; s.shown = false; render(); });
 
   keyHandler = e => {
     if (e.key === " " || e.key === "Enter") { e.preventDefault(); s.shown ? toggleCard() : reveal(); }
     else if (e.key === "ArrowRight") go(1);
     else if (e.key === "ArrowLeft") go(-1);
-    else if (s.shown && "1234".indexOf(e.key) >= 0) rate("1234".indexOf(e.key));
+    else if (s.shown && quick && "12".indexOf(e.key) >= 0) rate(e.key === "1" ? RATE.AGAIN : RATE.GOOD);
+    else if (s.shown && !quick && "1234".indexOf(e.key) >= 0) rate("1234".indexOf(e.key));
     else if (e.key.toLowerCase() === "s") { const b = $("#starBtn"); if (b) b.click(); }
   };
+}
+
+/* The two-button footer: the simpler pass, mapped onto the same scheduler. */
+function quickFoot() {
+  return '<div class="grades">' +
+    '<button class="btn grade g0" data-rate="0"><span class="gn">Not yet</span>' +
+      '<span class="gi">today</span></button>' +
+    '<button class="btn grade g2" data-rate="2"><span class="gn">Got it</span>' +
+      '<span class="gi">scheduled</span></button>' +
+    '</div><span class="sp" style="flex:1"></span><span class="hand">press 1 or 2</span>';
+}
+function wireRating(rate, quick) {
+  $$("[data-rate]").forEach(b => b.addEventListener("click", () => rate(+b.dataset.rate)));
 }
 
 /* Rebuild the browse deck whenever the chapter or the focus filter changes. */

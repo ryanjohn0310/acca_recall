@@ -10,7 +10,7 @@ CARDS.push(
 {c:3,k:"eqn",q:"Total cost",a:"<b>Fixed costs + variable costs</b><br><br>Fixed costs do not vary with output in the short run; variable costs do."},
 {c:2,k:"eqn",q:"The multiplier",a:"<b>1 ÷ (1 − marginal propensity to consume)</b><br><br>The higher the propensity to consume, the larger the eventual rise in national income from an initial injection. Savings, taxation and imports all shrink it."},
 {c:8,k:"eqn",q:"Capacity utilisation",a:"<b>Actual output ÷ maximum possible output × 100</b><br><br>A standard operations measure of how hard the available capacity is being worked."},
-{c:12,k:"eqn",q:"The accounting equation",a:"<b>Assets = Liabilities + Equity</b><br><br>Everything the business controls was funded either by borrowing or by its owners."},
+{c:12,x:1,k:"eqn",q:"The accounting equation",a:"<b>Assets = Liabilities + Equity</b><br><br>Everything the business controls was funded either by borrowing or by its owners."},
 {c:18,k:"eqn",q:"Vroom's expectancy theory",a:"<b>Force = Valence × Expectancy</b><br><br>It multiplies rather than adds, so if either term is zero, motivation is zero."},
-{c:1,k:"eqn",q:"Return on capital employed, as a measure of owner wealth",a:"<b>Operating profit ÷ capital employed × 100</b><br><br>One of the yardsticks by which a profit-seeking organisation's success is judged, alongside profit and share price."}
+{c:1,x:1,k:"eqn",q:"Return on capital employed, as a measure of owner wealth",a:"<b>Operating profit ÷ capital employed × 100</b><br><br>One of the yardsticks by which a profit-seeking organisation's success is judged, alongside profit and share price."}
 );

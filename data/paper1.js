@@ -64,9 +64,12 @@ a1:[
  o:["Bank overdraft","Trade payables","Debentures","Factoring of receivables"], a:2,
  e:"Debentures are long-term borrowing. The other three are short-term working-capital sources."},
 
-{c:12, q:"Complete the accounting equation: Assets =",
- o:["Liabilities + Equity","Equity - Liabilities","Revenue - Expenses","Liabilities - Equity"], a:0,
- e:"Assets = Liabilities + Equity. Everything the business controls was funded either by borrowing or by its owners."},
+{c:12, q:"Why does a business prepare a statement of cash flows as well as a statement of profit or loss?",
+ o:["Because profit and cash are not the same, and the statement shows how cash was generated and spent",
+    "Because tax is charged on cash rather than on profit",
+    "Because the statement of profit or loss is not audited",
+    "Because it replaces the statement of financial position"], a:0,
+ e:"A profitable business can still run out of cash. The statement of cash flows shows where cash actually came from and went, which the statement of profit or loss does not."},
 
 {c:13, q:"Segregation of duties is best classified as which type of control?",
  o:["Detective","Preventive","Corrective","Directive"], a:1,
@@ -151,9 +154,9 @@ a2:[
  o:["Setting executive directors' pay","Reviewing the integrity of financial statements and the work of auditors","Appointing new executive directors","Approving the annual operating budget"], a:1,
  e:"Financial reporting integrity and oversight of internal and external audit. Pay belongs to the remuneration committee, appointments to nominations."},
 
-{c:11, q:"A company has operating profit of 600,000 and interest payable of 150,000. Its interest cover is:",
- o:["0.25 times","4 times","4.5 times","25%"], a:1,
- e:"Interest cover = operating profit / interest payable = 600,000 / 150,000 = 4 times. Lenders read it as a margin of safety."},
+{c:11, q:"Managing the levels of inventory, receivables and payables is best described as:",
+ o:["Managing working capital","Preparing the statutory accounts","Conducting the external audit","Setting the corporate strategy"], a:0,
+ e:"Working capital is the short-term money tied up in inventory and owed by or to the business. Managing it is a finance and treasury responsibility."},
 
 {c:11, q:"Which is the main role of the treasury function?",
  o:["Preparing the statutory financial statements","Managing cash, funding and financial risk","Calculating product costs for pricing","Auditing the internal control system"], a:1,

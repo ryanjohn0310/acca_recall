@@ -39,9 +39,9 @@ a1:[
  o:["Approve the annual accounts","Set the pay of executive directors","Appoint the external auditor","Review the risk register"], a:1,
  e:"Executive pay, set by non-executives so directors do not decide their own rewards."},
 
-{c:11, q:"Return on capital employed is calculated as:",
- o:["Operating profit divided by capital employed","Profit after tax divided by revenue","Revenue divided by capital employed","Capital employed divided by operating profit"], a:0,
- e:"Operating profit over capital employed, expressed as a percentage. It measures how hard the invested money is working."},
+{c:11, q:"Calculating and mitigating the organisation's tax liabilities sits within which finance function?",
+ o:["Financial accounting","Management accounting","Finance and treasury","Internal audit"], a:2,
+ e:"The syllabus places tax alongside evaluating and obtaining finance, managing working capital, and treasury and risk management, all within the <b>finance and treasury</b> function."},
 
 {c:12, q:"Financial accounting is prepared mainly for internal management use.",
  o:["True","False"], a:1,

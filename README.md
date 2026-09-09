@@ -150,6 +150,16 @@ cause of a real bug: with Reduce Motion on, the earlier build honoured it by
 disabling the flip entirely, so the card snapped to the answer with no turn at
 all.
 
+## Three ways through the cards
+
+Cards opens on a chooser, and remembers what you picked:
+
+- **Study** — the flashcard with the full Again / Hard / Good / Easy rating.
+- **Quick** — the same card with two buttons, mapped onto the same scheduler
+  (`Not yet` = Again, `Got it` = Good) so a fast pass still counts.
+- **List** — the whole chapter printed out, question and answer together, with a
+  *Questions only* toggle that turns it into a self-test you read down.
+
 ## Checked against the official syllabus
 
 Audited against *ACCA Business and Technology (BT/FBT) syllabus and study guide,
@@ -160,6 +170,8 @@ Confirmed correct as they stood: the exam format (two hours; Section A of 30
 two-mark and 16 one-mark objective questions; Section B of six four-mark
 multi-task questions, one per main syllabus section; 100 marks; 50% pass), and
 the 22-chapter breakdown.
+
+### Section titles and mapping
 
 Three things were wrong and are now fixed:
 
@@ -172,6 +184,32 @@ Three things were wrong and are now fixed:
 Section A and E titles were also brought to the published wording. The section
 titles now match the syllabus exactly, so a student reading the capability
 breakdown sees the same words ACCA uses.
+
+### Financial ratios are not examinable in BT
+
+A later audit of every question against the detailed study guide found four exam
+questions asking for financial ratio work: interest cover and the accounting
+equation in Paper 1, gearing in Paper 2, and return on capital employed in
+Paper 3. **The BT study guide contains no ratio analysis and asks for no
+calculation at all** — searching it for "ratio", "gearing", "interest cover",
+"accounting equation", "double entry", "liquidity" and "calculate" returns
+nothing. Those belong to FA and FM. All four were replaced with on-syllabus
+questions drawn from C2 and C4.
+
+Thirteen cards teaching ratio formulas (all of `cards4.js`, plus the accounting
+equation and ROCE) are marked `x:1` and carry a *"Background · not examinable in
+BT"* note rather than being deleted — the underlying concepts, such as what high
+labour turnover signals, are examinable; the formulas are not.
+
+### Theorists named in the study guide
+
+The guide names Schein, Handy, Hofstede, Fayol, Taylor, Mintzberg, Drucker,
+Adair, Fiedler, Bennis, Ashridge, Blake and Mouton, Maslow, Herzberg, McGregor,
+Honey and Mumford, Kolb, and Mendelow. It does **not** name Belbin, Tuckman,
+Porter, Vroom, Elkington or Buchanan and Huczynski, although every mainstream BT
+text covers them and ACCA reserves the right to examine anything in the guide.
+These are kept: they are legitimate revision material, just not on the named
+list, and it is worth knowing which is which.
 
 ## Constraints that must hold
 
