@@ -12,7 +12,7 @@ html = (here / "index.html").read_text(encoding="utf-8")
 def inline(m):
     src = m.group(1)
     return "<script>\n/* ---- " + src + " ---- */\n" + (here / src).read_text(encoding="utf-8") + "\n</script>"
-html = re.sub(r'<script src="([^"]+)"></script>', inline, html)
+html = re.sub(r'<script src="([^"?]+)(?:\?v=[0-9a-f]+)?"></script>', inline, html)
 
 title = re.search(r"<title>(.*?)</title>", html, re.S).group(0)
 fonts = re.search(r'<link rel="stylesheet" href="https://fonts\.googleapis\.com[^>]*>', html).group(0)
