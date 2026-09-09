@@ -74,7 +74,7 @@ works offline once loaded.
 | File | What it holds |
 |---|---|
 | `index.html` | All CSS, the static markup for the three places, and the script tags |
-| `app.js` | The whole engine — state, scheduling, metrics, six modes, mock simulator |
+| `app.js` | The whole engine — SM-2 scheduling, metrics, six modes, mock simulator |
 | `data/cards*.js` | `CHAPTERS` (22) and `CARDS` (281). Carried over unchanged |
 | `data/exam.js` | `TRAP_TYPES`, `TRAPS` (24) and the briefing tables. Unchanged |
 | `data/paper*.js` | `PAPERS`, `CAP_OF`, `CAP_NAME` — five 100-mark papers. Papers 4 and 5 are new |
@@ -87,9 +87,24 @@ works offline once loaded.
   `render()` sets one body class; CSS hides the other two.
 - **Six modes** inside study — `overview` | `today` | `cards` | `quiz` | `speed` |
   `exam`. `overview` is the Progress dashboard and the default landing mode.
-- **Spaced repetition** — `BOX = [0,1,3,7,16,35]` days. A correct answer promotes
-  a card one box; a wrong one resets it to zero. "Due" means seen before and come
-  round again; cards never met are counted separately as new.
+- **Spaced repetition** — SM-2, not a fixed ladder. Every card carries its own
+  **ease factor** (2.5 default, floor 1.3, ceiling 2.9) and its own interval, so
+  two cards answered on the same day diverge according to how hard you found
+  them. Ratings are `Again | Hard | Good | Easy`; `Again` sends the card back to
+  today's queue, counts a lapse and drops the ease permanently, so a card you
+  keep missing stays close. `nextStatus()` is pure — it returns the status a
+  rating *would* produce without saving, which is how each button can print its
+  real interval before you press it. Intervals cap at a year.
+  Same card, six reviews: always-Hard gives 1, 3, 4, 5, 6, 7 days; always-Good
+  gives 1, 6, 15, 38, 95, 238; always-Easy gives 4, 10, 36, 136, 365.
+- **Progress migrates.** The Leitner data written by earlier builds
+  (`…progress.v1`) is converted to intervals on first load and written to
+  `…progress.v2`, so nobody using the live site loses their schedule when the
+  algorithm changes. The old key is left in place as a fallback.
+- **Focused review** — cards can be starred (☆ on any card, or the `S` key), and
+  every card-based mode can be narrowed to `Everything | Due now | Starred |
+  Struggling | Not seen yet`. "Struggling" means two or more lapses, or an ease
+  driven to 1.9 or below.
 - **Quiz difficulty is the distractor source, not the question.** The card's
   answer is the stem and you name what it belongs to. Easy pulls wrong options
   from other chapters entirely, hard from the same chapter *and* the same kind of
@@ -117,8 +132,8 @@ works offline once loaded.
 
 ## Storage
 
-`acca.recall.bt.progress.v1` (card schedule) · `acca.recall.prefs.v1` (theme,
-place, mode, sizes, confusions, bests) · `acca.recall.bt.mock.v1` (paper in
+`acca.recall.bt.progress.v2` (card schedule, SM-2; `…v1` kept for migration) · `acca.recall.prefs.v1` (theme,
+place, mode, sizes, focus, stars, confusions, bests) · `acca.recall.bt.mock.v1` (paper in
 progress) · `acca.recall.bt.metrics.v1` (answer log and mock history).
 
 Keys are namespaced per paper, so MA and FA can be added without colliding with
@@ -193,6 +208,17 @@ becomes a row of tabs; light and dark both checked.
 
 `data/check_papers.js` needs Node, which was not installed on the build machine —
 the same assertions were run in the browser instead.
+
+## Why SM-2 rather than FSRS
+
+FSRS models memory with difficulty, stability and retrievability, and its
+weights are meant to be *optimised against your own review history*. On a static
+page with no server and no training step, shipping FSRS would mean shipping
+someone else's fitted weights and calling it personalised. SM-2 is smaller,
+fully transparent, and genuinely adaptive through the per-card ease factor —
+which is the property that was actually missing. If the review log ever grows
+large enough to fit parameters against, `nextStatus()` is the single function
+that would need replacing.
 
 ## Known gaps
 

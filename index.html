@@ -510,8 +510,37 @@ button.face .card-q,button.face .card-a{display:block}
 .card-ft{display:flex;flex-wrap:wrap;gap:var(--s2);padding:var(--s3) var(--s4);
   border-top:1px solid var(--line-2);background:var(--card);align-items:center}
 .card-ft .btn{min-width:112px}
-.grade-again:hover{background:var(--down-soft);border-color:var(--down);color:var(--down)}
-.grade-ok:hover{background:var(--up-soft);border-color:var(--up);color:var(--up)}
+
+/* the four confidence ratings — each carries the interval it would set */
+.grades{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.btn.grade{
+  min-width:96px;flex-direction:column;gap:1px;padding:6px 12px;line-height:1.2;
+}
+.grade .gn{font-weight:800;font-size:var(--step-0)}
+.grade .gi{font-size:var(--step--2);font-weight:600;color:var(--muted)}
+.grade:hover .gi{color:inherit;opacity:.85}
+.grade.g0:hover{background:var(--down-soft);border-color:var(--down);color:var(--down)}
+.grade.g1:hover{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+.grade.g2:hover{background:var(--up-soft);border-color:var(--up);color:var(--up)}
+.grade.g3:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+@media (max-width:600px){
+  .grades{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .btn.grade{min-width:0}
+}
+
+/* star a card to come back to it */
+.starbtn{
+  flex:none;width:28px;height:28px;border-radius:999px;line-height:1;
+  font-size:17px;color:var(--muted);display:grid;place-items:center;
+  transition:background var(--dur) var(--ease),color var(--dur) var(--ease),transform var(--dur) var(--ease);
+}
+.starbtn:hover{background:var(--sunk);color:var(--warn);transform:scale(1.12)}
+.starbtn[aria-pressed="true"]{color:var(--warn)}
+
+/* counts inside the focus filters */
+.chip b{font-weight:800;opacity:.75;margin-left:2px}
+.chip[disabled]{opacity:.45;cursor:not-allowed}
+.chip[disabled]:hover{border-color:var(--line);color:var(--muted)}
 
 
 

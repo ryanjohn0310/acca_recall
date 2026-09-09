@@ -500,8 +500,37 @@ button.face .card-q,button.face .card-a{display:block}
 .card-ft{display:flex;flex-wrap:wrap;gap:var(--s2);padding:var(--s3) var(--s4);
   border-top:1px solid var(--line-2);background:var(--card);align-items:center}
 .card-ft .btn{min-width:112px}
-.grade-again:hover{background:var(--down-soft);border-color:var(--down);color:var(--down)}
-.grade-ok:hover{background:var(--up-soft);border-color:var(--up);color:var(--up)}
+
+/* the four confidence ratings — each carries the interval it would set */
+.grades{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.btn.grade{
+  min-width:96px;flex-direction:column;gap:1px;padding:6px 12px;line-height:1.2;
+}
+.grade .gn{font-weight:800;font-size:var(--step-0)}
+.grade .gi{font-size:var(--step--2);font-weight:600;color:var(--muted)}
+.grade:hover .gi{color:inherit;opacity:.85}
+.grade.g0:hover{background:var(--down-soft);border-color:var(--down);color:var(--down)}
+.grade.g1:hover{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+.grade.g2:hover{background:var(--up-soft);border-color:var(--up);color:var(--up)}
+.grade.g3:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+@media (max-width:600px){
+  .grades{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .btn.grade{min-width:0}
+}
+
+/* star a card to come back to it */
+.starbtn{
+  flex:none;width:28px;height:28px;border-radius:999px;line-height:1;
+  font-size:17px;color:var(--muted);display:grid;place-items:center;
+  transition:background var(--dur) var(--ease),color var(--dur) var(--ease),transform var(--dur) var(--ease);
+}
+.starbtn:hover{background:var(--sunk);color:var(--warn);transform:scale(1.12)}
+.starbtn[aria-pressed="true"]{color:var(--warn)}
+
+/* counts inside the focus filters */
+.chip b{font-weight:800;opacity:.75;margin-left:2px}
+.chip[disabled]{opacity:.45;cursor:not-allowed}
+.chip[disabled]:hover{border-color:var(--line);color:var(--muted)}
 
 
 
@@ -2775,13 +2804,22 @@ const KIND = { def:"Definition", model:"Model", trap:"Distinction", list:"List",
 
 /* ---- storage ------------------------------------------------------------- */
 const K = {
-  prog:    "acca.recall.bt.progress.v1",   /* per-card schedule */
+  prog:    "acca.recall.bt.progress.v2",   /* per-card schedule (SM-2) */
+  progV1:  "acca.recall.bt.progress.v1",   /* the old Leitner boxes, migrated once */
   prefs:   "acca.recall.prefs.v1",         /* theme, place, mode, sizes, bests */
   mock:    "acca.recall.bt.mock.v1",       /* one paper in progress */
   metrics: "acca.recall.bt.metrics.v1"     /* answer log + mock history */
 };
 const read = (k, fb) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } };
 const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+/* ---- spaced repetition constants ------------------------------------------
+   Declared up here because loadProgress() runs while the module is still
+   initialising, and a `const` further down is in the temporal dead zone. */
+const RATE = { AGAIN: 0, HARD: 1, GOOD: 2, EASY: 3 };
+const RATE_NAME = ["Again", "Hard", "Good", "Easy"];
+const RATE_HINT = ["No idea", "Knew it, but slowly", "Knew it", "Instant"];
+const EF_START = 2.5, EF_MIN = 1.3, EF_MAX = 2.9, IVL_MAX = 365;
 
 /* ---- cards --------------------------------------------------------------- */
 CARDS.forEach((c, i) => { c.id = "c" + i; });
@@ -2793,7 +2831,7 @@ const CAP_KEYS = CAPS.map(c => c[0]);
 
 /* ---- state --------------------------------------------------------------- */
 const prefs = read(K.prefs, {});
-const progress = read(K.prog, {});
+const progress = loadProgress();
 
 const state = {
   place: prefs.place || "home",
@@ -2802,17 +2840,20 @@ const state = {
   chapter: null,              /* null = whole syllabus */
   size: prefs.size || 20,
   diff: prefs.diff || 1,      /* 0 easy, 1 standard, 2 hard */
+  focus: prefs.focus || "all",/* which slice of the bank to study */
   examTab: "brief",
   session: null, quiz: null, speed: null, trapRun: null, mock: null
 };
 const mixups = prefs.mixups || {};
+const stars  = prefs.stars  || {};      /* card id -> starred */
 const bests  = prefs.bests  || {};
 const trapScores = prefs.trapScores || {};
 
 function savePrefs() {
   write(K.prefs, {
     theme: state.theme, place: state.place, mode: state.mode,
-    size: state.size, diff: state.diff, mixups, bests, trapScores,
+    size: state.size, diff: state.diff, focus: state.focus,
+    mixups, stars, bests, trapScores,
     speedBest: prefs.speedBest
   });
 }
@@ -2876,45 +2917,101 @@ function series(days) {
 }
 
 /* ==========================================================================
-   Spaced repetition — Leitner boxes, in days
+   Spaced repetition — SM-2, driven by how well you actually knew the card
+
+   The earlier build used a fixed Leitner ladder: every card moved 1, 3, 7, 16,
+   35 days regardless of how hard you found it. This carries a per-card ease
+   factor instead, so a card you keep nearly-missing stays close and a card you
+   find easy leaves quickly. Ratings are the familiar four.
    ========================================================================== */
-const BOX = [0, 1, 3, 7, 16, 35];
+function freshStatus() { return { ef: EF_START, reps: 0, ivl: 0, due: 0, seen: 0, lapses: 0 }; }
+
+/* Progress written by the Leitner build is carried across rather than dropped —
+   people are already using the live site and should not lose their schedule
+   because the algorithm underneath changed. */
+function loadProgress() {
+  const v2 = read(K.prog, null);
+  if (v2) return v2;
+  const v1 = read(K.progV1, null);
+  if (!v1) return {};
+  const BOX_V1 = [0, 1, 3, 7, 16, 35];
+  const out = {};
+  Object.keys(v1).forEach(id => {
+    const o = v1[id] || {};
+    const box = Math.max(0, Math.min(5, o.box || 0));
+    out[id] = { ef: EF_START, reps: box, ivl: BOX_V1[box], due: o.due || 0,
+                seen: o.seen || 0, lapses: o.missed || 0 };
+  });
+  write(K.prog, out);
+  return out;
+}
 
 function statusOf(id) { return progress[id] || null; }
-function boxOf(id) { const s = statusOf(id); return s ? s.box : -1; }
 
-function recordGrade(id, ok, mode) {
-  const s = progress[id] || { box: 0, due: 0, seen: 0, missed: 0 };
-  s.seen++;
-  if (ok) s.box = Math.min(s.box + 1, BOX.length - 1);
-  else { s.box = 0; s.missed++; }
-  s.due = today() + BOX[s.box];
+/* What this card's status *would* become at this rating. Used to schedule, and
+   to print the real interval on each button before you press it. */
+function nextStatus(s0, rating) {
+  const s = Object.assign(freshStatus(), s0 || {});
+  if (rating === RATE.AGAIN) {
+    s.ef = Math.max(EF_MIN, s.ef - 0.20);
+    s.reps = 0; s.lapses++; s.ivl = 0; s.due = today();
+    return s;                                   /* back in today's queue */
+  }
+  if (rating === RATE.HARD) s.ef = Math.max(EF_MIN, s.ef - 0.15);
+  if (rating === RATE.EASY) s.ef = Math.min(EF_MAX, s.ef + 0.10);
+
+  if (s.reps === 0)      s.ivl = [0, 1, 1, 4][rating];      /* first success */
+  else if (s.reps === 1) s.ivl = [0, 3, 6, 10][rating];     /* second */
+  else {
+    const mult = rating === RATE.HARD ? 1.2
+               : rating === RATE.EASY ? s.ef * 1.3
+               : s.ef;
+    s.ivl = Math.round(s.ivl * mult);
+  }
+  s.ivl = Math.max(1, Math.min(IVL_MAX, s.ivl));
+  s.reps++;
+  s.due = today() + s.ivl;
+  return s;
+}
+
+function recordRating(id, rating, mode) {
+  const prev = progress[id];
+  const s = nextStatus(prev, rating);
+  s.seen = ((prev && prev.seen) || 0) + 1;
   progress[id] = s;
   write(K.prog, progress);
   const card = CARD_BY_ID[id];
-  if (card) logAnswer(card.c, ok, mode || state.mode);
+  if (card) logAnswer(card.c, rating !== RATE.AGAIN, mode || state.mode);
 }
 
-/* A chapter is "mastered" in proportion to how far its cards have climbed. */
-function chapterMastery(n) {
-  const cards = BY_CH[n] || [];
+/* Quiz, Speed and the mock only ever know right or wrong. */
+function recordGrade(id, ok, mode) { recordRating(id, ok ? RATE.GOOD : RATE.AGAIN, mode); }
+
+function ivlLabel(d) {
+  if (d <= 0) return "today";
+  if (d === 1) return "1 day";
+  if (d < 31) return d + " days";
+  if (d < 365) return Math.round(d / 30) + " mth" + (Math.round(d / 30) === 1 ? "" : "s");
+  return "a year";
+}
+
+/* How well a card is known: its interval as a fraction of the point at which
+   it is safely long-term (40 days). */
+function strengthOf(id) {
+  const s = statusOf(id);
+  if (!s || !s.reps) return 0;
+  return Math.min(1, s.ivl / 40);
+}
+function meanStrength(cards) {
   if (!cards.length) return 0;
   let sum = 0;
-  cards.forEach(c => { const b = boxOf(c.id); if (b > 0) sum += b / (BOX.length - 1); });
+  cards.forEach(c => sum += strengthOf(c.id));
   return sum / cards.length;
 }
-function overallMastery() {
-  let sum = 0;
-  CARDS.forEach(c => { const b = boxOf(c.id); if (b > 0) sum += b / (BOX.length - 1); });
-  return sum / CARDS.length;
-}
-function capMastery(cap) {
-  const cards = CARDS.filter(c => CAP_OF[c.c] === cap);
-  if (!cards.length) return 0;
-  let sum = 0;
-  cards.forEach(c => { const b = boxOf(c.id); if (b > 0) sum += b / (BOX.length - 1); });
-  return sum / cards.length;
-}
+function chapterMastery(n) { return meanStrength(BY_CH[n] || []); }
+function overallMastery() { return meanStrength(CARDS); }
+function capMastery(cap) { return meanStrength(CARDS.filter(c => CAP_OF[c.c] === cap)); }
+
 /* "Due" means seen before and the schedule has come round again. Cards never
    met are counted separately — they are new, not overdue. */
 function dueCount(pool) {
@@ -2927,11 +3024,49 @@ function seenCount(pool) {
   return (pool || CARDS).filter(c => statusOf(c.id)).length;
 }
 
+/* ==========================================================================
+   Focused review — star a card, or isolate the ones giving you trouble
+   ========================================================================== */
+function isStarred(id) { return !!stars[id]; }
+function toggleStar(id) {
+  if (stars[id]) delete stars[id]; else stars[id] = 1;
+  savePrefs();
+  return isStarred(id);
+}
+/* Struggling: reset more than once, or ease driven well below the default. */
+function isStruggling(id) {
+  const s = statusOf(id);
+  return !!s && (s.lapses >= 2 || s.ef <= 1.9);
+}
+function isDue(id) { const s = statusOf(id); return !!s && s.due <= today(); }
+
+const FOCUS = [
+  ["all",     "Everything",   p => p],
+  ["due",     "Due now",      p => p.filter(c => isDue(c.id))],
+  ["starred", "Starred",      p => p.filter(c => isStarred(c.id))],
+  ["hard",    "Struggling",   p => p.filter(c => isStruggling(c.id))],
+  ["new",     "Not seen yet", p => p.filter(c => !statusOf(c.id))]
+];
+function focusDef() { return FOCUS.find(f => f[0] === state.focus) || FOCUS[0]; }
+function focusPool(pool) { return focusDef()[2](pool || poolNow()); }
+
+function focusChips(pool) {
+  return '<div class="chips">' + FOCUS.map(f => {
+    const n = f[2](pool).length;
+    return '<button class="chip" data-focus="' + f[0] + '" aria-pressed="' + (state.focus === f[0]) + '"' +
+      (n ? "" : " disabled") + '>' + f[1] + ' <b>' + n + '</b></button>';
+  }).join("") + '</div>';
+}
+function wireFocus() {
+  $$("[data-focus]").forEach(b => b.addEventListener("click", () => {
+    state.focus = b.dataset.focus; state.session = null; savePrefs(); render();
+  }));
+}
+
 /* Due cards first, oldest schedule first, then cards never seen. */
 function buildSession(n, pool) {
-  const src = pool || CARDS;
-  const due = src.filter(c => statusOf(c.id) && statusOf(c.id).due <= today())
-                 .sort((a, b) => statusOf(a.id).due - statusOf(b.id).due);
+  const src = focusPool(pool || poolNow());
+  const due = src.filter(c => isDue(c.id)).sort((a, b) => statusOf(a.id).due - statusOf(b.id).due);
   const fresh = shuffle(src.filter(c => !statusOf(c.id)));
   const rest = shuffle(src.filter(c => statusOf(c.id) && statusOf(c.id).due > today()))
                  .sort((a, b) => statusOf(a.id).due - statusOf(b.id).due);
@@ -3295,7 +3430,11 @@ function wireScope() {
    screen, so the footer is swapped in place instead. */
 function cardShell(c, shown, headMeta, footHTML) {
   return '<section class="panel card-shell' + (shown ? " is-flipped" : "") + '" id="cardShell">' +
-    '<div class="panel-hd"><h3>Ch ' + pad2(c.c) + ' · ' + esc(CHAPTERS[c.c]) + '</h3>' +
+    '<div class="panel-hd">' +
+      '<button class="starbtn" id="starBtn" aria-pressed="' + isStarred(c.id) + '" ' +
+        'title="Star this card to come back to it" aria-label="Star this card">' +
+        (isStarred(c.id) ? "\u2605" : "\u2606") + '</button>' +
+      '<h3>Ch ' + pad2(c.c) + ' · ' + esc(CHAPTERS[c.c]) + '</h3>' +
       '<span class="sp"></span><span class="meta">' + headMeta + '</span></div>' +
     '<div class="flip" id="flipZone">' +
       '<div class="flip-inner">' +
@@ -3314,11 +3453,19 @@ function cardShell(c, shown, headMeta, footHTML) {
     '<div class="card-ft" id="cardFt">' + footHTML + '</div>' +
   '</section>';
 }
-const GRADE_FOOT =
-  '<button class="btn grade-again" data-grade="0">Not yet</button>' +
-  '<button class="btn grade-ok" data-grade="1">Got it</button>' +
+/* The four ratings, each showing when that answer would actually bring the
+   card back. Seeing "6 days" against Good and "10 days" against Easy is what
+   makes the choice mean something. */
+function gradeFoot(c) {
+  const s0 = progress[c.id];
+  return '<div class="grades">' + RATE_NAME.map((name, r) =>
+    '<button class="btn grade g' + r + '" data-rate="' + r + '" title="' + RATE_HINT[r] + '">' +
+      '<span class="gn">' + name + '</span>' +
+      '<span class="gi">' + ivlLabel(nextStatus(s0, r).ivl) + '</span>' +
+    '</button>').join("") + '</div>' +
   '<span class="sp" style="flex:1"></span>' +
-  '<span class="hand">press 1 or 2</span>';
+  '<span class="hand">press 1 &ndash; 4</span>';
+}
 
 /* Turn a card over. The animation classes have to be cleared and the element
    reflowed before re-adding, or a second turn in the same direction does
@@ -3333,13 +3480,25 @@ function turnCard(shell, toBack) {
 
 /* First reveal: turn to the answer and swap the footer for the grading
    buttons in place — a re-render here would throw away the animation. */
-function flipOpen(onGrade, extraFoot) {
+function flipOpen(card, onRate, extraFoot) {
   const shell = $("#cardShell");
   if (!shell || shell.classList.contains("is-flipped")) return;
   turnCard(shell, true);
-  $("#cardFt").innerHTML = (extraFoot || "") + GRADE_FOOT;
-  $$("[data-grade]").forEach(b => b.addEventListener("click", () => onGrade(b.dataset.grade === "1")));
+  $("#cardFt").innerHTML = (extraFoot || "") + gradeFoot(card);
+  $$("[data-rate]").forEach(b => b.addEventListener("click", () => onRate(+b.dataset.rate)));
   if (extraFoot) wireCardNav();
+}
+
+/* Starring must not re-render — that would throw away the card's flip. */
+function wireStar(c) {
+  const b = $("#starBtn");
+  if (!b) return;
+  b.addEventListener("click", e => {
+    e.stopPropagation();
+    const on = toggleStar(c.id);
+    b.setAttribute("aria-pressed", String(on));
+    b.textContent = on ? "\u2605" : "\u2606";
+  });
 }
 
 /* Once the answer has been seen, clicking the card just turns it back and
@@ -3357,7 +3516,10 @@ function renderToday() {
   if (state.session) return renderSessionCard();
 
   const pool = poolNow();
+  const focused = focusPool(pool);
   const due = dueCount(pool), unseen = unseenCount(pool), seen = seenCount(pool);
+  const starred = pool.filter(c => isStarred(c.id)).length;
+  const hard = pool.filter(c => isStruggling(c.id)).length;
   const sizes = [10, 20, 40];
 
   stage.innerHTML =
@@ -3365,21 +3527,33 @@ function renderToday() {
     '<div class="metrics">' +
       metricCard("Due for review", due, bar(pct(due, Math.max(1, seen)), due ? "b-warn" : "b-up")) +
       metricCard("Never seen", unseen, bar(pct(unseen, pool.length))) +
-      metricCard("In scope", pool.length, '<span class="hint">' + seen + ' met so far</span>') +
+      metricCard("Starred", starred, '<span class="hint">cards you flagged</span>') +
+      metricCard("Struggling", hard, '<span class="hint">reset twice or more</span>') +
     '</div>' +
 
-    panel("Session size", "cards per run",
-      '<div class="chips">' + sizes.map(n =>
+    panel("What to study", focusDef()[1].toLowerCase() + " · " + focused.length + " cards",
+      focusChips(pool) +
+      '<p class="hint" style="margin-top:10px">' + esc(FOCUS_NOTE[state.focus]) + '</p>' +
+      '<p class="eyebrow" style="margin-top:16px">Session length</p>' +
+      '<div class="chips" style="margin-top:6px">' + sizes.map(n =>
         '<button class="chip" data-size="' + n + '" aria-pressed="' + (state.size === n) + '">' + n + '</button>').join("") +
       '</div>' +
-      '<p class="hint" style="margin-top:10px">Due cards first, oldest schedule first, then cards you have not met. ' +
-      'A card you get right moves up a box (' + BOX.slice(1).join(", ") + ' days); a card you miss resets to tomorrow.</p>' +
-      '<div style="margin-top:12px"><button class="btn btn-primary" id="startSession"' +
-        (pool.length ? "" : " disabled") + '>Start ' + state.size + '-card session</button></div>') +
+      '<div style="margin-top:16px"><button class="btn btn-primary" id="startSession"' +
+        (focused.length ? "" : " disabled") + '>Start ' +
+        Math.min(state.size, focused.length) + '-card session</button>' +
+        (focused.length ? "" : '<span class="hint" style="margin-left:10px">Nothing in this selection yet.</span>') +
+      '</div>') +
+
+    panel("How the schedule works", "SM-2",
+      '<p class="hint">Every card carries its own <b>ease</b>. Rate it <b>Again</b> and it comes back today and gets ' +
+      'harder for good; <b>Hard</b> and the gap grows slowly; <b>Good</b> and it grows by that card\u2019s ease; ' +
+      '<b>Easy</b> and it jumps well out. Each button shows the real interval before you press it, so the rating ' +
+      'is a decision rather than a guess.</p>') +
 
     mixupPanel();
 
   wireScope();
+  wireFocus();
   $$("[data-size]").forEach(b => b.addEventListener("click", () => { state.size = +b.dataset.size; render(); }));
   $("#startSession").addEventListener("click", () => {
     const cards = buildSession(state.size, pool);
@@ -3389,6 +3563,14 @@ function renderToday() {
   });
   wireMixups();
 }
+
+const FOCUS_NOTE = {
+  all:     "Due cards first, oldest first, then anything you have not met yet.",
+  due:     "Only cards the schedule says you are about to forget.",
+  starred: "Only cards you have starred. Star one from the \u2606 on any card.",
+  hard:    "Cards you have reset twice or more, or whose ease has dropped well below normal.",
+  new:     "Only cards you have never been shown."
+};
 
 function mixupPanel() {
   const m = topMixups(4);
@@ -3423,34 +3605,46 @@ function renderSessionCard() {
   const c = s.cards[s.i];
   const st = statusOf(c.id);
 
-  const grade = ok => { recordGrade(c.id, ok, "today"); ok ? s.right++ : s.wrong++; s.i++; s.shown = false; render(); };
-  const reveal = () => { s.shown = true; flipOpen(grade); };
+  const rate = r => {
+    recordRating(c.id, r, "today");
+    r === RATE.AGAIN ? s.wrong++ : s.right++;
+    s.i++; s.shown = false; render();
+  };
+  const reveal = () => { s.shown = true; flipOpen(c, rate); };
 
   stage.innerHTML =
-    '<div class="scopebar"><h2>Today’s session</h2>' +
+    '<div class="scopebar"><h2>Today\u2019s session</h2>' +
       '<span class="chip" style="cursor:default">' + (s.i + 1) + ' of ' + s.cards.length + '</span>' +
       '<span class="sp"></span>' +
-      '<span class="hint">' + s.right + ' got · ' + s.wrong + ' to revisit</span>' +
+      '<span class="hint">' + s.right + ' knew \u00b7 ' + s.wrong + ' to revisit</span>' +
       '<button class="btn btn-sm" id="endSession">Finish early</button>' +
     '</div>' +
     bar(pct(s.i, s.cards.length)) +
     '<div style="height:12px"></div>' +
-    cardShell(c, s.shown, KIND[c.k] + ' · box ' + (st ? st.box : 0) + ' of ' + (BOX.length - 1),
-      s.shown ? GRADE_FOOT
+    cardShell(c, s.shown, cardMeta(c, st),
+      s.shown ? gradeFoot(c)
         : '<button class="btn btn-primary" id="reveal">Show the answer</button>' +
           '<span class="sp" style="flex:1"></span>' +
           '<span class="hand">or press space</span>');
 
   if ($("#reveal")) $("#reveal").addEventListener("click", reveal);
   $("#flipZone").addEventListener("click", () => s.shown ? toggleCard() : reveal());
-  $$("[data-grade]").forEach(b => b.addEventListener("click", () => grade(b.dataset.grade === "1")));
+  $$("[data-rate]").forEach(b => b.addEventListener("click", () => rate(+b.dataset.rate)));
   $("#endSession").addEventListener("click", () => { state.session = null; render(); });
+  wireStar(c);
 
   keyHandler = e => {
     if (e.key === " " || e.key === "Enter") { e.preventDefault(); s.shown ? toggleCard() : reveal(); }
-    else if (s.shown && e.key === "1") grade(false);
-    else if (s.shown && e.key === "2") grade(true);
+    else if (s.shown && "1234".indexOf(e.key) >= 0) rate("1234".indexOf(e.key));
+    else if (e.key.toLowerCase() === "s") { const b = $("#starBtn"); if (b) b.click(); }
   };
+}
+
+/* The line in the card header: what kind of card, and where it sits. */
+function cardMeta(c, st) {
+  if (!st || !st.reps) return KIND[c.k] + " \u00b7 new card";
+  return KIND[c.k] + " \u00b7 next in " + ivlLabel(st.ivl) +
+         (isStruggling(c.id) ? " \u00b7 struggling" : "");
 }
 
 function renderSessionDone() {
@@ -3459,8 +3653,8 @@ function renderSessionDone() {
     '<div class="scopebar"><h2>Session complete</h2></div>' +
     '<div class="metrics">' +
       metricCard("Score", pct(s.right, n) + '<small>%</small>', bar(pct(s.right, n), s.right === n ? "b-up" : "b-warn")) +
-      metricCard("Got it", s.right, '<span class="hint">moved up a box</span>') +
-      metricCard("Missed", s.wrong, '<span class="hint">back tomorrow</span>') +
+      metricCard("Knew it", s.right, '<span class="hint">moved up a box</span>') +
+      metricCard("Again", s.wrong, '<span class="hint">back in today\u2019s queue</span>') +
     '</div>' +
     panel("Next", "",
       '<p class="hint">' + (s.wrong === 0
@@ -3485,61 +3679,68 @@ function renderSessionDone() {
    Mode: Cards — browse the bank
    ========================================================================== */
 function renderCards() {
-  const pool = poolNow();
-  if (!state.session || state.session.kind !== "browse") {
-    state.session = { kind: "browse", cards: pool.slice(), i: 0, shown: false };
+  const pool = focusPool(poolNow());
+  if (!state.session || state.session.kind !== "browse" || state.session.key !== cardsKey()) {
+    state.session = { kind: "browse", key: cardsKey(), cards: pool.slice(), i: 0, shown: false };
   }
   const s = state.session;
-  if (s.cards.length !== pool.length) { s.cards = pool.slice(); s.i = 0; s.shown = false; }
   const c = s.cards[s.i];
 
   if (!c) {
     stage.innerHTML = scopeBar("Cards") +
-      panel("Card bank", "empty",
-        emptyState("No cards in this chapter.", "Clear the chapter filter to see all " + CARDS.length + " of them."), "flush");
-    wireScope();
+      panel("Card bank", focusDef()[1].toLowerCase(),
+        focusChips(poolNow()) +
+        emptyState("Nothing in this selection.",
+          "Try a different filter, or clear the chapter to see all " + CARDS.length + " cards."), "");
+    wireScope(); wireFocus();
     return;
   }
 
   const st = statusOf(c.id);
   const navFoot =
-    '<button class="btn btn-sm" id="prev"' + (s.i === 0 ? " disabled" : "") + '>← Back</button>' +
-    '<button class="btn btn-sm" id="next"' + (s.i >= s.cards.length - 1 ? " disabled" : "") + '>Next →</button>';
+    '<button class="btn btn-sm" id="prev"' + (s.i === 0 ? " disabled" : "") + '>&larr; Back</button>' +
+    '<button class="btn btn-sm" id="next"' + (s.i >= s.cards.length - 1 ? " disabled" : "") + '>Next &rarr;</button>';
   const go = d => { s.i = Math.max(0, Math.min(s.cards.length - 1, s.i + d)); s.shown = false; render(); };
-  const grade = ok => { recordGrade(c.id, ok, "cards"); go(1); };
-  const reveal = () => { s.shown = true; flipOpen(grade, navFoot); };
+  const rate = r => { recordRating(c.id, r, "cards"); go(1); };
+  const reveal = () => { s.shown = true; flipOpen(c, rate, navFoot); };
 
   stage.innerHTML =
     scopeBar("Cards", '<button class="btn btn-sm" id="shuffleDeck">Shuffle</button>') +
-    '<div class="scopebar" style="margin-bottom:8px">' +
+    focusChips(poolNow()) +
+    '<div class="scopebar" style="margin:12px 0 8px">' +
       '<span class="chip" style="cursor:default">' + (s.i + 1) + ' of ' + s.cards.length + '</span>' +
       '<span class="sp"></span>' +
-      '<span class="hint">' + seenCount(pool) + ' seen · ' + dueCount(pool) + ' due for review</span>' +
+      '<span class="hint">' + seenCount(pool) + ' seen \u00b7 ' + dueCount(pool) + ' due for review</span>' +
     '</div>' +
     bar(pct(s.i, s.cards.length)) +
     '<div style="height:12px"></div>' +
-    cardShell(c, s.shown, KIND[c.k] + ' · ' + (st ? "box " + st.box + " of " + (BOX.length - 1) : "new card"),
-      (s.shown ? navFoot + GRADE_FOOT
+    cardShell(c, s.shown, cardMeta(c, st),
+      (s.shown ? navFoot + gradeFoot(c)
         : navFoot +
           '<button class="btn btn-primary" id="reveal">Show the answer</button>' +
           '<span class="sp" style="flex:1"></span>' +
           '<span class="hand">space to turn</span>'));
 
   wireScope();
+  wireFocus();
   wireCardNav();
+  wireStar(c);
   if ($("#reveal")) $("#reveal").addEventListener("click", reveal);
   $("#flipZone").addEventListener("click", () => s.shown ? toggleCard() : reveal());
-  $$("[data-grade]").forEach(b => b.addEventListener("click", () => grade(b.dataset.grade === "1")));
+  $$("[data-rate]").forEach(b => b.addEventListener("click", () => rate(+b.dataset.rate)));
   $("#shuffleDeck").addEventListener("click", () => { shuffle(s.cards); s.i = 0; s.shown = false; render(); });
 
   keyHandler = e => {
-    if (e.key === " " || e.key === "Enter") { e.preventDefault(); s.shown ? go(1) : reveal(); }
+    if (e.key === " " || e.key === "Enter") { e.preventDefault(); s.shown ? toggleCard() : reveal(); }
     else if (e.key === "ArrowRight") go(1);
     else if (e.key === "ArrowLeft") go(-1);
-    else if (s.shown && e.key === "1") grade(false);
-    else if (s.shown && e.key === "2") grade(true);
+    else if (s.shown && "1234".indexOf(e.key) >= 0) rate("1234".indexOf(e.key));
+    else if (e.key.toLowerCase() === "s") { const b = $("#starBtn"); if (b) b.click(); }
   };
 }
+
+/* Rebuild the browse deck whenever the chapter or the focus filter changes. */
+function cardsKey() { return (state.chapter || "all") + "|" + state.focus; }
 
 /* Back/Next live in the card footer, which is rebuilt when the card turns. */
 function wireCardNav() {
@@ -4363,8 +4564,8 @@ function renderMockResult() {
 function renderKeys() {
   const sets = {
     overview: [],
-    today: [["Space", "turn the card"], ["1", "not yet"], ["2", "got it"]],
-    cards: [["Space", "turn the card"], ["← →", "move"], ["1 / 2", "grade"]],
+    today: [["Space", "turn the card"], ["1–4", "how well you knew it"], ["S", "star"]],
+    cards: [["Space", "turn the card"], ["← →", "move"], ["1–4", "rate"], ["S", "star"]],
     quiz:  [["1–4", "choose"], ["Space", "next"]],
     speed: [["1–4", "choose"]],
     exam:  [["1–5", "choose"], ["← →", "move between questions"]]
