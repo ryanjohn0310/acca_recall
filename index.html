@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recall — ACCA Applied Knowledge</title>
+<meta name="description" content="A friendly revision notebook for ACCA Applied Knowledge. 281 flashcards, a trap drill, five full mock papers and a progress dashboard for Business &amp; Technology.">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23fdfbf4'/%3E%3Crect x='7' y='4' width='3' height='24' rx='1.5' fill='%23f0908d'/%3E%3Crect x='13' y='9' width='13' height='2.4' rx='1.2' fill='%234263c7'/%3E%3Crect x='13' y='15' width='13' height='2.4' rx='1.2' fill='%23c9d6e8'/%3E%3Crect x='13' y='21' width='8' height='2.4' rx='1.2' fill='%23c9d6e8'/%3E%3C/svg%3E">
+<style>
+/* ==========================================================================
+   Recall — ACCA Applied Knowledge
+   A revision notebook. Warm paper, ruled lines, a pink margin rule, and
+   handwriting where a person would have written in the margin.
+   Soft edges everywhere; the flashcards physically turn over.
+   ========================================================================== */
+
+/* ---- tokens: full light palette on bare :root ---------------------------- */
+:root{
+  --paper:#fdfbf4;
+  --card:#ffffff;
+  --sunk:#f5f2e9;
+  --tint:#f8f5ec;
+  --ink:#28323f;
+  --ink-2:#3d4a5c;
+  --muted:#6d7a8a;
+  --faint:#98a3b1;
+  --line:#e6e0d3;
+  --line-2:#f0ebe0;
+  --rule:#d3e3f4;          /* the ruled lines of the page */
+  --margin:#f0908d;        /* the pink margin rule */
+  --accent:#4263c7;
+  --accent-ink:#ffffff;
+  --accent-soft:#e8eeff;
+  --up:#2f8659;
+  --up-soft:#e6f4ec;
+  --down:#cf4b47;
+  --down-soft:#fdeceb;
+  --warn:#c07f14;
+  --warn-soft:#fdf3e0;
+  --flat:#98a3b1;
+  --track:#e9e4d8;
+  --mark:#ffe680;
+  --mark-ink:#28323f;
+
+  --font-ui:'Nunito','Segoe UI',system-ui,-apple-system,sans-serif;
+  --font-hand:'Caveat','Bradley Hand','Segoe Script',cursive;
+
+  /* 1.2 ratio off 15px — gentle steps */
+  --step--2:11px;
+  --step--1:13px;
+  --step-0:15px;
+  --step-1:18px;
+  --step-2:22px;
+  --step-3:26px;
+  --step-4:31px;
+  --step-5:38px;
+  --step-6:52px;
+
+  --s1:4px; --s2:8px; --s3:12px; --s4:18px; --s5:26px; --s6:38px; --s7:56px;
+
+  --r:10px;
+  --r-sm:7px;
+  --row:38px;
+  --shadow:0 1px 2px rgb(40 50 63/.04), 0 6px 18px rgb(40 50 63/.06);
+  --shadow-lift:0 2px 4px rgb(40 50 63/.06), 0 14px 30px rgb(40 50 63/.10);
+  --ease:cubic-bezier(.22,.68,.28,1);
+  --dur:200ms;
+  --dur-flip:720ms;
+  --ease-flip:cubic-bezier(.24,.62,.32,1);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#161b24;
+    --card:#1d242f;
+    --sunk:#141922;
+    --tint:#212a36;
+    --ink:#eaeff6;
+    --ink-2:#d3dbe6;
+    --muted:#96a3b4;
+    --faint:#6a7787;
+    --line:#2c3542;
+    --line-2:#232b37;
+    --rule:#2a3745;
+    --margin:#8a5250;
+    --accent:#7fa4f5;
+    --accent-ink:#121721;
+    --accent-soft:#1e2a44;
+    --up:#5cc48c;
+    --up-soft:#16281f;
+    --down:#f08079;
+    --down-soft:#2c1a19;
+    --warn:#e2ae4e;
+    --warn-soft:#2a2213;
+    --flat:#6a7787;
+    --track:#28303c;
+    --mark:#5a4d18;
+    --mark-ink:#fdf6d8;
+    --shadow:0 1px 2px rgb(0 0 0/.30), 0 6px 18px rgb(0 0 0/.34);
+    --shadow-lift:0 2px 6px rgb(0 0 0/.34), 0 16px 34px rgb(0 0 0/.44);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#161b24;
+  --card:#1d242f;
+  --sunk:#141922;
+  --tint:#212a36;
+  --ink:#eaeff6;
+  --ink-2:#d3dbe6;
+  --muted:#96a3b4;
+  --faint:#6a7787;
+  --line:#2c3542;
+  --line-2:#232b37;
+  --rule:#2a3745;
+  --margin:#8a5250;
+  --accent:#7fa4f5;
+  --accent-ink:#121721;
+  --accent-soft:#1e2a44;
+  --up:#5cc48c;
+  --up-soft:#16281f;
+  --down:#f08079;
+  --down-soft:#2c1a19;
+  --warn:#e2ae4e;
+  --warn-soft:#2a2213;
+  --flat:#6a7787;
+  --track:#28303c;
+  --mark:#5a4d18;
+  --mark-ink:#fdf6d8;
+  --shadow:0 1px 2px rgb(0 0 0/.30), 0 6px 18px rgb(0 0 0/.34);
+  --shadow-lift:0 2px 6px rgb(0 0 0/.34), 0 16px 34px rgb(0 0 0/.44);
+}
+
+/* ---- reset --------------------------------------------------------------- */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font:400 var(--step-0)/1.65 var(--font-ui);
+  font-feature-settings:"tnum" 1;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+h1,h2,h3,h4,p,ul,ol{margin:0}
+ul,ol{padding:0;list-style:none}
+img{max-width:100%}
+[hidden]{display:none !important}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+mark{background:var(--mark);color:var(--mark-ink);padding:1px 3px;border-radius:3px;
+  box-decoration-break:clone;-webkit-box-decoration-break:clone}
+b,strong{font-weight:700;color:var(--ink)}
+em{font-style:normal;color:var(--muted)}
+kbd{
+  font:600 var(--step--2)/1 var(--font-ui);
+  border:1px solid var(--line);border-bottom-width:2px;background:var(--card);
+  border-radius:5px;padding:3px 6px;display:inline-block;min-width:20px;text-align:center;
+}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+:where(button,a,input,select,[tabindex]):focus:not(:focus-visible){outline:none}
+
+/* handwriting — margin notes and encouragement only, never body copy */
+.hand{font-family:var(--font-hand);font-size:var(--step-1);line-height:1.3;color:var(--muted)}
+
+/* ruled paper, used on the flashcard faces and the sample card */
+.ruled{
+  background-image:repeating-linear-gradient(
+    to bottom, transparent 0 29px, var(--rule) 29px 30px);
+  background-position:0 10px;background-attachment:local;
+}
+/* the pink margin rule down the left of a page */
+.margined{position:relative}
+.margined::before{
+  content:"";position:absolute;top:0;bottom:0;left:34px;width:2px;
+  background:var(--margin);opacity:.5;border-radius:2px;pointer-events:none;
+}
+
+/* ---- shared furniture ---------------------------------------------------- */
+.eyebrow{
+  font-size:var(--step--1);font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--muted);
+}
+.muted{color:var(--muted)}
+.hint{font-size:var(--step--1);color:var(--muted);line-height:1.6}
+
+/* panel — a sheet clipped into the notebook */
+.panel{
+  border:1px solid var(--line);border-radius:var(--r);
+  background:var(--card);margin-bottom:var(--s4);box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.panel-hd{
+  min-height:44px;display:flex;align-items:center;gap:var(--s3);
+  padding:var(--s2) var(--s4);border-bottom:1px solid var(--line-2);
+  background:var(--tint);overflow:hidden;
+}
+.panel-hd h2,.panel-hd h3{
+  font-size:var(--step-0);font-weight:800;color:var(--ink);letter-spacing:-.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
+}
+.panel-hd .sp{flex:1}
+.panel-hd .meta{
+  font-family:var(--font-hand);font-size:var(--step-1);color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
+}
+@media (max-width:600px){
+  .panel-hd{flex-wrap:wrap;min-height:0;row-gap:2px}
+  .panel-hd .meta{width:100%;text-align:left}
+  .panel-hd .sp{display:none}
+}
+.panel-bd{padding:var(--s4)}
+.panel-bd.flush{padding:0}
+
+/* buttons — soft, with a printed bottom edge */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  border:1px solid var(--line);border-bottom-width:2px;border-radius:var(--r-sm);
+  padding:8px 14px;background:var(--card);
+  font:700 var(--step-0)/1.3 var(--font-ui);color:var(--ink);
+  transition:transform var(--dur) var(--ease),background var(--dur) var(--ease),
+             border-color var(--dur) var(--ease),box-shadow var(--dur) var(--ease);
+}
+.btn:hover{background:var(--tint);border-color:var(--muted);transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn:active{transform:translateY(1px);box-shadow:none}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.btn[disabled]:hover{background:var(--card);border-color:var(--line)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn-primary:hover{background:var(--accent);border-color:var(--accent);filter:brightness(1.07)}
+.btn-sm{padding:5px 10px;font-size:var(--step--1);border-radius:6px}
+.btn-danger:hover{background:var(--down-soft);border-color:var(--down);color:var(--down)}
+
+.back{
+  display:inline-flex;flex:none;align-items:center;gap:5px;
+  font-size:var(--step--1);font-weight:700;color:var(--muted);
+}
+.back:hover{color:var(--accent)}
+.back::before{content:"\2190"}
+
+/* status pills — the word carries it as much as the colour */
+.pill{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 9px;border-radius:999px;border:1px solid transparent;
+  font-size:var(--step--2);font-weight:800;letter-spacing:.02em;text-transform:uppercase;
+}
+.pill-up{background:var(--up-soft);color:var(--up);border-color:var(--up)}
+.pill-warn{background:var(--warn-soft);color:var(--warn);border-color:var(--warn)}
+.pill-down{background:var(--down-soft);color:var(--down);border-color:var(--down)}
+.pill-flat{background:var(--sunk);color:var(--muted);border-color:var(--line)}
+
+/* deltas carry sign, arrow and colour */
+.delta{font-size:var(--step--1);font-weight:700}
+.delta-up{color:var(--up)}
+.delta-up::before{content:"\25B2 ";font-size:9px}
+.delta-down{color:var(--down)}
+.delta-down::before{content:"\25BC ";font-size:9px}
+.delta-flat{color:var(--flat)}
+.delta-flat::before{content:"\2014 "}
+
+/* progress bars — rounded, soft track */
+.bar{display:block;height:8px;background:var(--track);border-radius:999px;overflow:hidden;min-width:52px}
+.bar > i{display:block;height:100%;background:var(--accent);border-radius:999px;
+  transition:width 600ms var(--ease)}
+.bar.b-up > i{background:var(--up)}
+.bar.b-warn > i{background:var(--warn)}
+.bar.b-down > i{background:var(--down)}
+.barcell{display:grid;grid-template-columns:1fr 40px;gap:var(--s2);align-items:center}
+.barcell .cellval{font-size:var(--step--1);font-weight:700;color:var(--muted);text-align:right}
+
+/* tables — ruled like a page, not gridded like a spreadsheet */
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:var(--step-0)}
+.tbl th{
+  position:sticky;top:0;z-index:1;background:var(--tint);
+  font-size:var(--step--1);font-weight:800;color:var(--muted);
+  text-align:left;white-space:nowrap;letter-spacing:.02em;
+  padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);
+}
+.tbl td{padding:var(--s2) var(--s4);min-height:var(--row);border-bottom:1px solid var(--line-2);vertical-align:middle}
+.tbl td.num,.tbl th.num{text-align:right}
+.tbl tbody tr:hover td{background:var(--tint)}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl td.wrap{white-space:normal;line-height:1.6}
+.tbl .rowbtn{width:100%;text-align:left;font:inherit;font-weight:700;color:var(--accent)}
+.tbl .rowbtn:hover{text-decoration:underline;text-decoration-style:wavy;text-underline-offset:3px}
+
+/* metric cards — index cards pinned in a row */
+.metrics{
+  display:grid;gap:var(--s3);margin-bottom:var(--s4);
+  grid-template-columns:repeat(auto-fit,minmax(164px,1fr));
+}
+.metric{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:var(--s4);box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.metric::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent);opacity:.75;
+}
+.metric .k{display:block;font-size:var(--step--1);font-weight:700;color:var(--muted);letter-spacing:.02em}
+.metric .v{display:block;margin-top:var(--s1);font-size:var(--step-5);font-weight:800;line-height:1.1;letter-spacing:-.02em}
+.metric .v small{font-size:var(--step-1);color:var(--muted);font-weight:700}
+.metric .f{display:flex;align-items:center;gap:7px;margin-top:var(--s2);min-height:18px}
+.metric .bar{flex:1}
+
+/* activity chart */
+.spark{display:block;width:100%;height:58px}
+.spark rect{fill:var(--accent);rx:1.6}
+.spark rect.zero{fill:var(--track)}
+
+/* ==========================================================================
+   HOME
+   ========================================================================== */
+.home{max-width:1180px;margin:0 auto;padding:var(--s7) var(--s4) var(--s7)}
+.home-hd{margin-bottom:var(--s5)}
+.home-hd h1{font-size:var(--step-5);font-weight:800;letter-spacing:-.025em;margin-top:var(--s1);line-height:1.15}
+.home-hd .sub{color:var(--muted);max-width:60ch;margin-top:var(--s3);font-size:var(--step-1);line-height:1.7}
+
+/* ==========================================================================
+   LANDING
+   ========================================================================== */
+.landing{max-width:1180px;margin:0 auto;padding:var(--s4) var(--s4) var(--s7)}
+.hero{padding:var(--s5) 0}
+.hero h1{font-size:var(--step-5);font-weight:800;letter-spacing:-.025em;line-height:1.2;max-width:19ch;margin-top:var(--s2)}
+.hero .promise{margin-top:var(--s3);max-width:62ch;color:var(--ink-2);font-size:var(--step-1);line-height:1.75}
+.hero .cta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3);margin-top:var(--s4)}
+.hero .free{font-family:var(--font-hand);font-size:var(--step-2);color:var(--muted)}
+
+.split{display:grid;gap:var(--s4)}
+@media (min-width:900px){.split{grid-template-columns:1fr 1fr}}
+
+.deflist{display:grid}
+.deflist > div{
+  display:grid;grid-template-columns:96px 1fr;gap:var(--s3);
+  padding:var(--s3) var(--s4);border-bottom:1px solid var(--line-2);
+}
+.deflist > div:last-child{border-bottom:0}
+.deflist .nm{font-weight:800;color:var(--accent)}
+.deflist .tx{color:var(--muted);line-height:1.65}
+
+.smallprint{
+  margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--line);
+  font-size:var(--step--1);line-height:1.7;color:var(--muted);max-width:92ch;
+}
+.smallprint b{color:var(--ink-2)}
+
+/* ==========================================================================
+   STUDY — a notebook with tabbed dividers
+   ========================================================================== */
+.topbar{
+  position:sticky;top:0;z-index:40;min-height:56px;
+  display:flex;align-items:center;gap:var(--s3);
+  padding:var(--s2) var(--s4);background:var(--tint);
+  border-bottom:1px solid var(--line);
+}
+.topbar .brand{display:flex;align-items:center;gap:var(--s2);min-width:0;flex:1 1 auto;overflow:hidden}
+.topbar .brand .code{
+  flex:none;font-size:var(--step--1);font-weight:800;letter-spacing:.04em;
+  color:var(--accent-ink);background:var(--accent);padding:3px 8px;border-radius:999px;
+}
+.topbar .brand h1{font-size:var(--step-1);font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .sp{flex:1}
+.topbar .stat{
+  display:none;align-items:baseline;gap:5px;white-space:nowrap;
+  font-size:var(--step--1);font-weight:600;color:var(--muted);
+}
+@media (min-width:900px){.topbar .stat{display:inline-flex}}
+.topbar .stat b{color:var(--ink);font-weight:800;font-size:var(--step-0)}
+
+.themes{display:flex;flex:none;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--card)}
+.themes .th{padding:4px 10px;font-size:var(--step--2);font-weight:700;color:var(--muted)}
+.themes .th + .th{border-left:1px solid var(--line)}
+.themes .th:hover{color:var(--ink)}
+.themes .th[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+
+.workspace{display:block}
+@media (min-width:1040px){
+  .workspace{display:grid;grid-template-columns:216px 1fr;align-items:start}
+  .sidenav{position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;padding:var(--s4) var(--s3)}
+}
+.sidenav{padding:var(--s3)}
+
+/* the tabbed dividers */
+.navgrp{display:grid;gap:var(--s1)}
+.navgrp > .eyebrow{padding:0 var(--s3) var(--s2)}
+.navitem{
+  display:flex;align-items:center;gap:var(--s3);width:100%;text-align:left;
+  padding:9px var(--s3);border-radius:var(--r-sm);color:var(--muted);
+  font-size:var(--step-0);font-weight:700;
+  border-left:4px solid transparent;
+  transition:background var(--dur) var(--ease),color var(--dur) var(--ease),border-color var(--dur) var(--ease);
+}
+.navitem:hover{background:var(--tint);color:var(--ink)}
+.navitem[aria-selected="true"]{
+  background:var(--card);color:var(--accent);
+  border-left-color:var(--accent);box-shadow:var(--shadow);
+}
+.navitem .badge{
+  margin-left:auto;font-size:var(--step--2);font-weight:800;
+  padding:2px 8px;border-radius:999px;background:var(--sunk);color:var(--muted);
+}
+.navitem[aria-selected="true"] .badge{background:var(--accent);color:var(--accent-ink)}
+.navitem .k{display:none}
+@media (max-width:1039px){
+  .sidenav{border-bottom:1px solid var(--line);background:var(--tint)}
+  .navgrp{display:flex;gap:var(--s2);overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .navgrp::-webkit-scrollbar{display:none}
+  .navgrp > .eyebrow{display:none}
+  .navitem{
+    width:auto;white-space:nowrap;border-left:0;border-bottom:3px solid transparent;
+    border-radius:var(--r-sm) var(--r-sm) 0 0;
+  }
+  .navitem[aria-selected="true"]{border-bottom-color:var(--accent);box-shadow:none}
+}
+
+.main{min-width:0;padding:var(--s5) var(--s4);max-width:1320px}
+@media (max-width:600px){.main{padding:var(--s4) var(--s3)}}
+.stage{min-height:60vh}
+
+.scopebar{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);margin-bottom:var(--s4)}
+.scopebar h2{font-size:var(--step-3);font-weight:800;letter-spacing:-.02em}
+.scopebar .sp{flex:1}
+
+.empty{padding:var(--s6) var(--s4);text-align:center;color:var(--muted);line-height:1.7}
+.empty b{display:block;color:var(--ink);font-size:var(--step-2);margin-bottom:var(--s2);font-weight:800}
+
+/* the chapter switcher — a chip that happens to be a select */
+.picker{display:inline-flex;position:relative;align-items:center}
+.picker::after{
+  content:"\25BE";position:absolute;right:12px;pointer-events:none;
+  color:var(--muted);font-size:11px;
+}
+.picker select{
+  appearance:none;-webkit-appearance:none;
+  border:1px solid var(--line);border-bottom-width:2px;border-radius:999px;
+  background:var(--card);color:var(--ink);
+  font:700 var(--step--1)/1.5 var(--font-ui);
+  padding:6px 30px 6px 14px;max-width:min(58vw,320px);
+  text-overflow:ellipsis;cursor:pointer;
+  transition:border-color var(--dur) var(--ease),color var(--dur) var(--ease);
+}
+.picker select:hover{border-color:var(--accent);color:var(--accent)}
+.picker select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.chip{
+  border:1px solid var(--line);border-bottom-width:2px;border-radius:999px;
+  padding:5px 13px;background:var(--card);font-size:var(--step--1);font-weight:700;color:var(--muted);
+  transition:all var(--dur) var(--ease);
+}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip.wide{font-size:var(--step-0)}
+
+/* ==========================================================================
+   THE FLASHCARD — it physically turns over
+   ========================================================================== */
+.card-shell{overflow:visible}
+.flip{perspective:1100px;padding:var(--s3);background:var(--tint);cursor:pointer}
+.flip-inner{
+  display:grid;transform-style:preserve-3d;
+  transform:rotateY(0deg);will-change:transform;
+}
+.card-shell.is-flipped .flip-inner{transform:rotateY(180deg)}
+
+/* The turn is the interaction, not decoration: the card lifts towards you as
+   it passes edge-on, the way a real card does when you pick it up to look. */
+@keyframes turn-to-back{
+  0%  {transform:rotateY(0deg)   translateZ(0)    scale(1)}
+  50% {transform:rotateY(90deg)  translateZ(60px) scale(1.05)}
+  100%{transform:rotateY(180deg) translateZ(0)    scale(1)}
+}
+@keyframes turn-to-front{
+  0%  {transform:rotateY(180deg) translateZ(0)    scale(1)}
+  50% {transform:rotateY(90deg)  translateZ(60px) scale(1.05)}
+  100%{transform:rotateY(0deg)   translateZ(0)    scale(1)}
+}
+.card-shell.turn-back .flip-inner{animation:turn-to-back var(--dur-flip) var(--ease-flip) both}
+.card-shell.turn-front .flip-inner{animation:turn-to-front var(--dur-flip) var(--ease-flip) both}
+/* the shell settles as the card lands */
+.card-shell.turn-back .flip,.card-shell.turn-front .flip{
+  transition:box-shadow var(--dur-flip) var(--ease-flip);
+}
+.face{
+  grid-area:1/1;
+  -webkit-backface-visibility:hidden;backface-visibility:hidden;
+  background-color:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);
+  padding:42px var(--s5) var(--s5) 64px;
+  min-height:230px;display:flex;flex-direction:column;justify-content:center;
+}
+@media (max-width:600px){.face{padding:38px var(--s4) var(--s4) 52px}}
+.face-back{transform:rotateY(180deg)}
+button.face{width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
+button.face .card-q,button.face .card-a{display:block}
+.face-tag{
+  position:absolute;top:var(--s3);left:64px;
+  font-size:var(--step--2);font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--faint);
+}
+@media (max-width:600px){.face-tag{left:52px}}
+.face{position:relative}
+.card-q{font-size:var(--step-3);font-weight:800;letter-spacing:-.02em;line-height:30px;max-width:30ch}
+.card-a{font-size:var(--step-1);line-height:30px;max-width:64ch;color:var(--ink-2)}
+.flip-hint{
+  margin-top:var(--s4);font-family:var(--font-hand);font-size:var(--step-2);
+  color:var(--muted);display:flex;align-items:center;gap:var(--s2);
+}
+.flip-hint::before{content:"\21BB";font-family:var(--font-ui);font-size:var(--step-1)}
+.face-back .flip-hint{margin-top:var(--s3)}
+.card-ft{display:flex;flex-wrap:wrap;gap:var(--s2);padding:var(--s3) var(--s4);
+  border-top:1px solid var(--line-2);background:var(--card);align-items:center}
+.card-ft .btn{min-width:112px}
+.grade-again:hover{background:var(--down-soft);border-color:var(--down);color:var(--down)}
+.grade-ok:hover{background:var(--up-soft);border-color:var(--up);color:var(--up)}
+
+
+
+/* ---- questions ----------------------------------------------------------- */
+.q-stem{font-size:var(--step-2);font-weight:800;letter-spacing:-.015em;line-height:1.45;max-width:70ch}
+.q-lead{font-size:var(--step-1);line-height:1.75;max-width:70ch;color:var(--ink-2)}
+.opts{margin-top:var(--s4);display:grid;gap:var(--s2)}
+.opt{
+  display:grid;grid-template-columns:26px 1fr;gap:var(--s3);align-items:start;
+  width:100%;text-align:left;padding:var(--s3) var(--s4);
+  border:1px solid var(--line);border-radius:var(--r-sm);background:var(--card);
+  transition:all var(--dur) var(--ease);
+}
+.opt:hover:not([disabled]){border-color:var(--accent);background:var(--tint);transform:translateX(2px)}
+.opt .key{
+  font-size:var(--step--1);font-weight:800;text-align:center;
+  width:26px;height:26px;line-height:24px;border:1px solid var(--line);
+  border-radius:999px;color:var(--muted);
+}
+.opt .txt{line-height:1.6;padding-top:2px}
+.opt .note{
+  display:block;margin-top:var(--s2);padding-left:var(--s3);
+  border-left:3px solid var(--line);border-radius:2px;
+  font-size:var(--step--1);line-height:1.7;color:var(--muted);
+}
+.opt.picked{border-color:var(--accent);background:var(--accent-soft)}
+.opt.picked .key{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.opt.right{background:var(--up-soft);border-color:var(--up)}
+.opt.right .key{background:var(--up);border-color:var(--up);color:#fff}
+.opt.wrong{background:var(--down-soft);border-color:var(--down)}
+.opt.wrong .key{background:var(--down);border-color:var(--down);color:#fff}
+.opt[disabled]{cursor:default}
+.opt[disabled]:hover{transform:none}
+
+.verdict{
+  margin:var(--s4) 0 0;padding:var(--s4);border-radius:var(--r);
+  background:var(--tint);border:1px solid var(--line);line-height:1.75;max-width:80ch;
+}
+.verdict .lbl{display:block;font-size:var(--step--1);font-weight:800;letter-spacing:.04em;
+  text-transform:uppercase;margin-bottom:var(--s2)}
+.verdict.v-ok{background:var(--up-soft);border-color:var(--up)}
+.verdict.v-ok .lbl{color:var(--up)}
+.verdict.v-no{background:var(--warn-soft);border-color:var(--warn)}
+.verdict.v-no .lbl{color:var(--warn)}
+
+.t-up{color:var(--up)}
+.t-down{color:var(--down)}
+
+/* ---- exam ---------------------------------------------------------------- */
+.subnav{display:flex;flex-wrap:wrap;gap:var(--s2);margin-bottom:var(--s4)}
+
+.mock-bar{
+  position:sticky;top:56px;z-index:30;background:var(--card);
+  border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);
+  display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2) var(--s4);
+  padding:var(--s3) var(--s4);margin-bottom:var(--s4);
+}
+.mock-bar .clock{font-size:var(--step-3);font-weight:800;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.mock-bar .clock.low{color:var(--down)}
+.mock-bar .sp{flex:1}
+.mock-bar .meta{font-size:var(--step--1);color:var(--muted);white-space:nowrap;font-weight:600}
+.mock-bar .meta b{color:var(--ink);font-weight:800}
+.hdbar{width:140px}
+
+.navigator{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:var(--s2)}
+.nav-cell{
+  aspect-ratio:1;display:grid;place-items:center;border-radius:var(--r-sm);
+  background:var(--sunk);border:1px solid var(--line);
+  font-size:var(--step--2);font-weight:800;color:var(--muted);
+  transition:all var(--dur) var(--ease);
+}
+.nav-cell:hover{border-color:var(--accent);color:var(--accent)}
+.nav-cell.done{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.nav-cell.flag{box-shadow:inset 0 -4px 0 var(--warn)}
+.nav-cell.here{outline:3px solid var(--ink);outline-offset:1px}
+.legend{display:flex;flex-wrap:wrap;gap:var(--s4);margin-top:var(--s4);font-size:var(--step--1);color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:14px;border-radius:4px;display:inline-block;border:1px solid var(--line)}
+
+/* a scenario reads like something pasted into the notebook */
+.scenario{
+  background:var(--tint);border:1px solid var(--line);border-left:4px solid var(--accent);
+  border-radius:var(--r-sm);padding:var(--s4);margin-bottom:var(--s4);max-width:80ch;line-height:1.8;
+}
+.task-h{
+  font-size:var(--step--1);font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--accent);margin:var(--s5) 0 var(--s2);
+}
+
+/* ---- misc ---------------------------------------------------------------- */
+.keys{display:flex;flex-wrap:wrap;gap:var(--s4);font-size:var(--step--1);color:var(--muted)}
+.keys span{display:inline-flex;align-items:center;gap:6px}
+.foot{margin-top:var(--s6);padding-top:var(--s4);border-top:1px solid var(--line)}
+
+/* Reduce Motion strips the decorative easing everywhere, but the card turn is
+   the interaction itself — a flashcard that does not turn over is just a list.
+   It survives, shortened, with the lift taken out. */
+@media (prefers-reduced-motion:reduce){
+  *:not(.flip-inner),*::before,*::after{
+    animation-duration:.001ms !important;transition-duration:.001ms !important;
+  }
+  .flip-inner{animation-duration:300ms !important}
+  @keyframes turn-to-back{
+    0%{transform:rotateY(0deg)}100%{transform:rotateY(180deg)}
+  }
+  @keyframes turn-to-front{
+    0%{transform:rotateY(180deg)}100%{transform:rotateY(0deg)}
+  }
+}
+
+/* ---- place switching ----------------------------------------------------- */
+body:not(.at-home) #home,
+body:not(.at-paper) #landing,
+body:not(.at-study) #study{display:none}
+</style>
+</head>
+<body class="at-home">
+
+<!-- ============================ HOME ============================ -->
+<section id="home" class="home">
+  <div class="home-hd">
+    <p class="eyebrow">Unofficial revision notebook</p>
+    <h1>ACCA Applied Knowledge</h1>
+    <p class="sub">
+      Flashcards, quizzes, mock exams and a progress page for the three Applied
+      Knowledge papers. Written from the syllabus, not copied from it — and free.
+    </p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-hd"><h2>Your papers</h2><span class="sp"></span><span class="meta" id="homeMeta"></span></div>
+    <div class="panel-bd flush tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:64px">Code</th>
+          <th>Paper</th>
+          <th class="num" style="width:80px">Cards</th>
+          <th class="num" style="width:80px">Mocks</th>
+          <th style="width:160px">Ready</th>
+          <th style="width:120px">Status</th>
+          <th style="width:100px"></th>
+        </tr></thead>
+        <tbody id="paperRows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="smallprint">
+    <b>Unofficial study material.</b> Not affiliated with, endorsed by, or produced by the
+    Association of Chartered Certified Accountants. ACCA is a registered trademark of its
+    owner and is used here only to describe the qualification this material covers. Every
+    question, scenario, note and figure is original work written for this site — no past
+    exam paper, official question or answer is reproduced. Always check the current syllabus
+    and exam format on ACCA’s own website before relying on anything here.
+  </p>
+</section>
+
+<!-- ========================= PAPER LANDING ======================= -->
+<section id="landing" class="landing">
+  <button class="back" id="toHome">All papers</button>
+
+  <div class="hero">
+    <p class="eyebrow">BT · Applied Knowledge</p>
+    <h1>Learn it, test it, then sit the whole paper.</h1>
+    <p class="promise">
+      Every named theorist, every definition worth learning word-for-word, and the
+      distinctions the examiner keeps testing — plus <b>five full mock papers</b> in the
+      real two-hour structure, marked against the 50% pass and broken down by capability.
+    </p>
+    <div class="cta">
+      <button class="btn btn-primary" id="startStudying">Open my notebook</button>
+      <span class="free">free, no sign-up, works offline</span>
+    </div>
+  </div>
+
+  <div class="metrics" id="tally"></div>
+
+  <div class="split">
+    <div class="panel">
+      <div class="panel-hd"><h2>What is inside</h2><span class="sp"></span><span class="meta">6 sections</span></div>
+      <div class="panel-bd flush">
+        <div class="deflist">
+          <div><span class="nm">Progress</span><span class="tx">How much of the syllabus you have actually learned, chapter by chapter, and which topics are quietly costing you marks.</span></div>
+          <div><span class="nm">Today</span><span class="tx">A session built from what you are closest to forgetting. Ten cards or forty, your choice.</span></div>
+          <div><span class="nm">Cards</span><span class="tx">All 281, filterable by chapter, with the key terms highlighted. Tap to turn each one over.</span></div>
+          <div><span class="nm">Quiz</span><span class="tx">Three difficulties. The setting changes where the wrong options come from, not the question.</span></div>
+          <div><span class="nm">Speed</span><span class="tx">Sixty seconds against the clock, for the gaps between other things.</span></div>
+          <div><span class="nm">Exam</span><span class="tx">A format briefing, a drill on the six examiner traps, and five complete mock papers.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-hd"><h2>Try a card</h2><span class="sp"></span>
+        <button class="btn btn-sm" id="demoNext">Another</button></div>
+      <div class="card-shell" id="demoShell">
+        <div class="flip">
+          <div class="flip-inner">
+            <button class="face ruled margined face-front" id="demoCard">
+              <span class="face-tag" id="dcTag"></span>
+              <span class="card-q" id="dcQ"></span>
+              <span class="flip-hint">tap to turn it over</span>
+            </button>
+            <button class="face ruled margined face-back" id="demoCardBack">
+              <span class="face-tag">Answer</span>
+              <span class="card-a" id="dcA"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-hd"><h2>What it does that a textbook cannot</h2></div>
+    <div class="panel-bd flush">
+      <div class="deflist">
+        <div><span class="nm">Explains</span><span class="tx">Every wrong option carries a written note on why it was tempting and what the examiner was testing — not just a tick against the right one.</span></div>
+        <div><span class="nm">Adapts</span><span class="tx">Cards you miss come back sooner and ones you know drift further out. Pairs you keep confusing get their own drill.</span></div>
+        <div><span class="nm">Measures</span><span class="tx">Accuracy by chapter and by capability, mock history and a seven-day trend — so your revision time goes where the marks are missing.</span></div>
+        <div><span class="nm">Simulates</span><span class="tx">Whole papers: two hours, 100 marks, free navigation and flagging, auto-submitted at zero and marked by capability.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="smallprint">
+    <b>Unofficial study material.</b> Not affiliated with, endorsed by, or produced by the
+    Association of Chartered Certified Accountants. ACCA is a registered trademark of its
+    owner and is used here only to describe the qualification this material covers. Every
+    question, scenario, note and figure is original work written for this site — no past
+    exam paper, official question or answer is reproduced. Always check the current syllabus
+    and exam format on ACCA’s own website before relying on anything here.
+  </p>
+</section>
+
+<!-- ============================ STUDY ============================ -->
+<section id="study">
+  <div class="topbar">
+    <button class="back" id="toPaper" aria-label="Back to the paper overview"></button>
+    <div class="brand">
+      <span class="code">BT</span>
+      <h1><button id="homeLink">Business &amp; Technology</button></h1>
+    </div>
+    <span class="sp"></span>
+    <span class="stat">Learned <b id="tbMastery">0%</b></span>
+    <span class="stat">Due <b id="tbDue">0</b></span>
+    <span class="stat">Accuracy <b id="tbAcc">—</b></span>
+    <div class="themes" role="group" aria-label="Appearance">
+      <button class="th" data-theme-set="light" aria-pressed="false">Light</button>
+      <button class="th" data-theme-set="dark" aria-pressed="false">Dark</button>
+      <button class="th" data-theme-set="auto" aria-pressed="false">Auto</button>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <nav class="sidenav" aria-label="Sections">
+      <div class="navgrp" role="tablist">
+        <span class="eyebrow">Notebook</span>
+        <button class="navitem" data-mode="overview" role="tab" aria-selected="true"><span class="k">1</span>Progress</button>
+        <button class="navitem" data-mode="today" role="tab" aria-selected="false"><span class="k">2</span>Today<span class="badge" id="badgeDue">0</span></button>
+        <button class="navitem" data-mode="cards" role="tab" aria-selected="false"><span class="k">3</span>Cards<span class="badge" id="badgeCards">0</span></button>
+        <button class="navitem" data-mode="quiz"  role="tab" aria-selected="false"><span class="k">4</span>Quiz</button>
+        <button class="navitem" data-mode="speed" role="tab" aria-selected="false"><span class="k">5</span>Speed</button>
+        <button class="navitem" data-mode="exam"  role="tab" aria-selected="false"><span class="k">6</span>Exam</button>
+      </div>
+    </nav>
+
+    <div class="main">
+      <div class="stage" id="stage"></div>
+      <footer class="foot">
+        <div class="keys" id="keys"></div>
+        <p class="smallprint" style="margin-top:var(--s4);border:0;padding:0">
+          <b>Unofficial study material.</b> Not affiliated with or endorsed by the ACCA.
+          All questions and explanations are original. Your progress is stored in this
+          browser only — there is no account and nothing is sent anywhere.
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+
+<script src="data/cards.js"></script>
+<script src="data/cards2.js"></script>
+<script src="data/cards3.js"></script>
+<script src="data/cards4.js"></script>
+<script src="data/exam.js"></script>
+<script src="data/paper1.js"></script>
+<script src="data/paper2.js"></script>
+<script src="data/paper3.js"></script>
+<script src="data/paper4.js"></script>
+<script src="data/paper5.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

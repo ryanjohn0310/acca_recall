@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Built artefacts — regenerate with build.py / build_artifact.py
+# (kept in the repo, because GitHub Pages serves Recall.html directly)
+# Recall.html
+# artifact-body.html
+
+# Local preview scratch
+artifact-preview.html
