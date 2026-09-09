@@ -102,13 +102,17 @@ a2:[
  o:["They pursue profit for owners","They are accountable to shareholders","They are social arrangements pursuing collective goals","They are financed by taxation"], a:2,
  e:"Buchanan and Huczynski's definition covers every organisation: a social arrangement pursuing collective goals, controlling its performance, with a boundary. Profit and shareholders apply to only one of the three."},
 
-{c:1, q:"A pressure group has strong influence over regulators but little day-to-day interest in a company's operations. Using Mendelow's matrix, how should the company treat it?",
- o:["Key player — manage closely","Keep satisfied","Keep informed","Minimal effort"], a:1,
- e:"High power, low interest: keep them satisfied so their interest is never aroused. Interest can rise quickly, and then they become key players."},
+{c:1, t:"hot", d:"mendelow",
+ q:"A pressure group has strong influence over regulators but takes little interest in the company's day-to-day operations. Click the quadrant of the matrix into which it falls.",
+ a:2,
+ e:"High power, low interest — <b>keep satisfied</b>. Do enough to stop them becoming interested, because if they do, the power is already there."},
 
-{c:2, q:"A government cuts income tax and raises spending on infrastructure. This is:",
- o:["Expansionary monetary policy","Contractionary fiscal policy","Expansionary fiscal policy","Supply-side policy"], a:2,
- e:"Fiscal policy is taxation and government spending. Cutting tax and raising spending injects demand, so it is expansionary."},
+{c:2, t:"gap",
+ q:"A government cuts income tax and raises spending on infrastructure. This is {0} policy, and its immediate effect is to {1} aggregate demand.",
+ g:[["monetary","fiscal","supply-side","exchange rate"],
+    ["increase","reduce","leave unchanged","fix"]],
+ a:[1,0],
+ e:"Taxation and government spending are <b>fiscal</b> policy. Cutting tax and spending more both put money into the economy, so aggregate demand <b>increases</b>."},
 
 {c:2, q:"Unemployment caused by a mismatch between workers' skills and the jobs available as industries decline is:",
  o:["Frictional","Structural","Cyclical","Seasonal"], a:1,
@@ -126,9 +130,10 @@ a2:[
  o:["A larger pool of school leavers to recruit from","Pressure to retain and retrain older workers","Falling demand for healthcare services","A fall in pension costs"], a:1,
  e:"A shrinking working-age population forces employers to keep older workers longer. The other three run the wrong way."},
 
-{c:6, q:"A new entrant to an industry faces high capital costs, established brands and exclusive supply contracts. In Porter's model these are:",
- o:["Substitutes","Barriers to entry","Buyer power","Competitive rivalry"], a:1,
- e:"They all raise the cost of entering, which weakens the threat of new entrants — the first of the five forces."},
+{c:6, t:"num",
+ q:"How many forces does Porter's model of industry competition contain?",
+ a:5, suffix:"forces",
+ e:"<b>Five</b>: threat of new entrants, threat of substitutes, bargaining power of buyers, bargaining power of suppliers, and competitive rivalry between existing firms."},
 
 {c:5, q:"Which statement best describes the triple bottom line?",
  o:["Profit measured before interest, tax and depreciation","Performance measured on economic, social and environmental terms","Three years of profit compared side by side","Profit shared between owners, employees and the community"], a:1,
@@ -174,17 +179,22 @@ a2:[
  o:["Absolute assurance that objectives will be met","Reasonable assurance, limited by cost and human error","A guarantee against fraud","Certainty that the accounts are free from misstatement"], a:1,
  e:"Every control system has inherent limitations — cost versus benefit, human error, collusion, management override. Reasonable assurance is the ceiling."},
 
-{c:13, q:"Which of the following is a detective control?",
- o:["Requiring two signatures on a payment","Reconciling the bank statement to the cash book","Locking the stores after hours","Restricting system access by password"], a:1,
- e:"A reconciliation finds errors after the event. The other three stop something happening in the first place."},
+{c:13, t:"match",
+ q:"Match each control to the type it represents.",
+ rows:["Requiring two signatures on payments over £10,000",
+       "Reconciling the bank statement each month",
+       "Restoring records from a backup after a system failure"],
+ o:["Preventive","Detective","Corrective"], a:[0,1,2],
+ e:"<b>Preventive</b> controls stop the problem happening; <b>detective</b> controls find it afterwards; <b>corrective</b> controls put the damage right once it has been found."},
 
 {c:14, q:"Which is the clearest example of a preventive control over data security?",
  o:["An audit trail of user activity","An access control list restricting who can open a file","A monthly exception report","A backup taken every night"], a:1,
  e:"Access control stops the wrong person getting in. Audit trails and exception reports detect; backups correct."},
 
-{c:15, q:"In money laundering, converting criminal cash into casino chips and back again is an example of:",
- o:["Placement","Layering","Integration","Tipping off"], a:0,
- e:"Placement is getting the cash into the financial system. Layering then disguises its trail, and integration returns it as apparently clean funds."},
+{c:15, t:"hot", d:"laundering",
+ q:"Criminal cash is used to buy casino chips, which are then cashed in. Click the stage of money laundering at which this happens.",
+ a:0,
+ e:"Getting the cash into the financial system is <b>placement</b>, the first stage. Layering disguises its origin through further transactions; integration brings it back as apparently clean funds."},
 
 {c:16, q:"A production line has broken down and a decision is needed within minutes. Which leadership style is most appropriate?",
  o:["Autocratic","Democratic","Laissez-faire","Consultative"], a:0,
@@ -223,9 +233,11 @@ a2:[
 b:[
 {c:3, s:"<b>Brightline Coaches</b> runs long-distance bus routes. Fares were raised by 10% last month. Passenger numbers fell by 4% and total revenue rose. On its city commuter route, where two rail operators compete directly, the same 10% rise cut passenger numbers by 22%.",
  t:[
-  {q:"On the long-distance routes, demand is best described as:",
-   o:["Elastic, PED greater than 1","Inelastic, PED less than 1","Unit elastic, PED equal to 1","Perfectly elastic"], a:1,
-   e:"Quantity fell 4% for a 10% price rise, so PED is 0.4 — inelastic, which is why revenue rose."},
+  {t:"match",
+   q:"Match each of Brightline's routes to the elasticity its figures show.",
+   rows:["The long-distance routes","The city commuter route"],
+   o:["Inelastic","Elastic"], a:[0,1],
+   e:"Long distance: quantity fell 4% for a 10% rise, so PED is 0.4 — <b>inelastic</b>, which is why revenue rose. Commuter: 22% for 10% gives 2.2 — <b>elastic</b>, because rail alternatives exist."},
   {q:"Which two factors best explain why demand on the commuter route is more elastic? (Select two)",
    o:["Close substitutes are available","The journey is a small part of household income","Passengers have little time to change habits","The fare is a large regular expense for commuters","The service is a necessity with no alternative"], a:[0,3],
    e:"Elasticity rises when substitutes exist and when the item takes a large share of income. Both apply to a daily commute with two rail alternatives."}

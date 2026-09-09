@@ -616,6 +616,111 @@ button.face .card-q,button.face .card-a{display:block}
 .opt[disabled]{cursor:default}
 .opt[disabled]:hover{transform:none}
 
+/* ---- the other ACCA question types --------------------------------------- */
+.qnote{color:var(--warn);margin-top:8px}
+
+/* multiple-response matching grid */
+.matchgrid{border-collapse:collapse;width:100%;margin-top:var(--s3);font-size:var(--step--1)}
+.matchgrid th,.matchgrid td{border:1px solid var(--line);padding:var(--s2);text-align:center}
+.matchgrid thead th{background:var(--tint);font-weight:800;color:var(--ink)}
+.matchgrid tbody th{
+  text-align:left;font-weight:600;color:var(--ink);background:var(--tint);
+  min-width:150px;max-width:280px;line-height:1.5;
+}
+.matchgrid td{width:1%;white-space:nowrap}
+.mcell{
+  width:26px;height:26px;border-radius:999px;border:2px solid var(--line);
+  display:inline-grid;place-items:center;background:var(--card);
+  transition:all var(--dur) var(--ease);
+}
+.mcell span{width:10px;height:10px;border-radius:999px;background:transparent}
+.mcell:hover{border-color:var(--accent)}
+.mcell.picked{border-color:var(--accent);background:var(--accent-soft)}
+.mcell.picked span{background:var(--accent)}
+.matchgrid.review .mcell{cursor:default}
+.mcell.right{border-color:var(--up);background:var(--up-soft)}
+.mcell.right span{background:var(--up)}
+.mcell.wrong{border-color:var(--down);background:var(--down-soft)}
+.mcell.wrong span{background:var(--down)}
+
+/* the 5x5 matching game */
+.matchgrid.game tbody th{max-width:none;width:44%;font-weight:700}
+.matchgrid.game td{width:11%}
+.matchgrid.game tr.r-right th{background:var(--up-soft);color:var(--up)}
+.matchgrid.game tr.r-wrong th{background:var(--down-soft);color:var(--down)}
+.mres{display:block;font-size:var(--step--2);font-weight:800;text-transform:uppercase;
+  letter-spacing:.04em;margin-top:3px;opacity:.85}
+.matchkey{margin-top:var(--s4);display:grid;gap:var(--s2);counter-reset:mk}
+.matchkey li{
+  display:grid;grid-template-columns:30px 1fr;gap:var(--s3);align-items:start;
+  padding:var(--s2) var(--s3);background:var(--tint);border:1px solid var(--line);
+  border-radius:var(--r-sm);
+}
+.matchkey .mk{
+  width:26px;height:26px;border-radius:999px;background:var(--accent);color:var(--accent-ink);
+  display:grid;place-items:center;font-weight:800;font-size:var(--step--1);
+}
+.matchkey .mv{font-size:var(--step--1);line-height:1.65;color:var(--ink-2)}
+@media (max-width:600px){
+  .matchgrid.game tbody th{width:38%;font-size:var(--step--2)}
+  .matchkey li{grid-template-columns:24px 1fr;gap:var(--s2)}
+}
+
+/* gap fill from drop-down lists */
+.gapstem{line-height:2.1}
+.gapwrap{display:inline-block;margin:0 2px}
+select.gap{
+  appearance:none;-webkit-appearance:none;
+  border:0;border-bottom:2px solid var(--accent);border-radius:6px 6px 0 0;
+  background:var(--accent-soft);color:var(--ink);
+  font:700 var(--step-0)/1.3 var(--font-ui);padding:3px 10px;max-width:min(70vw,300px);
+}
+select.gap:hover{filter:brightness(.97)}
+.gapfill{background:var(--up-soft);color:var(--up);padding:1px 6px;border-radius:5px}
+.gaprev{margin-top:var(--s3);display:grid;gap:var(--s2)}
+.gaprev li{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);font-size:var(--step--1)}
+.gaprev .gl{font-weight:800;color:var(--muted);min-width:64px}
+.gaprev .gr{background:var(--up-soft);color:var(--up);padding:2px 9px;border-radius:999px;font-weight:700}
+.gaprev .gw{background:var(--down-soft);color:var(--down);padding:2px 9px;border-radius:999px;font-weight:700;
+  text-decoration:line-through}
+
+/* number entry */
+.numwrap{display:flex;align-items:center;gap:var(--s2);margin-top:var(--s3)}
+.numin{
+  width:140px;padding:9px 12px;border:1px solid var(--line);border-bottom-width:2px;
+  border-radius:var(--r-sm);background:var(--card);color:var(--ink);
+  font:800 var(--step-2)/1.2 var(--font-ui);
+}
+.numin:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.numsuf{font-weight:700;color:var(--muted)}
+
+/* hot spot diagrams */
+.diagram{
+  margin-top:var(--s3);padding:var(--s3);background:var(--tint);
+  border:1px solid var(--line);border-radius:var(--r);max-width:520px;
+}
+.diagram svg{display:block;width:100%;height:auto;overflow:visible}
+.dg-axis{stroke:var(--muted);stroke-width:1.5}
+.dg-link{stroke:var(--muted);stroke-width:1.2}
+.dg-node{fill:var(--card);stroke:var(--muted);stroke-width:1.2;rx:3}
+.dg-lab{fill:var(--muted);font:700 12px var(--font-ui)}
+.dg-tick{fill:var(--muted);font:600 11px var(--font-ui)}
+.hotzone{
+  fill:var(--card);stroke:var(--line);stroke-width:1.5;cursor:pointer;
+  transition:fill var(--dur) var(--ease),stroke var(--dur) var(--ease);
+}
+.hotzone:hover{fill:var(--accent-soft);stroke:var(--accent)}
+.hotzone:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.hotzone.picked{fill:var(--accent-soft);stroke:var(--accent);stroke-width:3}
+.diagram-key{margin-top:var(--s2);display:flex;flex-wrap:wrap;gap:6px}
+.diagram-key span{padding:1px 8px;border-radius:999px;background:var(--sunk)}
+.diagram-key span.on{background:var(--accent);color:var(--accent-ink);font-weight:700}
+@media (max-width:600px){
+  .matchgrid{font-size:var(--step--2)}
+  .matchgrid tbody th{min-width:110px}
+  .matchgrid th,.matchgrid td{padding:6px}
+}
+
 .verdict{
   margin:var(--s4) 0 0;padding:var(--s4);border-radius:var(--r);
   background:var(--tint);border:1px solid var(--line);line-height:1.75;max-width:80ch;
@@ -845,7 +950,8 @@ body:not(.at-study) #study{display:none}
         <button class="navitem" data-mode="cards" role="tab" aria-selected="false"><span class="k">3</span>Cards<span class="badge" id="badgeCards">0</span></button>
         <button class="navitem" data-mode="quiz"  role="tab" aria-selected="false"><span class="k">4</span>Quiz</button>
         <button class="navitem" data-mode="speed" role="tab" aria-selected="false"><span class="k">5</span>Speed</button>
-        <button class="navitem" data-mode="exam"  role="tab" aria-selected="false"><span class="k">6</span>Exam</button>
+        <button class="navitem" data-mode="match" role="tab" aria-selected="false"><span class="k">6</span>Match</button>
+        <button class="navitem" data-mode="exam"  role="tab" aria-selected="false"><span class="k">7</span>Exam</button>
       </div>
     </nav>
 
@@ -1227,6 +1333,110 @@ CARDS.push(
 
 </script>
 <script>
+/* ---- data/diagrams.js ---- */
+/* =====================================================================
+   Diagrams for hot spot and hot area questions.
+
+   ACCA's hot spot questions present a graph or diagram and ask you to
+   click the right part of it. These are inline SVGs so they need no
+   network request, scale on a phone, and inherit the page's theme
+   through currentColor and CSS custom properties.
+
+   Each diagram declares its zones; a question references the diagram by
+   id and gives the index of the correct zone.
+   ===================================================================== */
+const DIAGRAMS = {
+
+  /* Mendelow's power/interest matrix — four quadrants. */
+  mendelow: {
+    name: "Power and interest matrix",
+    vb: "0 0 340 300",
+    zones: [
+      { label: "Low power, low interest",  x: 46,  y: 160, w: 130, h: 110 },
+      { label: "Low power, high interest", x: 46,  y: 46,  w: 130, h: 110 },
+      { label: "High power, low interest", x: 180, y: 160, w: 130, h: 110 },
+      { label: "High power, high interest",x: 180, y: 46,  w: 130, h: 110 }
+    ],
+    chrome:
+      '<line x1="44" y1="278" x2="314" y2="278" class="dg-axis"/>' +
+      '<line x1="44" y1="278" x2="44" y2="42" class="dg-axis"/>' +
+      '<text x="179" y="296" class="dg-lab" text-anchor="middle">Power →</text>' +
+      '<text x="-160" y="20" class="dg-lab" text-anchor="middle" transform="rotate(-90)">Interest →</text>' +
+      '<text x="111" y="36" class="dg-tick" text-anchor="middle">Low power</text>' +
+      '<text x="245" y="36" class="dg-tick" text-anchor="middle">High power</text>'
+  },
+
+  /* Maslow's hierarchy — five bands, widest at the base. */
+  maslow: {
+    name: "Hierarchy of needs",
+    vb: "0 0 340 290",
+    zones: [
+      { label: "Physiological", poly: "20,270 320,270 284,220 56,220" },
+      { label: "Safety",        poly: "56,218 284,218 248,168 92,168" },
+      { label: "Belonging",     poly: "92,166 248,166 212,116 128,116" },
+      { label: "Esteem",        poly: "128,114 212,114 176,64 164,64" },
+      { label: "Self-actualisation", poly: "164,62 176,62 170,20" }
+    ],
+    chrome: '<text x="170" y="288" class="dg-tick" text-anchor="middle">widest need at the base</text>'
+  },
+
+  /* Two organisation charts side by side — tall against flat. */
+  spans: {
+    name: "Two organisation structures",
+    vb: "0 0 360 250",
+    zones: [
+      { label: "The tall structure", x: 8,   y: 24, w: 164, h: 210 },
+      { label: "The flat structure", x: 188, y: 24, w: 164, h: 210 }
+    ],
+    chrome:
+      /* tall: one box per level, four levels */
+      '<text x="90" y="18" class="dg-tick" text-anchor="middle">Structure 1</text>' +
+      '<rect x="76" y="34"  width="28" height="16" class="dg-node"/>' +
+      '<rect x="50" y="74"  width="28" height="16" class="dg-node"/>' +
+      '<rect x="102" y="74" width="28" height="16" class="dg-node"/>' +
+      '<rect x="36" y="114" width="28" height="16" class="dg-node"/>' +
+      '<rect x="88" y="114" width="28" height="16" class="dg-node"/>' +
+      '<rect x="36" y="154" width="28" height="16" class="dg-node"/>' +
+      '<rect x="88" y="154" width="28" height="16" class="dg-node"/>' +
+      '<line x1="90" y1="50" x2="64" y2="74" class="dg-link"/>' +
+      '<line x1="90" y1="50" x2="116" y2="74" class="dg-link"/>' +
+      '<line x1="64" y1="90" x2="50" y2="114" class="dg-link"/>' +
+      '<line x1="116" y1="90" x2="102" y2="114" class="dg-link"/>' +
+      '<line x1="50" y1="130" x2="50" y2="154" class="dg-link"/>' +
+      '<line x1="102" y1="130" x2="102" y2="154" class="dg-link"/>' +
+      /* flat: one manager over six */
+      '<text x="270" y="18" class="dg-tick" text-anchor="middle">Structure 2</text>' +
+      '<rect x="256" y="34" width="28" height="16" class="dg-node"/>' +
+      '<rect x="196" y="98" width="24" height="16" class="dg-node"/>' +
+      '<rect x="226" y="98" width="24" height="16" class="dg-node"/>' +
+      '<rect x="256" y="98" width="24" height="16" class="dg-node"/>' +
+      '<rect x="286" y="98" width="24" height="16" class="dg-node"/>' +
+      '<rect x="316" y="98" width="24" height="16" class="dg-node"/>' +
+      '<line x1="270" y1="50" x2="208" y2="98" class="dg-link"/>' +
+      '<line x1="270" y1="50" x2="238" y2="98" class="dg-link"/>' +
+      '<line x1="270" y1="50" x2="268" y2="98" class="dg-link"/>' +
+      '<line x1="270" y1="50" x2="298" y2="98" class="dg-link"/>' +
+      '<line x1="270" y1="50" x2="328" y2="98" class="dg-link"/>'
+  },
+
+  /* The three lines of a money laundering scheme. */
+  laundering: {
+    name: "Stages of money laundering",
+    vb: "0 0 360 150",
+    zones: [
+      { label: "First stage",  x: 12,  y: 46, w: 100, h: 58 },
+      { label: "Second stage", x: 130, y: 46, w: 100, h: 58 },
+      { label: "Third stage",  x: 248, y: 46, w: 100, h: 58 }
+    ],
+    chrome:
+      '<text x="180" y="26" class="dg-tick" text-anchor="middle">criminal cash → apparently clean funds</text>' +
+      '<line x1="114" y1="75" x2="128" y2="75" class="dg-axis"/>' +
+      '<line x1="232" y1="75" x2="246" y2="75" class="dg-axis"/>'
+  }
+};
+
+</script>
+<script>
 /* ---- data/exam.js ---- */
 /* ---------------------------------------------------------------
    Exam technique — the briefing, and a drill on the six traps.
@@ -1604,13 +1814,17 @@ a2:[
  o:["They pursue profit for owners","They are accountable to shareholders","They are social arrangements pursuing collective goals","They are financed by taxation"], a:2,
  e:"Buchanan and Huczynski's definition covers every organisation: a social arrangement pursuing collective goals, controlling its performance, with a boundary. Profit and shareholders apply to only one of the three."},
 
-{c:1, q:"A pressure group has strong influence over regulators but little day-to-day interest in a company's operations. Using Mendelow's matrix, how should the company treat it?",
- o:["Key player — manage closely","Keep satisfied","Keep informed","Minimal effort"], a:1,
- e:"High power, low interest: keep them satisfied so their interest is never aroused. Interest can rise quickly, and then they become key players."},
+{c:1, t:"hot", d:"mendelow",
+ q:"A pressure group has strong influence over regulators but takes little interest in the company's day-to-day operations. Click the quadrant of the matrix into which it falls.",
+ a:2,
+ e:"High power, low interest — <b>keep satisfied</b>. Do enough to stop them becoming interested, because if they do, the power is already there."},
 
-{c:2, q:"A government cuts income tax and raises spending on infrastructure. This is:",
- o:["Expansionary monetary policy","Contractionary fiscal policy","Expansionary fiscal policy","Supply-side policy"], a:2,
- e:"Fiscal policy is taxation and government spending. Cutting tax and raising spending injects demand, so it is expansionary."},
+{c:2, t:"gap",
+ q:"A government cuts income tax and raises spending on infrastructure. This is {0} policy, and its immediate effect is to {1} aggregate demand.",
+ g:[["monetary","fiscal","supply-side","exchange rate"],
+    ["increase","reduce","leave unchanged","fix"]],
+ a:[1,0],
+ e:"Taxation and government spending are <b>fiscal</b> policy. Cutting tax and spending more both put money into the economy, so aggregate demand <b>increases</b>."},
 
 {c:2, q:"Unemployment caused by a mismatch between workers' skills and the jobs available as industries decline is:",
  o:["Frictional","Structural","Cyclical","Seasonal"], a:1,
@@ -1628,9 +1842,10 @@ a2:[
  o:["A larger pool of school leavers to recruit from","Pressure to retain and retrain older workers","Falling demand for healthcare services","A fall in pension costs"], a:1,
  e:"A shrinking working-age population forces employers to keep older workers longer. The other three run the wrong way."},
 
-{c:6, q:"A new entrant to an industry faces high capital costs, established brands and exclusive supply contracts. In Porter's model these are:",
- o:["Substitutes","Barriers to entry","Buyer power","Competitive rivalry"], a:1,
- e:"They all raise the cost of entering, which weakens the threat of new entrants — the first of the five forces."},
+{c:6, t:"num",
+ q:"How many forces does Porter's model of industry competition contain?",
+ a:5, suffix:"forces",
+ e:"<b>Five</b>: threat of new entrants, threat of substitutes, bargaining power of buyers, bargaining power of suppliers, and competitive rivalry between existing firms."},
 
 {c:5, q:"Which statement best describes the triple bottom line?",
  o:["Profit measured before interest, tax and depreciation","Performance measured on economic, social and environmental terms","Three years of profit compared side by side","Profit shared between owners, employees and the community"], a:1,
@@ -1676,17 +1891,22 @@ a2:[
  o:["Absolute assurance that objectives will be met","Reasonable assurance, limited by cost and human error","A guarantee against fraud","Certainty that the accounts are free from misstatement"], a:1,
  e:"Every control system has inherent limitations — cost versus benefit, human error, collusion, management override. Reasonable assurance is the ceiling."},
 
-{c:13, q:"Which of the following is a detective control?",
- o:["Requiring two signatures on a payment","Reconciling the bank statement to the cash book","Locking the stores after hours","Restricting system access by password"], a:1,
- e:"A reconciliation finds errors after the event. The other three stop something happening in the first place."},
+{c:13, t:"match",
+ q:"Match each control to the type it represents.",
+ rows:["Requiring two signatures on payments over £10,000",
+       "Reconciling the bank statement each month",
+       "Restoring records from a backup after a system failure"],
+ o:["Preventive","Detective","Corrective"], a:[0,1,2],
+ e:"<b>Preventive</b> controls stop the problem happening; <b>detective</b> controls find it afterwards; <b>corrective</b> controls put the damage right once it has been found."},
 
 {c:14, q:"Which is the clearest example of a preventive control over data security?",
  o:["An audit trail of user activity","An access control list restricting who can open a file","A monthly exception report","A backup taken every night"], a:1,
  e:"Access control stops the wrong person getting in. Audit trails and exception reports detect; backups correct."},
 
-{c:15, q:"In money laundering, converting criminal cash into casino chips and back again is an example of:",
- o:["Placement","Layering","Integration","Tipping off"], a:0,
- e:"Placement is getting the cash into the financial system. Layering then disguises its trail, and integration returns it as apparently clean funds."},
+{c:15, t:"hot", d:"laundering",
+ q:"Criminal cash is used to buy casino chips, which are then cashed in. Click the stage of money laundering at which this happens.",
+ a:0,
+ e:"Getting the cash into the financial system is <b>placement</b>, the first stage. Layering disguises its origin through further transactions; integration brings it back as apparently clean funds."},
 
 {c:16, q:"A production line has broken down and a decision is needed within minutes. Which leadership style is most appropriate?",
  o:["Autocratic","Democratic","Laissez-faire","Consultative"], a:0,
@@ -1725,9 +1945,11 @@ a2:[
 b:[
 {c:3, s:"<b>Brightline Coaches</b> runs long-distance bus routes. Fares were raised by 10% last month. Passenger numbers fell by 4% and total revenue rose. On its city commuter route, where two rail operators compete directly, the same 10% rise cut passenger numbers by 22%.",
  t:[
-  {q:"On the long-distance routes, demand is best described as:",
-   o:["Elastic, PED greater than 1","Inelastic, PED less than 1","Unit elastic, PED equal to 1","Perfectly elastic"], a:1,
-   e:"Quantity fell 4% for a 10% price rise, so PED is 0.4 — inelastic, which is why revenue rose."},
+  {t:"match",
+   q:"Match each of Brightline's routes to the elasticity its figures show.",
+   rows:["The long-distance routes","The city commuter route"],
+   o:["Inelastic","Elastic"], a:[0,1],
+   e:"Long distance: quantity fell 4% for a 10% rise, so PED is 0.4 — <b>inelastic</b>, which is why revenue rose. Commuter: 22% for 10% gives 2.2 — <b>elastic</b>, because rail alternatives exist."},
   {q:"Which two factors best explain why demand on the commuter route is more elastic? (Select two)",
    o:["Close substitutes are available","The journey is a small part of household income","Passengers have little time to change habits","The fare is a large regular expense for commuters","The service is a necessity with no alternative"], a:[0,3],
    e:"Elasticity rises when substitutes exist and when the item takes a large share of income. Both apply to a daily commute with two rail alternatives."}
@@ -1908,17 +2130,25 @@ a2:[
  o:["Process the payroll accurately","Ensure the organisation has the people and capabilities it needs","Represent employees in disputes with management","Set the organisation's strategy"], a:1,
  e:"HR is about resourcing, developing and retaining the workforce. Payroll is one administrative part of it."},
 
-{c:9, q:"Schein described organisational culture as operating at three levels. The deepest level is:",
- o:["Artefacts","Espoused values","Basic underlying assumptions","Rituals and symbols"], a:2,
- e:"Artefacts are visible, espoused values are stated, and basic assumptions are the unspoken beliefs that actually drive behaviour."},
+{c:9, t:"gap",
+ q:"Schein described culture as operating at three levels. The office layout and dress code are {0}; a published statement of company values is an {1}; and the unspoken beliefs nobody thinks to question are {2}.",
+ g:[["artefacts","espoused value","basic assumption"],
+    ["artefact","espoused value","basic assumption"],
+    ["artefacts","espoused values","basic assumptions"]],
+ a:[0,1,2],
+ e:"<b>Artefacts</b> are the visible surface, <b>espoused values</b> are what the organisation says it believes, and <b>basic assumptions</b> are taken for granted and hardest to change."},
 
 {c:10, q:"Which of the following is the best description of the role of a nominations committee?",
  o:["Reviewing the effectiveness of internal control","Recommending appointments to the board and reviewing its composition","Determining executive pay","Approving the financial statements"], a:1,
  e:"Nominations handles board membership and succession. Audit handles control and reporting; remuneration handles pay."},
 
-{c:11, q:"A company has receivables of 480,000 and credit sales of 2,920,000. Receivable days are approximately:",
- o:["30 days","46 days","60 days","76 days"], a:2,
- e:"480,000 / 2,920,000 x 365 = 60 days. It is the core credit-control measure and the first place to look when cash is tight."},
+{c:11, t:"match",
+ q:"Match each task to the part of the finance function that normally performs it.",
+ rows:["Preparing the statutory financial statements",
+       "Preparing next year's budget",
+       "Arranging a facility to cover a cash shortfall"],
+ o:["Financial accounting","Management accounting","Finance and treasury"], a:[0,1,2],
+ e:"Financial accounting records and reports externally; management accounting plans and controls internally; finance and treasury raises funding and manages cash and financial risk."},
 
 {c:11, q:"Which is the most appropriate source of finance for purchasing a factory expected to last twenty-five years?",
  o:["Bank overdraft","Trade credit","A long-term loan or share issue","Invoice discounting"], a:2,
@@ -2156,9 +2386,10 @@ a2:[
  o:["Wages paid to production staff","Air pollution borne by the surrounding community","Raw materials purchased from a supplier","Depreciation of the production line"], a:1,
  e:"An externality is a cost falling on third parties rather than the producer. The other three are internal costs the business pays."},
 
-{c:7, q:"Which of the following is an advantage of a flat structure over a tall one?",
- o:["Closer supervision of each subordinate","Faster vertical communication and quicker decisions","More rungs on the promotion ladder","Narrower spans of control"], a:1,
- e:"Fewer layers means messages travel further per step and decisions are made closer to the work. Close supervision and promotion rungs are the tall structure's advantages."},
+{c:7, t:"hot", d:"spans",
+ q:"Two organisation charts are shown. Click the structure with the wider span of control.",
+ a:1,
+ e:"Structure 2 puts five people under one manager across two levels — a <b>wide span</b> in a flat structure. Structure 1 spreads the same people over four levels, so each manager supervises fewer and the chain of command is longer."},
 
 {c:8, q:"Which of the following best distinguishes the marketing function from the sales function?",
  o:["Marketing sells to customers; sales identifies their needs","Marketing identifies and anticipates customer needs; sales converts that demand into orders","They are two names for the same activity","Marketing is external and sales is internal"], a:1,
@@ -2208,9 +2439,12 @@ a2:[
  o:["An employee who takes their full holiday entitlement","An employee who refuses to take holiday and insists on handling one supplier personally","Regular rotation of duties within a team","Mandatory two-person authorisation of payments"], a:1,
  e:"A refusal to take leave keeps a fraud from surfacing while someone else covers the role. The other three are controls against fraud."},
 
-{c:16, q:"Fiedler argued that leadership effectiveness depends on:",
- o:["The leader's personality alone","The match between the leader's style and the favourability of the situation","The size of the organisation","The leader's formal qualifications"], a:1,
- e:"Fiedler's contingency model: situational favourability is set by leader-member relations, task structure and position power."},
+{c:16, t:"match",
+ q:"Match each writer to the contribution for which the syllabus names them.",
+ rows:["Fayol","Mintzberg","Blake and Mouton"],
+ o:["The five functions of management","Ten managerial roles in three groups","A grid of concern for people against production"],
+ a:[0,1,2],
+ e:"Fayol gave the classical <b>functions</b> — plan, organise, command, co-ordinate, control. Mintzberg described what managers actually do as ten <b>roles</b>. Blake and Mouton plotted concern for people against concern for production on a <b>grid</b>."},
 
 {c:16, q:"A newly appointed manager takes over a team that is willing but inexperienced. In Hersey and Blanchard's model, the appropriate style is:",
  o:["Telling","Selling","Participating","Delegating"], a:1,
@@ -2384,9 +2618,11 @@ a2:[
  o:["Manage closely as a key player","Keep satisfied","Keep informed","Minimal effort"], a:1,
  e:"High power, low interest stakeholders should be <b>kept satisfied</b> — do enough to stop them becoming interested and using that power against the plan."},
 
-{c:1, q:"Which <b>two</b> of the following are connected stakeholders? (Select two)",
- o:["Shareholders","Employees","Customers","Government","Local pressure groups"], a:[0,2],
- e:"Connected stakeholders have a contractual link with the organisation — shareholders, customers, suppliers, lenders. Employees are internal; government and pressure groups are external."},
+{c:1, t:"match",
+ q:"Match each party to the stakeholder group it belongs to.",
+ rows:["A production supervisor","A long-standing supplier","A local environmental campaign group"],
+ o:["Internal","Connected","External"], a:[0,1,2],
+ e:"<b>Internal</b> stakeholders sit inside the organisation; <b>connected</b> stakeholders have a contractual link such as supply, lending or ownership; <b>external</b> stakeholders have no contract but are still affected."},
 
 {c:2, q:"In a PESTEL analysis, an ageing population is classified under which heading?",
  o:["Political","Economic","Social","Technological"], a:2,
@@ -2472,9 +2708,11 @@ a2:[
  o:["Volume","Verification","Velocity","Valuation","Vertical integration"], a:[0,2],
  e:"Big data is usually described by volume, velocity and variety — the sheer quantity, the speed at which it arrives, and the range of formats it comes in."},
 
-{c:15, q:"Which of the following best describes the 'layering' stage of money laundering?",
- o:["Introducing criminal cash into the financial system","Moving funds through complex transactions to disguise their origin","Spending the funds on visible assets","Reporting a suspicion to the authorities"], a:1,
- e:"Layering puts distance between the money and its criminal source through a chain of transfers, conversions and transactions designed to break the audit trail."},
+{c:15, t:"gap",
+ q:"Money laundering is described in three stages. Criminal cash first enters the financial system at the {0} stage, is moved through complex transactions to disguise its origin at the {1} stage, and returns as apparently legitimate funds at the {2} stage.",
+ g:[["placement","layering","integration"],["placement","layering","integration"],["placement","layering","integration"]],
+ a:[0,1,2],
+ e:"<b>Placement</b>, then <b>layering</b>, then <b>integration</b>. Layering is the stage designed to break the audit trail between the money and its criminal source."},
 
 {c:15, q:"An accountant suspects a client is laundering money. What is the correct action?",
  o:["Tell the client that a report is being made","Make a report to the appropriate authority and not tell the client","Resign immediately without reporting","Take no action unless the amount is material"], a:1,
@@ -2488,9 +2726,10 @@ a2:[
  o:["Forming, storming, norming, performing","Storming, forming, norming, performing","Forming, norming, storming, performing","Norming, forming, storming, performing"], a:0,
  e:"Forming (polite), storming (conflict over roles), norming (agreeing how to work), performing (productive). Tuckman later added adjourning."},
 
-{c:18, q:"Which need sits at the top of Maslow's hierarchy?",
- o:["Esteem","Safety","Self-actualisation","Belonging"], a:2,
- e:"<b>Self-actualisation</b> — realising one's full potential — is the highest level, and unlike the others it is never fully satisfied."},
+{c:18, t:"hot", d:"maslow",
+ q:"Click the level of Maslow's hierarchy that he placed at the top, and which is never fully satisfied.",
+ a:4,
+ e:"<b>Self-actualisation</b> — realising one's full potential. Unlike the four levels below it, meeting it does not switch the need off."},
 
 {c:19, q:"Which of the following best describes the purpose of a development appraisal?",
  o:["To decide the size of this year's pay rise","To identify the employee's training and development needs for the future","To create a record for a possible dismissal","To rank all employees against one another"], a:1,
@@ -2644,9 +2883,10 @@ a2:[
  o:["Directors act as agents of the shareholders","Shareholders act as agents of the directors","Employees act as agents of the customers","Auditors act as agents of the directors"], a:0,
  e:"Shareholders are the principals who own the company; directors are the agents who run it for them. The agency problem is that agents may pursue their own interests instead."},
 
-{c:1, q:"Which <b>two</b> of the following would be classified as internal stakeholders? (Select two)",
- o:["Employees","Suppliers","Directors","Local community","Lenders"], a:[0,2],
- e:"Internal stakeholders are inside the organisation — employees and directors. Suppliers and lenders are connected by contract; the community is external."},
+{c:1, t:"num",
+ q:"How many of the three Es make up the value-for-money framework used where there is no profit figure to judge performance by?",
+ a:3, suffix:"Es",
+ e:"<b>Three</b>: economy — buying inputs at the lowest cost for the quality needed; efficiency — the input-to-output ratio; effectiveness — actually meeting the objective."},
 
 {c:2, q:"Which of the following would a government most likely use to correct a persistent balance of payments deficit?",
  o:["Reducing interest rates to encourage borrowing","Measures to make exports more competitive","Increasing public sector pay","Reducing the retirement age"], a:1,
@@ -2708,9 +2948,12 @@ a2:[
  o:["To detect all fraud within the company","To express an opinion on whether the financial statements give a true and fair view","To prepare the financial statements","To value the company for sale"], a:1,
  e:"The auditor gives an <b>opinion</b> to the shareholders. Preparing the statements is the directors' job, and no audit can be expected to detect every fraud."},
 
-{c:12, q:"Which <b>two</b> of the following are enhancing qualitative characteristics of useful financial information? (Select two)",
- o:["Comparability","Relevance","Understandability","Faithful representation","Materiality"], a:[0,2],
- e:"The <b>enhancing</b> characteristics are comparability, verifiability, timeliness and understandability. Relevance and faithful representation are the two fundamental ones."},
+{c:12, t:"match",
+ q:"Match each financial statement to what it primarily reports.",
+ rows:["Statement of profit or loss","Statement of financial position","Statement of cash flows"],
+ o:["Performance over a period","Position at a point in time","Cash generated and spent"],
+ a:[0,1,2],
+ e:"The <b>profit or loss</b> account covers a period of trading; the <b>financial position</b> is a snapshot on one date; the <b>cash flow</b> statement explains how cash moved between two such dates."},
 
 {c:13, q:"An organisation requires that the person who authorises a purchase order is different from the person who approves the supplier invoice. This control is designed primarily to:",
  o:["Speed up the purchasing cycle","Reduce the risk of unauthorised or fictitious purchases","Improve supplier relationships","Reduce the cost of purchasing"], a:1,
@@ -2918,6 +3161,7 @@ function savePrefs() {
   write(K.prefs, {
     theme: state.theme, place: state.place, mode: state.mode,
     size: state.size, diff: state.diff, focus: state.focus, view: state.view, listQ: state.listQ,
+    matchBest: prefs.matchBest, matchTime: prefs.matchTime, matchStreak: prefs.matchStreak,
     mixups, stars, bests, trapScores,
     speedBest: prefs.speedBest
   });
@@ -3238,7 +3482,7 @@ function render() {
   stage.innerHTML = "";
   ({
     overview: renderOverview, today: renderToday, cards: renderCards,
-    quiz: renderQuiz, speed: renderSpeed, exam: renderExam
+    quiz: renderQuiz, speed: renderSpeed, match: renderMatchGame, exam: renderExam
   }[state.mode])();
   renderKeys();
 }
@@ -4198,6 +4442,138 @@ function renderSpeedDone() {
   }));
 }
 
+
+/* ==========================================================================
+   Mode: Match — a 5×5 grid, five terms against five answers
+
+   The same interaction ACCA uses for multiple-response matching, scaled up
+   and put on a clock. Each column may be used once, so the grid is a
+   permutation and a wrong pairing always costs a second one — which is the
+   part that makes it a game rather than five separate questions.
+   ========================================================================== */
+const MATCH_N = 5;
+const COL = ["A", "B", "C", "D", "E"];
+
+function newMatchRound() {
+  const pool = poolNow().filter(c => !isBeyond(c));
+  const seen = {};
+  const picked = [];
+  /* distinct questions, and distinct answers, or the grid is unsolvable */
+  shuffle(pool.slice()).forEach(c => {
+    const qk = plain(c.q), ak = plain(c.a).slice(0, 60);
+    if (picked.length < MATCH_N && !seen[qk] && !seen[ak]) { seen[qk] = seen[ak] = 1; picked.push(c); }
+  });
+  if (picked.length < MATCH_N) return null;
+  const order = shuffle(picked.map((_, i) => i));      /* column i holds answer order[i] */
+  return { cards: picked, order, pick: new Array(MATCH_N).fill(null), checked: false, startedAt: Date.now() };
+}
+
+function renderMatchGame() {
+  if (!state.match) state.match = newMatchRound();
+  const g = state.match;
+
+  if (!g) {
+    stage.innerHTML = scopeBar("Match") +
+      panel("Not enough cards", "",
+        emptyState("This chapter has fewer than five usable cards.",
+          "Pick another chapter, or clear the filter to play across the whole syllabus."), "flush");
+    wireScope();
+    return;
+  }
+
+  const answerFor = col => g.cards[g.order[col]];       /* which card's answer sits in this column */
+  const correctCol = row => g.order.indexOf(row);       /* the column holding row's answer */
+  const score = g.pick.reduce((n, c, r) => n + (c !== null && c === correctCol(r) ? 1 : 0), 0);
+  const full = g.pick.every(v => v !== null);
+  const secs = Math.round(((g.endedAt || Date.now()) - g.startedAt) / 1000);
+
+  stage.innerHTML =
+    scopeBar("Match") +
+    '<div class="metrics">' +
+      metricCard("Best round", (prefs.matchBest || 0) + '<small> / 5</small>',
+        '<span class="hint">' + (prefs.matchTime ? "in " + prefs.matchTime + "s" : "not played yet") + '</span>') +
+      metricCard("Perfect run", prefs.matchStreak || 0, '<span class="hint">rounds in a row</span>') +
+      metricCard("This round", g.checked ? score + '<small> / 5</small>' : '&mdash;',
+        g.checked ? bar(pct(score, MATCH_N), score === MATCH_N ? "b-up" : "b-warn") : '<span class="hint">' + secs + 's elapsed</span>') +
+    '</div>' +
+
+    '<section class="panel">' +
+      '<div class="panel-hd"><h3>Match each term to its answer</h3><span class="sp"></span>' +
+        '<span class="meta">' + (g.checked ? "marked" : g.pick.filter(v => v !== null).length + " of 5 placed") + '</span></div>' +
+      '<div class="panel-bd">' +
+        '<div class="tbl-wrap"><table class="matchgrid game">' +
+          '<thead><tr><th></th>' + COL.map(c => '<th scope="col">' + c + '</th>').join("") + '</tr></thead>' +
+          '<tbody>' + g.cards.map((c, r) => {
+            const right = g.checked && g.pick[r] === correctCol(r);
+            const wrong = g.checked && g.pick[r] !== null && !right;
+            return '<tr class="' + (right ? "r-right" : wrong ? "r-wrong" : "") + '">' +
+              '<th scope="row">' + esc(c.q) +
+                (g.checked ? '<span class="mres">' + (right ? "correct" : "answer " + COL[correctCol(r)]) + '</span>' : "") +
+              '</th>' +
+              COL.map((_, ci) => {
+                let cls = "mcell";
+                if (g.pick[r] === ci) cls += " picked";
+                if (g.checked && ci === correctCol(r)) cls += " right";
+                else if (g.checked && g.pick[r] === ci) cls += " wrong";
+                return '<td><button class="' + cls + '" data-mr="' + r + '" data-mc="' + ci + '" ' +
+                  (g.checked ? "disabled " : "") + 'aria-label="' + esc(c.q) + ': answer ' + COL[ci] + '"' +
+                  '><span></span></button></td>';
+              }).join("") +
+            '</tr>';
+          }).join("") + '</tbody>' +
+        '</table></div>' +
+
+        '<ol class="matchkey">' + COL.map((L, ci) =>
+          '<li><span class="mk">' + L + '</span><span class="mv">' + highlight(answerFor(ci).a) + '</span></li>').join("") +
+        '</ol>' +
+
+        '<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">' +
+          (g.checked
+            ? '<button class="btn btn-primary" id="matchNext">Next round</button>'
+            : '<button class="btn btn-primary" id="matchCheck"' + (full ? "" : " disabled") + '>Check answers</button>' +
+              '<button class="btn" id="matchClear">Clear</button>') +
+          '<button class="btn" id="matchNew">New five</button>' +
+        '</div>' +
+        (g.checked ? "" : '<p class="hint" style="margin-top:10px">Each answer belongs to exactly one term, so placing one rules it out elsewhere.</p>') +
+      '</div>' +
+    '</section>';
+
+  wireScope();
+
+  $$("[data-mr]").forEach(b => b.addEventListener("click", () => {
+    const r = +b.dataset.mr, ci = +b.dataset.mc;
+    if (g.pick[r] === ci) { g.pick[r] = null; }
+    else {
+      /* a column can only be used once — taking it frees whoever had it */
+      const held = g.pick.indexOf(ci);
+      if (held >= 0) g.pick[held] = null;
+      g.pick[r] = ci;
+    }
+    render();
+  }));
+
+  if ($("#matchCheck")) $("#matchCheck").addEventListener("click", () => {
+    g.checked = true; g.endedAt = Date.now();
+    const t = Math.round((g.endedAt - g.startedAt) / 1000);
+    /* the round counts towards the schedule, like everything else */
+    g.cards.forEach((c, r) => recordRating(c.id, g.pick[r] === correctCol(r) ? RATE.GOOD : RATE.AGAIN, "cards"));
+    const sc = g.pick.reduce((n, c, r) => n + (c === correctCol(r) ? 1 : 0), 0);
+    if (sc > (prefs.matchBest || 0) || (sc === prefs.matchBest && t < (prefs.matchTime || 1e9))) {
+      prefs.matchBest = sc; prefs.matchTime = t;
+    }
+    prefs.matchStreak = sc === MATCH_N ? (prefs.matchStreak || 0) + 1 : 0;
+    savePrefs();
+    render();
+  });
+  if ($("#matchClear")) $("#matchClear").addEventListener("click", () => {
+    g.pick = new Array(MATCH_N).fill(null); render();
+  });
+  $("#matchNew").addEventListener("click", () => { state.match = newMatchRound(); render(); });
+  if ($("#matchNext")) $("#matchNext").addEventListener("click", () => { state.match = newMatchRound(); render(); });
+
+  keyHandler = null;
+}
+
 /* ==========================================================================
    Mode: Exam — briefing, trap drill, mock simulator
    ========================================================================== */
@@ -4389,8 +4765,8 @@ function answerKey(item, taskIdx) { return item.label + (taskIdx == null ? "" : 
 
 function answeredSlots(p, ans) {
   return flatten(p).reduce((n, x) =>
-    n + (x.sec === "A" ? (ans[x.label] != null ? 1 : 0)
-                       : x.set.t.filter((t, j) => ans[answerKey(x, j)] != null).length), 0);
+    n + (x.sec === "A" ? (isAnswered(x.q, ans[x.label]) ? 1 : 0)
+                       : x.set.t.filter((t, j) => isAnswered(t, ans[answerKey(x, j)])).length), 0);
 }
 
 function renderMocks(box) {
@@ -4482,16 +4858,63 @@ function startMockTimer() {
   }, 500);
 }
 
-/* Marking follows ACCA's own rule, which differs between the two sections.
+/* ==========================================================================
+   Question types and marking
+
+   ACCA uses several objective formats. This build implements the ones that
+   appear in an on-demand CBE: multiple choice, multiple response,
+   multiple-response matching, gap fill from drop-down lists, number entry and
+   hot spot. Drag and drop is deliberately absent — ACCA states it appears only
+   in session CBEs, and BT is on demand.
+
+   Marking follows ACCA's own rule, which differs between the two sections.
    Section A: "no partial marking is available, so candidates must select all
    correct options to obtain full marks, otherwise they will score zero."
-   Section B: partial marking IS allowed — candidates get "credit for those
-   correct selections which they make". So a two-mark task asking for two
-   answers scores one mark per correct selection, and an incorrect selection
-   cancels one correct rather than voiding the lot. */
+   Section B: partial marking IS allowed — credit for "those correct selections
+   which they make".
+   ========================================================================== */
+function qType(q) {
+  if (q.t) return q.t;
+  return Array.isArray(q.a) ? "multi" : "single";
+}
+
+/* Has enough been entered to count the question as attempted? */
+function isAnswered(q, given) {
+  if (given == null) return false;
+  const t = qType(q);
+  if (t === "match" || t === "gap") {
+    return Array.isArray(given) && given.length === q.a.length &&
+           given.every(v => v != null && v !== "");
+  }
+  if (t === "multi") return Array.isArray(given) && given.length > 0;
+  if (t === "num") return given !== "";
+  return true;
+}
+
 function scoreQuestion(q, given, marks, partial) {
-  if (given == null) return 0;
-  if (!Array.isArray(q.a)) return given === q.a ? marks : 0;
+  if (!isAnswered(q, given)) {
+    /* a part-filled matching or gap answer still earns its correct slots */
+    if (!partial || given == null) return 0;
+  }
+  const t = qType(q);
+
+  if (t === "single" || t === "hot") return given === q.a ? marks : 0;
+
+  if (t === "num") {
+    const n = parseFloat(String(given).replace(/[, ]/g, ""));
+    return isFinite(n) && n === q.a ? marks : 0;
+  }
+
+  /* match and gap are positional: slot i must hold answer i */
+  if (t === "match" || t === "gap") {
+    if (!Array.isArray(given)) return 0;
+    let right = 0;
+    q.a.forEach((v, i) => { if (given[i] === v) right++; });
+    if (!partial) return right === q.a.length ? marks : 0;
+    return Math.round((right / q.a.length) * marks);
+  }
+
+  /* multiple response is a set: order does not matter, wrong ticks cost */
   const want = q.a;
   const got = Array.isArray(given) ? given : [given];
   const right = got.filter(i => want.indexOf(i) >= 0).length;
@@ -4502,12 +4925,9 @@ function scoreQuestion(q, given, marks, partial) {
 
 /* Whether the answer was fully correct — used by the review screen. */
 function markQuestion(q, given) {
-  if (given == null) return false;
-  if (Array.isArray(q.a)) {
-    if (!Array.isArray(given) || given.length !== q.a.length) return false;
-    return q.a.slice().sort().join(",") === given.slice().sort().join(",");
-  }
-  return given === q.a;
+  const t = qType(q);
+  const marks = 2;
+  return isAnswered(q, given) && scoreQuestion(q, given, marks, false) === marks;
 }
 
 function submitMock() {
@@ -4618,18 +5038,92 @@ function renderMock() {
 
 function mockQuestionHTML(q, key) {
   const m = state.mock;
-  const multi = Array.isArray(q.a);
   const given = m.ans[key];
+  const t = qType(q);
+  const partial = key.charAt(0) === "B";
+  const note = txt => '<p class="eyebrow qnote">' + txt + '</p>';
+
+  if (t === "match")  return matchHTML(q, key, given, partial);
+  if (t === "gap")    return gapHTML(q, key, given, partial);
+  if (t === "num")    return numHTML(q, key, given);
+  if (t === "hot")    return hotHTML(q, key, given);
+
+  const multi = t === "multi";
   return '<h3 class="q-stem">' + q.q + '</h3>' +
-    (multi ? '<p class="eyebrow" style="color:var(--warn);margin-top:8px">Select ' + q.a.length +
-      (key.charAt(0) === "B" ? ' · partial credit' : ' · all or nothing') + '</p>' : "") +
-    '<div class="opts" data-key="' + key + '" data-multi="' + multi + '">' +
+    (multi ? note('Select ' + q.a.length + (partial ? ' · partial credit' : ' · all or nothing')) : "") +
+    '<div class="opts" data-key="' + key + '" data-kind="' + (multi ? "multi" : "single") + '">' +
       q.o.map((o, i) => {
         const on = multi ? Array.isArray(given) && given.indexOf(i) >= 0 : given === i;
         return '<button class="opt' + (on ? " picked" : "") + '" data-opt="' + i + '">' +
           '<span class="key">' + "ABCDE"[i] + '</span><span class="txt">' + o + '</span></button>';
       }).join("") +
     '</div>';
+}
+
+/* ---- multiple-response matching: one column per row --------------------- */
+function matchHTML(q, key, given, partial) {
+  const cur = Array.isArray(given) ? given : [];
+  return '<h3 class="q-stem">' + q.q + '</h3>' +
+    '<p class="eyebrow qnote">Choose one for each row' + (partial ? ' · partial credit' : ' · all or nothing') + '</p>' +
+    '<div class="tbl-wrap"><table class="matchgrid" data-key="' + key + '" data-kind="match">' +
+      '<thead><tr><th></th>' + q.o.map(c => '<th scope="col">' + c + '</th>').join("") + '</tr></thead>' +
+      '<tbody>' + q.rows.map((r, ri) =>
+        '<tr><th scope="row">' + r + '</th>' +
+          q.o.map((c, ci) =>
+            '<td><button class="mcell' + (cur[ri] === ci ? " picked" : "") + '" ' +
+              'data-row="' + ri + '" data-col="' + ci + '" role="radio" ' +
+              'aria-checked="' + (cur[ri] === ci) + '" ' +
+              'aria-label="' + esc(r) + ': ' + esc(c) + '"><span></span></button></td>').join("") +
+        '</tr>').join("") +
+      '</tbody></table></div>';
+}
+
+/* ---- gap fill from drop-down lists -------------------------------------- */
+function gapHTML(q, key, given, partial) {
+  const cur = Array.isArray(given) ? given : [];
+  let html = q.q;
+  q.g.forEach((opts, gi) => {
+    const sel = '<span class="gapwrap"><select class="gap" data-key="' + key + '" data-kind="gap" data-gap="' + gi + '" ' +
+      'aria-label="Gap ' + (gi + 1) + '">' +
+      '<option value="">— choose —</option>' +
+      opts.map((o, oi) => '<option value="' + oi + '"' + (cur[gi] === oi ? " selected" : "") + '>' + esc(o) + '</option>').join("") +
+      '</select></span>';
+    html = html.replace("{" + gi + "}", sel);
+  });
+  return '<h3 class="q-stem gapstem">' + html + '</h3>' +
+    '<p class="eyebrow qnote">Complete every gap' + (partial ? ' · partial credit' : ' · all or nothing') + '</p>';
+}
+
+/* ---- number entry -------------------------------------------------------- */
+function numHTML(q, key, given) {
+  return '<h3 class="q-stem">' + q.q + '</h3>' +
+    '<p class="numwrap"><input class="numin" type="text" inputmode="decimal" ' +
+      'data-key="' + key + '" data-kind="num" value="' + (given == null ? "" : esc(String(given))) + '" ' +
+      'aria-label="Your answer" placeholder="0">' +
+      (q.suffix ? '<span class="numsuf">' + esc(q.suffix) + '</span>' : "") + '</p>' +
+    '<p class="eyebrow qnote">Type a number · all or nothing</p>';
+}
+
+/* ---- hot spot: click the right part of the diagram ---------------------- */
+function hotHTML(q, key, given) {
+  const d = DIAGRAMS[q.d];
+  if (!d) return '<h3 class="q-stem">' + q.q + '</h3>';
+  return '<h3 class="q-stem">' + q.q + '</h3>' +
+    '<p class="eyebrow qnote">Click the diagram · all or nothing</p>' +
+    '<div class="diagram"><svg viewBox="' + d.vb + '" role="group" aria-label="' + esc(d.name) + '">' +
+      (d.chrome || "") +
+      d.zones.map((z, i) => {
+        const on = given === i ? " picked" : "";
+        const common = 'class="hotzone' + on + '" data-key="' + key + '" data-kind="hot" data-zone="' + i + '" ' +
+          'role="button" tabindex="0" aria-label="' + esc(z.label) + '"';
+        return z.poly
+          ? '<polygon points="' + z.poly + '" ' + common + '><title>' + esc(z.label) + '</title></polygon>'
+          : '<rect x="' + z.x + '" y="' + z.y + '" width="' + z.w + '" height="' + z.h + '" rx="4" ' +
+            common + '><title>' + esc(z.label) + '</title></rect>';
+      }).join("") +
+    '</svg></div>' +
+    '<p class="hint diagram-key">' + d.zones.map((z, i) =>
+      '<span' + (given === i ? ' class="on"' : '') + '>' + esc(z.label) + '</span>').join(" · ") + '</p>';
 }
 
 function mockTaskSetHTML(it) {
@@ -4641,8 +5135,16 @@ function mockTaskSetHTML(it) {
 
 function wireMockAnswers() {
   const m = state.mock, p = PAPERS[m.p - 1], items = flatten(p, orderOf(m));
+  const settled = () => {
+    saveMock();
+    paintNavigator(items);
+    const c = $("#mockDone");
+    if (c) c.textContent = answeredSlots(p, m.ans);
+  };
+
+  /* multiple choice and multiple response */
   $$(".opts[data-key]").forEach(group => {
-    const key = group.dataset.key, multi = group.dataset.multi === "true";
+    const key = group.dataset.key, multi = group.dataset.kind === "multi";
     $$("[data-opt]", group).forEach(b => b.addEventListener("click", () => {
       const i = +b.dataset.opt;
       if (multi) {
@@ -4650,22 +5152,70 @@ function wireMockAnswers() {
         const at = cur.indexOf(i);
         if (at >= 0) cur.splice(at, 1); else cur.push(i);
         m.ans[key] = cur;
-      } else if (m.ans[key] === i) {
-        delete m.ans[key];
-      } else {
-        m.ans[key] = i;
-      }
-      saveMock();
+      } else if (m.ans[key] === i) { delete m.ans[key]; }
+      else { m.ans[key] = i; }
       /* patch in place — re-rendering 52 questions on every click is unusable */
       $$("[data-opt]", group).forEach(x => {
         const xi = +x.dataset.opt;
-        const on = multi ? (m.ans[key] || []).indexOf(xi) >= 0 : m.ans[key] === xi;
-        x.classList.toggle("picked", on);
+        x.classList.toggle("picked", multi ? (m.ans[key] || []).indexOf(xi) >= 0 : m.ans[key] === xi);
       });
-      paintNavigator(items);
-      const c = $("#mockDone");
-      if (c) c.textContent = answeredSlots(p, m.ans);
+      settled();
     }));
+  });
+
+  /* matching grid — one choice per row */
+  $$(".matchgrid[data-key]").forEach(grid => {
+    const key = grid.dataset.key;
+    const rows = $$("tbody tr", grid).length;
+    $$(".mcell", grid).forEach(b => b.addEventListener("click", () => {
+      const ri = +b.dataset.row, ci = +b.dataset.col;
+      const cur = Array.isArray(m.ans[key]) ? m.ans[key].slice() : new Array(rows).fill(null);
+      cur[ri] = cur[ri] === ci ? null : ci;
+      m.ans[key] = cur;
+      $$(".mcell", grid).forEach(x => {
+        const on = m.ans[key][+x.dataset.row] === +x.dataset.col;
+        x.classList.toggle("picked", on);
+        x.setAttribute("aria-checked", String(on));
+      });
+      settled();
+    }));
+  });
+
+  /* gap fill */
+  $$("select.gap").forEach(sel => sel.addEventListener("change", () => {
+    const key = sel.dataset.key, gi = +sel.dataset.gap;
+    const total = $$('select.gap[data-key="' + key + '"]').length;
+    const cur = Array.isArray(m.ans[key]) ? m.ans[key].slice() : new Array(total).fill(null);
+    cur[gi] = sel.value === "" ? null : +sel.value;
+    m.ans[key] = cur;
+    settled();
+  }));
+
+  /* number entry */
+  $$("input.numin").forEach(inp => inp.addEventListener("input", () => {
+    const key = inp.dataset.key;
+    const v = inp.value.trim();
+    if (v === "") delete m.ans[key]; else m.ans[key] = v;
+    settled();
+  }));
+
+  /* hot spot */
+  $$("[data-kind=\"hot\"]").forEach(z => {
+    const act = () => {
+      const key = z.dataset.key, i = +z.dataset.zone;
+      m.ans[key] = m.ans[key] === i ? undefined : i;
+      if (m.ans[key] === undefined) delete m.ans[key];
+      $$('[data-kind="hot"][data-key="' + key + '"]').forEach(x =>
+        x.classList.toggle("picked", m.ans[key] === +x.dataset.zone));
+      /* keep the written legend in step — colour is never the only channel */
+      const scope = z.ownerSVGElement ? z.ownerSVGElement.parentNode.parentNode : document;
+      $$(".diagram-key span", scope).forEach((sp, i) => sp.classList.toggle("on", m.ans[key] === i));
+      settled();
+    };
+    z.addEventListener("click", act);
+    z.addEventListener("keydown", e => {
+      if (e.key === " " || e.key === "Enter") { e.preventDefault(); act(); }
+    });
   });
 }
 
@@ -4675,8 +5225,8 @@ function paintNavigator(items) {
   nav.innerHTML = "";
   items.forEach((it, idx) => {
     const answered = it.sec === "A"
-      ? m.ans[it.label] != null
-      : it.set.t.every((t, j) => m.ans[answerKey(it, j)] != null);
+      ? isAnswered(it.q, m.ans[it.label])
+      : it.set.t.every((t, j) => isAnswered(t, m.ans[answerKey(it, j)]));
     const b = document.createElement("button");
     b.className = "nav-cell" + (answered ? " done" : "") + (m.flags[it.label] ? " flag" : "") + (idx === m.i ? " here" : "");
     b.textContent = idx + 1;
@@ -4684,6 +5234,70 @@ function paintNavigator(items) {
     b.addEventListener("click", () => { m.i = idx; saveMock(); render(); });
     nav.appendChild(b);
   });
+}
+
+
+/* ---- review rendering, one shape per question type ---------------------- */
+function reviewStem(q) {
+  if (qType(q) !== "gap") return q.q;
+  let html = q.q;
+  q.g.forEach((opts, gi) => html = html.replace("{" + gi + "}",
+    '<b class="gapfill">' + esc(opts[q.a[gi]]) + '</b>'));
+  return html;
+}
+
+function reviewAnswerHTML(q, given) {
+  const t = qType(q);
+
+  if (t === "match") {
+    const cur = Array.isArray(given) ? given : [];
+    return '<div class="tbl-wrap"><table class="matchgrid review">' +
+      '<thead><tr><th></th>' + q.o.map(c => '<th>' + c + '</th>').join("") + '</tr></thead><tbody>' +
+      q.rows.map((r, ri) => '<tr><th scope="row">' + r + '</th>' +
+        q.o.map((c, ci) => {
+          let cls = "mcell";
+          if (q.a[ri] === ci) cls += " right";
+          else if (cur[ri] === ci) cls += " wrong";
+          return '<td><span class="' + cls + '"><span></span></span></td>';
+        }).join("") + '</tr>').join("") +
+      '</tbody></table></div>';
+  }
+
+  if (t === "gap") {
+    const cur = Array.isArray(given) ? given : [];
+    return '<ul class="gaprev">' + q.g.map((opts, gi) => {
+      const right = cur[gi] === q.a[gi];
+      return '<li><span class="gl">Gap ' + (gi + 1) + '</span>' +
+        '<span class="' + (right ? "gr" : "gw") + '">' +
+          (cur[gi] == null ? "left blank" : esc(opts[cur[gi]])) + '</span>' +
+        (right ? "" : '<span class="gr">' + esc(opts[q.a[gi]]) + '</span>') + '</li>';
+    }).join("") + '</ul>';
+  }
+
+  if (t === "num") {
+    const right = scoreQuestion(q, given, 1, false) === 1;
+    return '<ul class="gaprev"><li><span class="gl">You typed</span>' +
+      '<span class="' + (right ? "gr" : "gw") + '">' + (given == null || given === "" ? "nothing" : esc(String(given))) + '</span>' +
+      (right ? "" : '<span class="gr">' + q.a + (q.suffix ? " " + esc(q.suffix) : "") + '</span>') + '</li></ul>';
+  }
+
+  if (t === "hot") {
+    const d = DIAGRAMS[q.d] || { zones: [] };
+    return '<ul class="gaprev"><li><span class="gl">You chose</span>' +
+      '<span class="' + (given === q.a ? "gr" : "gw") + '">' +
+        (given == null ? "nothing" : esc(d.zones[given] ? d.zones[given].label : "?")) + '</span>' +
+      (given === q.a ? "" : '<span class="gr">' + esc(d.zones[q.a] ? d.zones[q.a].label : "?") + '</span>') +
+      '</li></ul>';
+  }
+
+  const want = Array.isArray(q.a) ? q.a : [q.a];
+  const got = given == null ? [] : (Array.isArray(given) ? given : [given]);
+  return '<div class="opts">' + q.o.map((txt, i) => {
+    let cls = "opt";
+    if (want.indexOf(i) >= 0) cls += " right";
+    else if (got.indexOf(i) >= 0) cls += " wrong";
+    return '<div class="' + cls + '"><span class="key">' + "ABCDE"[i] + '</span><span class="txt">' + txt + '</span></div>';
+  }).join("") + '</div>';
 }
 
 function renderMockResult() {
@@ -4747,23 +5361,16 @@ function renderMockResult() {
         qs.map(o => {
           const given = m.ans[o.key];
           const ok = markQuestion(o.q, given);
-          const want = Array.isArray(o.q.a) ? o.q.a : [o.q.a];
-          const got = given == null ? [] : (Array.isArray(given) ? given : [given]);
+          const earned = scoreQuestion(o.q, given, it.sec === "B" ? 2 : it.m, it.sec === "B");
+          const outOf = it.sec === "B" ? 2 : it.m;
           return '<div style="margin-bottom:12px">' +
-            '<p class="q-stem" style="font-size:var(--step-1)">' + o.q.q + '</p>' +
-            '<p style="margin-top:6px">' + (ok ? pill("up", "Correct")
-              : given == null ? pill("flat", "Blank")
-              : (it.sec === "B" && scoreQuestion(o.q, given, 2, true) > 0)
-                ? pill("warn", scoreQuestion(o.q, given, 2, true) + " of 2 marks")
+            '<p class="q-stem" style="font-size:var(--step-1)">' + reviewStem(o.q) + '</p>' +
+            '<p style="margin-top:6px">' +
+              (ok ? pill("up", "Correct")
+                : !isAnswered(o.q, given) && given == null ? pill("flat", "Blank")
+                : earned > 0 ? pill("warn", earned + " of " + outOf + " marks")
                 : pill("down", "Incorrect")) + '</p>' +
-            '<div class="opts">' +
-              o.q.o.map((t, i) => {
-                let cls = "opt";
-                if (want.indexOf(i) >= 0) cls += " right";
-                else if (got.indexOf(i) >= 0) cls += " wrong";
-                return '<div class="' + cls + '"><span class="key">' + "ABCDE"[i] + '</span><span class="txt">' + t + '</span></div>';
-              }).join("") +
-            '</div>' +
+            reviewAnswerHTML(o.q, given) +
             '<div class="verdict"><span class="lbl">Why</span>' + o.q.e + '</div>' +
           '</div>';
         }).join("") +
@@ -4784,6 +5391,7 @@ function renderKeys() {
     cards: [["Space", "turn the card"], ["← →", "move"], ["1–4", "rate"], ["S", "star"]],
     quiz:  [["1–4", "choose"], ["Space", "next"]],
     speed: [["1–4", "choose"]],
+    match: [],
     exam:  [["1–5", "choose"], ["← →", "move between questions"]]
   };
   $("#keys").innerHTML = (sets[state.mode] || [])

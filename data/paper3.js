@@ -106,9 +106,10 @@ a2:[
  o:["Wages paid to production staff","Air pollution borne by the surrounding community","Raw materials purchased from a supplier","Depreciation of the production line"], a:1,
  e:"An externality is a cost falling on third parties rather than the producer. The other three are internal costs the business pays."},
 
-{c:7, q:"Which of the following is an advantage of a flat structure over a tall one?",
- o:["Closer supervision of each subordinate","Faster vertical communication and quicker decisions","More rungs on the promotion ladder","Narrower spans of control"], a:1,
- e:"Fewer layers means messages travel further per step and decisions are made closer to the work. Close supervision and promotion rungs are the tall structure's advantages."},
+{c:7, t:"hot", d:"spans",
+ q:"Two organisation charts are shown. Click the structure with the wider span of control.",
+ a:1,
+ e:"Structure 2 puts five people under one manager across two levels — a <b>wide span</b> in a flat structure. Structure 1 spreads the same people over four levels, so each manager supervises fewer and the chain of command is longer."},
 
 {c:8, q:"Which of the following best distinguishes the marketing function from the sales function?",
  o:["Marketing sells to customers; sales identifies their needs","Marketing identifies and anticipates customer needs; sales converts that demand into orders","They are two names for the same activity","Marketing is external and sales is internal"], a:1,
@@ -158,9 +159,12 @@ a2:[
  o:["An employee who takes their full holiday entitlement","An employee who refuses to take holiday and insists on handling one supplier personally","Regular rotation of duties within a team","Mandatory two-person authorisation of payments"], a:1,
  e:"A refusal to take leave keeps a fraud from surfacing while someone else covers the role. The other three are controls against fraud."},
 
-{c:16, q:"Fiedler argued that leadership effectiveness depends on:",
- o:["The leader's personality alone","The match between the leader's style and the favourability of the situation","The size of the organisation","The leader's formal qualifications"], a:1,
- e:"Fiedler's contingency model: situational favourability is set by leader-member relations, task structure and position power."},
+{c:16, t:"match",
+ q:"Match each writer to the contribution for which the syllabus names them.",
+ rows:["Fayol","Mintzberg","Blake and Mouton"],
+ o:["The five functions of management","Ten managerial roles in three groups","A grid of concern for people against production"],
+ a:[0,1,2],
+ e:"Fayol gave the classical <b>functions</b> — plan, organise, command, co-ordinate, control. Mintzberg described what managers actually do as ten <b>roles</b>. Blake and Mouton plotted concern for people against concern for production on a <b>grid</b>."},
 
 {c:16, q:"A newly appointed manager takes over a team that is willing but inexperienced. In Hersey and Blanchard's model, the appropriate style is:",
  o:["Telling","Selling","Participating","Delegating"], a:1,

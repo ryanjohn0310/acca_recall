@@ -74,9 +74,10 @@ a2:[
  o:["Directors act as agents of the shareholders","Shareholders act as agents of the directors","Employees act as agents of the customers","Auditors act as agents of the directors"], a:0,
  e:"Shareholders are the principals who own the company; directors are the agents who run it for them. The agency problem is that agents may pursue their own interests instead."},
 
-{c:1, q:"Which <b>two</b> of the following would be classified as internal stakeholders? (Select two)",
- o:["Employees","Suppliers","Directors","Local community","Lenders"], a:[0,2],
- e:"Internal stakeholders are inside the organisation — employees and directors. Suppliers and lenders are connected by contract; the community is external."},
+{c:1, t:"num",
+ q:"How many of the three Es make up the value-for-money framework used where there is no profit figure to judge performance by?",
+ a:3, suffix:"Es",
+ e:"<b>Three</b>: economy — buying inputs at the lowest cost for the quality needed; efficiency — the input-to-output ratio; effectiveness — actually meeting the objective."},
 
 {c:2, q:"Which of the following would a government most likely use to correct a persistent balance of payments deficit?",
  o:["Reducing interest rates to encourage borrowing","Measures to make exports more competitive","Increasing public sector pay","Reducing the retirement age"], a:1,
@@ -138,9 +139,12 @@ a2:[
  o:["To detect all fraud within the company","To express an opinion on whether the financial statements give a true and fair view","To prepare the financial statements","To value the company for sale"], a:1,
  e:"The auditor gives an <b>opinion</b> to the shareholders. Preparing the statements is the directors' job, and no audit can be expected to detect every fraud."},
 
-{c:12, q:"Which <b>two</b> of the following are enhancing qualitative characteristics of useful financial information? (Select two)",
- o:["Comparability","Relevance","Understandability","Faithful representation","Materiality"], a:[0,2],
- e:"The <b>enhancing</b> characteristics are comparability, verifiability, timeliness and understandability. Relevance and faithful representation are the two fundamental ones."},
+{c:12, t:"match",
+ q:"Match each financial statement to what it primarily reports.",
+ rows:["Statement of profit or loss","Statement of financial position","Statement of cash flows"],
+ o:["Performance over a period","Position at a point in time","Cash generated and spent"],
+ a:[0,1,2],
+ e:"The <b>profit or loss</b> account covers a period of trading; the <b>financial position</b> is a snapshot on one date; the <b>cash flow</b> statement explains how cash moved between two such dates."},
 
 {c:13, q:"An organisation requires that the person who authorises a purchase order is different from the person who approves the supplier invoice. This control is designed primarily to:",
  o:["Speed up the purchasing cycle","Reduce the risk of unauthorised or fictitious purchases","Improve supplier relationships","Reduce the cost of purchasing"], a:1,

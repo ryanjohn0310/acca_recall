@@ -88,6 +88,7 @@ function savePrefs() {
   write(K.prefs, {
     theme: state.theme, place: state.place, mode: state.mode,
     size: state.size, diff: state.diff, focus: state.focus, view: state.view, listQ: state.listQ,
+    matchBest: prefs.matchBest, matchTime: prefs.matchTime, matchStreak: prefs.matchStreak,
     mixups, stars, bests, trapScores,
     speedBest: prefs.speedBest
   });
@@ -408,7 +409,7 @@ function render() {
   stage.innerHTML = "";
   ({
     overview: renderOverview, today: renderToday, cards: renderCards,
-    quiz: renderQuiz, speed: renderSpeed, exam: renderExam
+    quiz: renderQuiz, speed: renderSpeed, match: renderMatchGame, exam: renderExam
   }[state.mode])();
   renderKeys();
 }
@@ -1368,6 +1369,138 @@ function renderSpeedDone() {
   }));
 }
 
+
+/* ==========================================================================
+   Mode: Match — a 5×5 grid, five terms against five answers
+
+   The same interaction ACCA uses for multiple-response matching, scaled up
+   and put on a clock. Each column may be used once, so the grid is a
+   permutation and a wrong pairing always costs a second one — which is the
+   part that makes it a game rather than five separate questions.
+   ========================================================================== */
+const MATCH_N = 5;
+const COL = ["A", "B", "C", "D", "E"];
+
+function newMatchRound() {
+  const pool = poolNow().filter(c => !isBeyond(c));
+  const seen = {};
+  const picked = [];
+  /* distinct questions, and distinct answers, or the grid is unsolvable */
+  shuffle(pool.slice()).forEach(c => {
+    const qk = plain(c.q), ak = plain(c.a).slice(0, 60);
+    if (picked.length < MATCH_N && !seen[qk] && !seen[ak]) { seen[qk] = seen[ak] = 1; picked.push(c); }
+  });
+  if (picked.length < MATCH_N) return null;
+  const order = shuffle(picked.map((_, i) => i));      /* column i holds answer order[i] */
+  return { cards: picked, order, pick: new Array(MATCH_N).fill(null), checked: false, startedAt: Date.now() };
+}
+
+function renderMatchGame() {
+  if (!state.match) state.match = newMatchRound();
+  const g = state.match;
+
+  if (!g) {
+    stage.innerHTML = scopeBar("Match") +
+      panel("Not enough cards", "",
+        emptyState("This chapter has fewer than five usable cards.",
+          "Pick another chapter, or clear the filter to play across the whole syllabus."), "flush");
+    wireScope();
+    return;
+  }
+
+  const answerFor = col => g.cards[g.order[col]];       /* which card's answer sits in this column */
+  const correctCol = row => g.order.indexOf(row);       /* the column holding row's answer */
+  const score = g.pick.reduce((n, c, r) => n + (c !== null && c === correctCol(r) ? 1 : 0), 0);
+  const full = g.pick.every(v => v !== null);
+  const secs = Math.round(((g.endedAt || Date.now()) - g.startedAt) / 1000);
+
+  stage.innerHTML =
+    scopeBar("Match") +
+    '<div class="metrics">' +
+      metricCard("Best round", (prefs.matchBest || 0) + '<small> / 5</small>',
+        '<span class="hint">' + (prefs.matchTime ? "in " + prefs.matchTime + "s" : "not played yet") + '</span>') +
+      metricCard("Perfect run", prefs.matchStreak || 0, '<span class="hint">rounds in a row</span>') +
+      metricCard("This round", g.checked ? score + '<small> / 5</small>' : '&mdash;',
+        g.checked ? bar(pct(score, MATCH_N), score === MATCH_N ? "b-up" : "b-warn") : '<span class="hint">' + secs + 's elapsed</span>') +
+    '</div>' +
+
+    '<section class="panel">' +
+      '<div class="panel-hd"><h3>Match each term to its answer</h3><span class="sp"></span>' +
+        '<span class="meta">' + (g.checked ? "marked" : g.pick.filter(v => v !== null).length + " of 5 placed") + '</span></div>' +
+      '<div class="panel-bd">' +
+        '<div class="tbl-wrap"><table class="matchgrid game">' +
+          '<thead><tr><th></th>' + COL.map(c => '<th scope="col">' + c + '</th>').join("") + '</tr></thead>' +
+          '<tbody>' + g.cards.map((c, r) => {
+            const right = g.checked && g.pick[r] === correctCol(r);
+            const wrong = g.checked && g.pick[r] !== null && !right;
+            return '<tr class="' + (right ? "r-right" : wrong ? "r-wrong" : "") + '">' +
+              '<th scope="row">' + esc(c.q) +
+                (g.checked ? '<span class="mres">' + (right ? "correct" : "answer " + COL[correctCol(r)]) + '</span>' : "") +
+              '</th>' +
+              COL.map((_, ci) => {
+                let cls = "mcell";
+                if (g.pick[r] === ci) cls += " picked";
+                if (g.checked && ci === correctCol(r)) cls += " right";
+                else if (g.checked && g.pick[r] === ci) cls += " wrong";
+                return '<td><button class="' + cls + '" data-mr="' + r + '" data-mc="' + ci + '" ' +
+                  (g.checked ? "disabled " : "") + 'aria-label="' + esc(c.q) + ': answer ' + COL[ci] + '"' +
+                  '><span></span></button></td>';
+              }).join("") +
+            '</tr>';
+          }).join("") + '</tbody>' +
+        '</table></div>' +
+
+        '<ol class="matchkey">' + COL.map((L, ci) =>
+          '<li><span class="mk">' + L + '</span><span class="mv">' + highlight(answerFor(ci).a) + '</span></li>').join("") +
+        '</ol>' +
+
+        '<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">' +
+          (g.checked
+            ? '<button class="btn btn-primary" id="matchNext">Next round</button>'
+            : '<button class="btn btn-primary" id="matchCheck"' + (full ? "" : " disabled") + '>Check answers</button>' +
+              '<button class="btn" id="matchClear">Clear</button>') +
+          '<button class="btn" id="matchNew">New five</button>' +
+        '</div>' +
+        (g.checked ? "" : '<p class="hint" style="margin-top:10px">Each answer belongs to exactly one term, so placing one rules it out elsewhere.</p>') +
+      '</div>' +
+    '</section>';
+
+  wireScope();
+
+  $$("[data-mr]").forEach(b => b.addEventListener("click", () => {
+    const r = +b.dataset.mr, ci = +b.dataset.mc;
+    if (g.pick[r] === ci) { g.pick[r] = null; }
+    else {
+      /* a column can only be used once — taking it frees whoever had it */
+      const held = g.pick.indexOf(ci);
+      if (held >= 0) g.pick[held] = null;
+      g.pick[r] = ci;
+    }
+    render();
+  }));
+
+  if ($("#matchCheck")) $("#matchCheck").addEventListener("click", () => {
+    g.checked = true; g.endedAt = Date.now();
+    const t = Math.round((g.endedAt - g.startedAt) / 1000);
+    /* the round counts towards the schedule, like everything else */
+    g.cards.forEach((c, r) => recordRating(c.id, g.pick[r] === correctCol(r) ? RATE.GOOD : RATE.AGAIN, "cards"));
+    const sc = g.pick.reduce((n, c, r) => n + (c === correctCol(r) ? 1 : 0), 0);
+    if (sc > (prefs.matchBest || 0) || (sc === prefs.matchBest && t < (prefs.matchTime || 1e9))) {
+      prefs.matchBest = sc; prefs.matchTime = t;
+    }
+    prefs.matchStreak = sc === MATCH_N ? (prefs.matchStreak || 0) + 1 : 0;
+    savePrefs();
+    render();
+  });
+  if ($("#matchClear")) $("#matchClear").addEventListener("click", () => {
+    g.pick = new Array(MATCH_N).fill(null); render();
+  });
+  $("#matchNew").addEventListener("click", () => { state.match = newMatchRound(); render(); });
+  if ($("#matchNext")) $("#matchNext").addEventListener("click", () => { state.match = newMatchRound(); render(); });
+
+  keyHandler = null;
+}
+
 /* ==========================================================================
    Mode: Exam — briefing, trap drill, mock simulator
    ========================================================================== */
@@ -1559,8 +1692,8 @@ function answerKey(item, taskIdx) { return item.label + (taskIdx == null ? "" : 
 
 function answeredSlots(p, ans) {
   return flatten(p).reduce((n, x) =>
-    n + (x.sec === "A" ? (ans[x.label] != null ? 1 : 0)
-                       : x.set.t.filter((t, j) => ans[answerKey(x, j)] != null).length), 0);
+    n + (x.sec === "A" ? (isAnswered(x.q, ans[x.label]) ? 1 : 0)
+                       : x.set.t.filter((t, j) => isAnswered(t, ans[answerKey(x, j)])).length), 0);
 }
 
 function renderMocks(box) {
@@ -1652,16 +1785,63 @@ function startMockTimer() {
   }, 500);
 }
 
-/* Marking follows ACCA's own rule, which differs between the two sections.
+/* ==========================================================================
+   Question types and marking
+
+   ACCA uses several objective formats. This build implements the ones that
+   appear in an on-demand CBE: multiple choice, multiple response,
+   multiple-response matching, gap fill from drop-down lists, number entry and
+   hot spot. Drag and drop is deliberately absent — ACCA states it appears only
+   in session CBEs, and BT is on demand.
+
+   Marking follows ACCA's own rule, which differs between the two sections.
    Section A: "no partial marking is available, so candidates must select all
    correct options to obtain full marks, otherwise they will score zero."
-   Section B: partial marking IS allowed — candidates get "credit for those
-   correct selections which they make". So a two-mark task asking for two
-   answers scores one mark per correct selection, and an incorrect selection
-   cancels one correct rather than voiding the lot. */
+   Section B: partial marking IS allowed — credit for "those correct selections
+   which they make".
+   ========================================================================== */
+function qType(q) {
+  if (q.t) return q.t;
+  return Array.isArray(q.a) ? "multi" : "single";
+}
+
+/* Has enough been entered to count the question as attempted? */
+function isAnswered(q, given) {
+  if (given == null) return false;
+  const t = qType(q);
+  if (t === "match" || t === "gap") {
+    return Array.isArray(given) && given.length === q.a.length &&
+           given.every(v => v != null && v !== "");
+  }
+  if (t === "multi") return Array.isArray(given) && given.length > 0;
+  if (t === "num") return given !== "";
+  return true;
+}
+
 function scoreQuestion(q, given, marks, partial) {
-  if (given == null) return 0;
-  if (!Array.isArray(q.a)) return given === q.a ? marks : 0;
+  if (!isAnswered(q, given)) {
+    /* a part-filled matching or gap answer still earns its correct slots */
+    if (!partial || given == null) return 0;
+  }
+  const t = qType(q);
+
+  if (t === "single" || t === "hot") return given === q.a ? marks : 0;
+
+  if (t === "num") {
+    const n = parseFloat(String(given).replace(/[, ]/g, ""));
+    return isFinite(n) && n === q.a ? marks : 0;
+  }
+
+  /* match and gap are positional: slot i must hold answer i */
+  if (t === "match" || t === "gap") {
+    if (!Array.isArray(given)) return 0;
+    let right = 0;
+    q.a.forEach((v, i) => { if (given[i] === v) right++; });
+    if (!partial) return right === q.a.length ? marks : 0;
+    return Math.round((right / q.a.length) * marks);
+  }
+
+  /* multiple response is a set: order does not matter, wrong ticks cost */
   const want = q.a;
   const got = Array.isArray(given) ? given : [given];
   const right = got.filter(i => want.indexOf(i) >= 0).length;
@@ -1672,12 +1852,9 @@ function scoreQuestion(q, given, marks, partial) {
 
 /* Whether the answer was fully correct — used by the review screen. */
 function markQuestion(q, given) {
-  if (given == null) return false;
-  if (Array.isArray(q.a)) {
-    if (!Array.isArray(given) || given.length !== q.a.length) return false;
-    return q.a.slice().sort().join(",") === given.slice().sort().join(",");
-  }
-  return given === q.a;
+  const t = qType(q);
+  const marks = 2;
+  return isAnswered(q, given) && scoreQuestion(q, given, marks, false) === marks;
 }
 
 function submitMock() {
@@ -1788,18 +1965,92 @@ function renderMock() {
 
 function mockQuestionHTML(q, key) {
   const m = state.mock;
-  const multi = Array.isArray(q.a);
   const given = m.ans[key];
+  const t = qType(q);
+  const partial = key.charAt(0) === "B";
+  const note = txt => '<p class="eyebrow qnote">' + txt + '</p>';
+
+  if (t === "match")  return matchHTML(q, key, given, partial);
+  if (t === "gap")    return gapHTML(q, key, given, partial);
+  if (t === "num")    return numHTML(q, key, given);
+  if (t === "hot")    return hotHTML(q, key, given);
+
+  const multi = t === "multi";
   return '<h3 class="q-stem">' + q.q + '</h3>' +
-    (multi ? '<p class="eyebrow" style="color:var(--warn);margin-top:8px">Select ' + q.a.length +
-      (key.charAt(0) === "B" ? ' · partial credit' : ' · all or nothing') + '</p>' : "") +
-    '<div class="opts" data-key="' + key + '" data-multi="' + multi + '">' +
+    (multi ? note('Select ' + q.a.length + (partial ? ' · partial credit' : ' · all or nothing')) : "") +
+    '<div class="opts" data-key="' + key + '" data-kind="' + (multi ? "multi" : "single") + '">' +
       q.o.map((o, i) => {
         const on = multi ? Array.isArray(given) && given.indexOf(i) >= 0 : given === i;
         return '<button class="opt' + (on ? " picked" : "") + '" data-opt="' + i + '">' +
           '<span class="key">' + "ABCDE"[i] + '</span><span class="txt">' + o + '</span></button>';
       }).join("") +
     '</div>';
+}
+
+/* ---- multiple-response matching: one column per row --------------------- */
+function matchHTML(q, key, given, partial) {
+  const cur = Array.isArray(given) ? given : [];
+  return '<h3 class="q-stem">' + q.q + '</h3>' +
+    '<p class="eyebrow qnote">Choose one for each row' + (partial ? ' · partial credit' : ' · all or nothing') + '</p>' +
+    '<div class="tbl-wrap"><table class="matchgrid" data-key="' + key + '" data-kind="match">' +
+      '<thead><tr><th></th>' + q.o.map(c => '<th scope="col">' + c + '</th>').join("") + '</tr></thead>' +
+      '<tbody>' + q.rows.map((r, ri) =>
+        '<tr><th scope="row">' + r + '</th>' +
+          q.o.map((c, ci) =>
+            '<td><button class="mcell' + (cur[ri] === ci ? " picked" : "") + '" ' +
+              'data-row="' + ri + '" data-col="' + ci + '" role="radio" ' +
+              'aria-checked="' + (cur[ri] === ci) + '" ' +
+              'aria-label="' + esc(r) + ': ' + esc(c) + '"><span></span></button></td>').join("") +
+        '</tr>').join("") +
+      '</tbody></table></div>';
+}
+
+/* ---- gap fill from drop-down lists -------------------------------------- */
+function gapHTML(q, key, given, partial) {
+  const cur = Array.isArray(given) ? given : [];
+  let html = q.q;
+  q.g.forEach((opts, gi) => {
+    const sel = '<span class="gapwrap"><select class="gap" data-key="' + key + '" data-kind="gap" data-gap="' + gi + '" ' +
+      'aria-label="Gap ' + (gi + 1) + '">' +
+      '<option value="">— choose —</option>' +
+      opts.map((o, oi) => '<option value="' + oi + '"' + (cur[gi] === oi ? " selected" : "") + '>' + esc(o) + '</option>').join("") +
+      '</select></span>';
+    html = html.replace("{" + gi + "}", sel);
+  });
+  return '<h3 class="q-stem gapstem">' + html + '</h3>' +
+    '<p class="eyebrow qnote">Complete every gap' + (partial ? ' · partial credit' : ' · all or nothing') + '</p>';
+}
+
+/* ---- number entry -------------------------------------------------------- */
+function numHTML(q, key, given) {
+  return '<h3 class="q-stem">' + q.q + '</h3>' +
+    '<p class="numwrap"><input class="numin" type="text" inputmode="decimal" ' +
+      'data-key="' + key + '" data-kind="num" value="' + (given == null ? "" : esc(String(given))) + '" ' +
+      'aria-label="Your answer" placeholder="0">' +
+      (q.suffix ? '<span class="numsuf">' + esc(q.suffix) + '</span>' : "") + '</p>' +
+    '<p class="eyebrow qnote">Type a number · all or nothing</p>';
+}
+
+/* ---- hot spot: click the right part of the diagram ---------------------- */
+function hotHTML(q, key, given) {
+  const d = DIAGRAMS[q.d];
+  if (!d) return '<h3 class="q-stem">' + q.q + '</h3>';
+  return '<h3 class="q-stem">' + q.q + '</h3>' +
+    '<p class="eyebrow qnote">Click the diagram · all or nothing</p>' +
+    '<div class="diagram"><svg viewBox="' + d.vb + '" role="group" aria-label="' + esc(d.name) + '">' +
+      (d.chrome || "") +
+      d.zones.map((z, i) => {
+        const on = given === i ? " picked" : "";
+        const common = 'class="hotzone' + on + '" data-key="' + key + '" data-kind="hot" data-zone="' + i + '" ' +
+          'role="button" tabindex="0" aria-label="' + esc(z.label) + '"';
+        return z.poly
+          ? '<polygon points="' + z.poly + '" ' + common + '><title>' + esc(z.label) + '</title></polygon>'
+          : '<rect x="' + z.x + '" y="' + z.y + '" width="' + z.w + '" height="' + z.h + '" rx="4" ' +
+            common + '><title>' + esc(z.label) + '</title></rect>';
+      }).join("") +
+    '</svg></div>' +
+    '<p class="hint diagram-key">' + d.zones.map((z, i) =>
+      '<span' + (given === i ? ' class="on"' : '') + '>' + esc(z.label) + '</span>').join(" · ") + '</p>';
 }
 
 function mockTaskSetHTML(it) {
@@ -1811,8 +2062,16 @@ function mockTaskSetHTML(it) {
 
 function wireMockAnswers() {
   const m = state.mock, p = PAPERS[m.p - 1], items = flatten(p, orderOf(m));
+  const settled = () => {
+    saveMock();
+    paintNavigator(items);
+    const c = $("#mockDone");
+    if (c) c.textContent = answeredSlots(p, m.ans);
+  };
+
+  /* multiple choice and multiple response */
   $$(".opts[data-key]").forEach(group => {
-    const key = group.dataset.key, multi = group.dataset.multi === "true";
+    const key = group.dataset.key, multi = group.dataset.kind === "multi";
     $$("[data-opt]", group).forEach(b => b.addEventListener("click", () => {
       const i = +b.dataset.opt;
       if (multi) {
@@ -1820,22 +2079,70 @@ function wireMockAnswers() {
         const at = cur.indexOf(i);
         if (at >= 0) cur.splice(at, 1); else cur.push(i);
         m.ans[key] = cur;
-      } else if (m.ans[key] === i) {
-        delete m.ans[key];
-      } else {
-        m.ans[key] = i;
-      }
-      saveMock();
+      } else if (m.ans[key] === i) { delete m.ans[key]; }
+      else { m.ans[key] = i; }
       /* patch in place — re-rendering 52 questions on every click is unusable */
       $$("[data-opt]", group).forEach(x => {
         const xi = +x.dataset.opt;
-        const on = multi ? (m.ans[key] || []).indexOf(xi) >= 0 : m.ans[key] === xi;
-        x.classList.toggle("picked", on);
+        x.classList.toggle("picked", multi ? (m.ans[key] || []).indexOf(xi) >= 0 : m.ans[key] === xi);
       });
-      paintNavigator(items);
-      const c = $("#mockDone");
-      if (c) c.textContent = answeredSlots(p, m.ans);
+      settled();
     }));
+  });
+
+  /* matching grid — one choice per row */
+  $$(".matchgrid[data-key]").forEach(grid => {
+    const key = grid.dataset.key;
+    const rows = $$("tbody tr", grid).length;
+    $$(".mcell", grid).forEach(b => b.addEventListener("click", () => {
+      const ri = +b.dataset.row, ci = +b.dataset.col;
+      const cur = Array.isArray(m.ans[key]) ? m.ans[key].slice() : new Array(rows).fill(null);
+      cur[ri] = cur[ri] === ci ? null : ci;
+      m.ans[key] = cur;
+      $$(".mcell", grid).forEach(x => {
+        const on = m.ans[key][+x.dataset.row] === +x.dataset.col;
+        x.classList.toggle("picked", on);
+        x.setAttribute("aria-checked", String(on));
+      });
+      settled();
+    }));
+  });
+
+  /* gap fill */
+  $$("select.gap").forEach(sel => sel.addEventListener("change", () => {
+    const key = sel.dataset.key, gi = +sel.dataset.gap;
+    const total = $$('select.gap[data-key="' + key + '"]').length;
+    const cur = Array.isArray(m.ans[key]) ? m.ans[key].slice() : new Array(total).fill(null);
+    cur[gi] = sel.value === "" ? null : +sel.value;
+    m.ans[key] = cur;
+    settled();
+  }));
+
+  /* number entry */
+  $$("input.numin").forEach(inp => inp.addEventListener("input", () => {
+    const key = inp.dataset.key;
+    const v = inp.value.trim();
+    if (v === "") delete m.ans[key]; else m.ans[key] = v;
+    settled();
+  }));
+
+  /* hot spot */
+  $$("[data-kind=\"hot\"]").forEach(z => {
+    const act = () => {
+      const key = z.dataset.key, i = +z.dataset.zone;
+      m.ans[key] = m.ans[key] === i ? undefined : i;
+      if (m.ans[key] === undefined) delete m.ans[key];
+      $$('[data-kind="hot"][data-key="' + key + '"]').forEach(x =>
+        x.classList.toggle("picked", m.ans[key] === +x.dataset.zone));
+      /* keep the written legend in step — colour is never the only channel */
+      const scope = z.ownerSVGElement ? z.ownerSVGElement.parentNode.parentNode : document;
+      $$(".diagram-key span", scope).forEach((sp, i) => sp.classList.toggle("on", m.ans[key] === i));
+      settled();
+    };
+    z.addEventListener("click", act);
+    z.addEventListener("keydown", e => {
+      if (e.key === " " || e.key === "Enter") { e.preventDefault(); act(); }
+    });
   });
 }
 
@@ -1845,8 +2152,8 @@ function paintNavigator(items) {
   nav.innerHTML = "";
   items.forEach((it, idx) => {
     const answered = it.sec === "A"
-      ? m.ans[it.label] != null
-      : it.set.t.every((t, j) => m.ans[answerKey(it, j)] != null);
+      ? isAnswered(it.q, m.ans[it.label])
+      : it.set.t.every((t, j) => isAnswered(t, m.ans[answerKey(it, j)]));
     const b = document.createElement("button");
     b.className = "nav-cell" + (answered ? " done" : "") + (m.flags[it.label] ? " flag" : "") + (idx === m.i ? " here" : "");
     b.textContent = idx + 1;
@@ -1854,6 +2161,70 @@ function paintNavigator(items) {
     b.addEventListener("click", () => { m.i = idx; saveMock(); render(); });
     nav.appendChild(b);
   });
+}
+
+
+/* ---- review rendering, one shape per question type ---------------------- */
+function reviewStem(q) {
+  if (qType(q) !== "gap") return q.q;
+  let html = q.q;
+  q.g.forEach((opts, gi) => html = html.replace("{" + gi + "}",
+    '<b class="gapfill">' + esc(opts[q.a[gi]]) + '</b>'));
+  return html;
+}
+
+function reviewAnswerHTML(q, given) {
+  const t = qType(q);
+
+  if (t === "match") {
+    const cur = Array.isArray(given) ? given : [];
+    return '<div class="tbl-wrap"><table class="matchgrid review">' +
+      '<thead><tr><th></th>' + q.o.map(c => '<th>' + c + '</th>').join("") + '</tr></thead><tbody>' +
+      q.rows.map((r, ri) => '<tr><th scope="row">' + r + '</th>' +
+        q.o.map((c, ci) => {
+          let cls = "mcell";
+          if (q.a[ri] === ci) cls += " right";
+          else if (cur[ri] === ci) cls += " wrong";
+          return '<td><span class="' + cls + '"><span></span></span></td>';
+        }).join("") + '</tr>').join("") +
+      '</tbody></table></div>';
+  }
+
+  if (t === "gap") {
+    const cur = Array.isArray(given) ? given : [];
+    return '<ul class="gaprev">' + q.g.map((opts, gi) => {
+      const right = cur[gi] === q.a[gi];
+      return '<li><span class="gl">Gap ' + (gi + 1) + '</span>' +
+        '<span class="' + (right ? "gr" : "gw") + '">' +
+          (cur[gi] == null ? "left blank" : esc(opts[cur[gi]])) + '</span>' +
+        (right ? "" : '<span class="gr">' + esc(opts[q.a[gi]]) + '</span>') + '</li>';
+    }).join("") + '</ul>';
+  }
+
+  if (t === "num") {
+    const right = scoreQuestion(q, given, 1, false) === 1;
+    return '<ul class="gaprev"><li><span class="gl">You typed</span>' +
+      '<span class="' + (right ? "gr" : "gw") + '">' + (given == null || given === "" ? "nothing" : esc(String(given))) + '</span>' +
+      (right ? "" : '<span class="gr">' + q.a + (q.suffix ? " " + esc(q.suffix) : "") + '</span>') + '</li></ul>';
+  }
+
+  if (t === "hot") {
+    const d = DIAGRAMS[q.d] || { zones: [] };
+    return '<ul class="gaprev"><li><span class="gl">You chose</span>' +
+      '<span class="' + (given === q.a ? "gr" : "gw") + '">' +
+        (given == null ? "nothing" : esc(d.zones[given] ? d.zones[given].label : "?")) + '</span>' +
+      (given === q.a ? "" : '<span class="gr">' + esc(d.zones[q.a] ? d.zones[q.a].label : "?") + '</span>') +
+      '</li></ul>';
+  }
+
+  const want = Array.isArray(q.a) ? q.a : [q.a];
+  const got = given == null ? [] : (Array.isArray(given) ? given : [given]);
+  return '<div class="opts">' + q.o.map((txt, i) => {
+    let cls = "opt";
+    if (want.indexOf(i) >= 0) cls += " right";
+    else if (got.indexOf(i) >= 0) cls += " wrong";
+    return '<div class="' + cls + '"><span class="key">' + "ABCDE"[i] + '</span><span class="txt">' + txt + '</span></div>';
+  }).join("") + '</div>';
 }
 
 function renderMockResult() {
@@ -1917,23 +2288,16 @@ function renderMockResult() {
         qs.map(o => {
           const given = m.ans[o.key];
           const ok = markQuestion(o.q, given);
-          const want = Array.isArray(o.q.a) ? o.q.a : [o.q.a];
-          const got = given == null ? [] : (Array.isArray(given) ? given : [given]);
+          const earned = scoreQuestion(o.q, given, it.sec === "B" ? 2 : it.m, it.sec === "B");
+          const outOf = it.sec === "B" ? 2 : it.m;
           return '<div style="margin-bottom:12px">' +
-            '<p class="q-stem" style="font-size:var(--step-1)">' + o.q.q + '</p>' +
-            '<p style="margin-top:6px">' + (ok ? pill("up", "Correct")
-              : given == null ? pill("flat", "Blank")
-              : (it.sec === "B" && scoreQuestion(o.q, given, 2, true) > 0)
-                ? pill("warn", scoreQuestion(o.q, given, 2, true) + " of 2 marks")
+            '<p class="q-stem" style="font-size:var(--step-1)">' + reviewStem(o.q) + '</p>' +
+            '<p style="margin-top:6px">' +
+              (ok ? pill("up", "Correct")
+                : !isAnswered(o.q, given) && given == null ? pill("flat", "Blank")
+                : earned > 0 ? pill("warn", earned + " of " + outOf + " marks")
                 : pill("down", "Incorrect")) + '</p>' +
-            '<div class="opts">' +
-              o.q.o.map((t, i) => {
-                let cls = "opt";
-                if (want.indexOf(i) >= 0) cls += " right";
-                else if (got.indexOf(i) >= 0) cls += " wrong";
-                return '<div class="' + cls + '"><span class="key">' + "ABCDE"[i] + '</span><span class="txt">' + t + '</span></div>';
-              }).join("") +
-            '</div>' +
+            reviewAnswerHTML(o.q, given) +
             '<div class="verdict"><span class="lbl">Why</span>' + o.q.e + '</div>' +
           '</div>';
         }).join("") +
@@ -1954,6 +2318,7 @@ function renderKeys() {
     cards: [["Space", "turn the card"], ["← →", "move"], ["1–4", "rate"], ["S", "star"]],
     quiz:  [["1–4", "choose"], ["Space", "next"]],
     speed: [["1–4", "choose"]],
+    match: [],
     exam:  [["1–5", "choose"], ["← →", "move between questions"]]
   };
   $("#keys").innerHTML = (sets[state.mode] || [])

@@ -85,8 +85,8 @@ works offline once loaded.
 
 - **Three places** — `state.place` is `home` | `paper` | `study`, persisted.
   `render()` sets one body class; CSS hides the other two.
-- **Six modes** inside study — `overview` | `today` | `cards` | `quiz` | `speed` |
-  `exam`. `overview` is the Progress dashboard and the default landing mode.
+- **Seven modes** inside study — `overview` | `today` | `cards` | `quiz` | `speed` |
+  `match` | `exam`. `overview` is the Progress dashboard and the default landing mode.
 - **Spaced repetition** — SM-2, not a fixed ladder. Every card carries its own
   **ease factor** (2.5 default, floor 1.3, ceiling 2.9) and its own interval, so
   two cards answered on the same day diverge according to how hard you found
@@ -149,6 +149,18 @@ blanket rule and instead shortened to 300ms with the lift removed. This was the
 cause of a real bug: with Reduce Motion on, the earlier build honoured it by
 disabling the flip entirely, so the card snapped to the answer with no turn at
 all.
+
+## Match — the 5×5 game
+
+A grid of five terms against five answers, lettered A–E with the answers listed
+beneath. Each answer belongs to exactly one term, so the grid is a permutation
+and taking a column frees whoever held it — one wrong pairing always costs a
+second. Rounds are timed, scored out of five, and tracked as a best score and a
+perfect-round streak. Every round feeds the schedule: a correct pairing counts
+as Good, a wrong one as Again.
+
+It is the ACCA matching interaction at five times the size, which is the point —
+the format is what catches people out, not the knowledge.
 
 ## Three ways through the cards
 
@@ -275,19 +287,37 @@ all-or-nothing, so it scored a sitting *harder than the real exam*. Section B
 multi-response tasks now award one mark per correct selection, with an incorrect
 selection cancelling a correct one, so ticking every box still scores zero.
 
-**Still missing:** ACCA uses seven objective question types (multiple choice,
+**Question types implemented.** ACCA's on-demand CBEs use multiple choice,
 multiple response, multiple-response matching, fill in the blank / number entry,
-drop-down list, hot spot and hot area; drag and drop appears only in session
-CBEs). This app implements two — multiple choice and multiple response. The
-knowledge tested is the same, but the *interaction* of matching, gap-fill and
-hotspot questions is not yet practised here.
+drop-down list, hot spot and hot area. All of these are now in the mocks:
+
+| `t` | Type | Interaction | Marking |
+|---|---|---|---|
+| *(none)* | Multiple choice | one radio | binary |
+| *(none)*, `a` array | Multiple response | tick boxes | set; wrong ticks cost |
+| `match` | Multiple-response matching | one cell per row | positional, per-row credit |
+| `gap` | Drop-down gap fill | `{0}` placeholders in the stem | positional, per-gap credit |
+| `num` | Number entry | typed | binary |
+| `hot` | Hot spot / hot area | click an SVG zone | binary |
+
+Drag and drop is deliberately absent: ACCA states it appears only in session
+CBEs, and BT is on demand. Hot spots use inline SVG diagrams declared in
+`data/diagrams.js` — a power/interest matrix, a hierarchy of needs, two
+organisation charts and the three stages of laundering — so they need no images
+and inherit the theme.
+
+Across the five papers: 239 multiple choice, 36 multiple response, 6 matching,
+3 gap fill, 4 hot spot, 2 number entry.
+
+**A further off-syllabus question was found and replaced** during this pass — a
+receivable-days calculation in Paper 2, which the first ratio sweep missed
+because the stem carried no ratio keyword.
 
 ## Known gaps
 
 - Papers 4 and 5 were written for this build; papers 1–3 are carried over.
 - MA and FA have no content. MA's exam is objective-based so this engine
   transfers; FA needs constructed-response marking it cannot do.
-- Only two of ACCA's seven objective question types are implemented.
 - No analytics, by design.
 - Confusion pairs come only from Quiz and Speed, where a wrong option exists.
   A flashcard "Again" feeds the schedule but not the confusion drill.

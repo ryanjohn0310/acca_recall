@@ -74,9 +74,11 @@ a2:[
  o:["Manage closely as a key player","Keep satisfied","Keep informed","Minimal effort"], a:1,
  e:"High power, low interest stakeholders should be <b>kept satisfied</b> — do enough to stop them becoming interested and using that power against the plan."},
 
-{c:1, q:"Which <b>two</b> of the following are connected stakeholders? (Select two)",
- o:["Shareholders","Employees","Customers","Government","Local pressure groups"], a:[0,2],
- e:"Connected stakeholders have a contractual link with the organisation — shareholders, customers, suppliers, lenders. Employees are internal; government and pressure groups are external."},
+{c:1, t:"match",
+ q:"Match each party to the stakeholder group it belongs to.",
+ rows:["A production supervisor","A long-standing supplier","A local environmental campaign group"],
+ o:["Internal","Connected","External"], a:[0,1,2],
+ e:"<b>Internal</b> stakeholders sit inside the organisation; <b>connected</b> stakeholders have a contractual link such as supply, lending or ownership; <b>external</b> stakeholders have no contract but are still affected."},
 
 {c:2, q:"In a PESTEL analysis, an ageing population is classified under which heading?",
  o:["Political","Economic","Social","Technological"], a:2,
@@ -162,9 +164,11 @@ a2:[
  o:["Volume","Verification","Velocity","Valuation","Vertical integration"], a:[0,2],
  e:"Big data is usually described by volume, velocity and variety — the sheer quantity, the speed at which it arrives, and the range of formats it comes in."},
 
-{c:15, q:"Which of the following best describes the 'layering' stage of money laundering?",
- o:["Introducing criminal cash into the financial system","Moving funds through complex transactions to disguise their origin","Spending the funds on visible assets","Reporting a suspicion to the authorities"], a:1,
- e:"Layering puts distance between the money and its criminal source through a chain of transfers, conversions and transactions designed to break the audit trail."},
+{c:15, t:"gap",
+ q:"Money laundering is described in three stages. Criminal cash first enters the financial system at the {0} stage, is moved through complex transactions to disguise its origin at the {1} stage, and returns as apparently legitimate funds at the {2} stage.",
+ g:[["placement","layering","integration"],["placement","layering","integration"],["placement","layering","integration"]],
+ a:[0,1,2],
+ e:"<b>Placement</b>, then <b>layering</b>, then <b>integration</b>. Layering is the stage designed to break the audit trail between the money and its criminal source."},
 
 {c:15, q:"An accountant suspects a client is laundering money. What is the correct action?",
  o:["Tell the client that a report is being made","Make a report to the appropriate authority and not tell the client","Resign immediately without reporting","Take no action unless the amount is material"], a:1,
@@ -178,9 +182,10 @@ a2:[
  o:["Forming, storming, norming, performing","Storming, forming, norming, performing","Forming, norming, storming, performing","Norming, forming, storming, performing"], a:0,
  e:"Forming (polite), storming (conflict over roles), norming (agreeing how to work), performing (productive). Tuckman later added adjourning."},
 
-{c:18, q:"Which need sits at the top of Maslow's hierarchy?",
- o:["Esteem","Safety","Self-actualisation","Belonging"], a:2,
- e:"<b>Self-actualisation</b> — realising one's full potential — is the highest level, and unlike the others it is never fully satisfied."},
+{c:18, t:"hot", d:"maslow",
+ q:"Click the level of Maslow's hierarchy that he placed at the top, and which is never fully satisfied.",
+ a:4,
+ e:"<b>Self-actualisation</b> — realising one's full potential. Unlike the four levels below it, meeting it does not switch the need off."},
 
 {c:19, q:"Which of the following best describes the purpose of a development appraisal?",
  o:["To decide the size of this year's pay rise","To identify the employee's training and development needs for the future","To create a record for a possible dismissal","To rank all employees against one another"], a:1,
