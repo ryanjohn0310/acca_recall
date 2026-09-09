@@ -258,11 +258,36 @@ which is the property that was actually missing. If the review log ever grows
 large enough to fit parameters against, `nextStatus()` is the single function
 that would need replacing.
 
+## Checked against ACCA's published exam mechanics
+
+Compared with ACCA's own technical article on the BT/FBT structure and its
+guidance on objective question types.
+
+**Matches:** two hours; Section A of 16 one-mark and 30 two-mark objective
+questions (46 questions, 76 marks); Section B of six four-mark multi-task
+questions, one per syllabus section, with no crossover between sections; 100
+marks; 50% pass; no negative marking.
+
+**Corrected:** ACCA marks the two sections differently — Section A has no
+partial marking, but in Section B "partial marking is allowed" and candidates
+receive credit for the correct selections they make. This build marked Section B
+all-or-nothing, so it scored a sitting *harder than the real exam*. Section B
+multi-response tasks now award one mark per correct selection, with an incorrect
+selection cancelling a correct one, so ticking every box still scores zero.
+
+**Still missing:** ACCA uses seven objective question types (multiple choice,
+multiple response, multiple-response matching, fill in the blank / number entry,
+drop-down list, hot spot and hot area; drag and drop appears only in session
+CBEs). This app implements two — multiple choice and multiple response. The
+knowledge tested is the same, but the *interaction* of matching, gap-fill and
+hotspot questions is not yet practised here.
+
 ## Known gaps
 
 - Papers 4 and 5 were written for this build; papers 1–3 are carried over.
 - MA and FA have no content. MA's exam is objective-based so this engine
   transfers; FA needs constructed-response marking it cannot do.
+- Only two of ACCA's seven objective question types are implemented.
 - No analytics, by design.
 - Confusion pairs come only from Quiz and Speed, where a wrong option exists.
   A flashcard "Again" feeds the schedule but not the confusion drill.

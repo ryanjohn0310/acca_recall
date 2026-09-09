@@ -4430,7 +4430,8 @@ function renderMocks(box) {
     panel("Simulator rules", "",
       '<p class="hint">Two hours, 100 marks, free navigation and flagging. Answers persist through a refresh, ' +
       'the clock is absolute so closing the tab does not pause it, and the paper submits itself at zero. ' +
-      'Multiple-response questions score all or nothing, exactly as in the real exam. Marked by capability at the end.</p>');
+      'Section A multiple-response questions score all or nothing; Section B allows partial credit, exactly as ACCA marks them. ' +
+      'Marked by capability at the end.</p>');
 
   $$("[data-start]").forEach(b => b.addEventListener("click", () => {
     if (saved && !confirm("Paper " + saved.p + " is still open. Starting a new paper discards it. Continue?")) return;
@@ -4468,11 +4469,30 @@ function startMockTimer() {
   }, 500);
 }
 
+/* Marking follows ACCA's own rule, which differs between the two sections.
+   Section A: "no partial marking is available, so candidates must select all
+   correct options to obtain full marks, otherwise they will score zero."
+   Section B: partial marking IS allowed — candidates get "credit for those
+   correct selections which they make". So a two-mark task asking for two
+   answers scores one mark per correct selection, and an incorrect selection
+   cancels one correct rather than voiding the lot. */
+function scoreQuestion(q, given, marks, partial) {
+  if (given == null) return 0;
+  if (!Array.isArray(q.a)) return given === q.a ? marks : 0;
+  const want = q.a;
+  const got = Array.isArray(given) ? given : [given];
+  const right = got.filter(i => want.indexOf(i) >= 0).length;
+  const wrong = got.length - right;
+  if (!partial) return (right === want.length && wrong === 0) ? marks : 0;
+  return Math.round((Math.max(0, right - wrong) / want.length) * marks);
+}
+
+/* Whether the answer was fully correct — used by the review screen. */
 function markQuestion(q, given) {
   if (given == null) return false;
   if (Array.isArray(q.a)) {
     if (!Array.isArray(given) || given.length !== q.a.length) return false;
-    return q.a.slice().sort().join(",") === given.slice().sort().join(",");  /* all or nothing */
+    return q.a.slice().sort().join(",") === given.slice().sort().join(",");
   }
   return given === q.a;
 }
@@ -4486,15 +4506,14 @@ function submitMock() {
   items.forEach(it => {
     const cap = CAP_OF[it.c];
     if (it.sec === "A") {
-      caps[cap].of += it.m;
-      if (markQuestion(it.q, m.ans[it.label])) { marks += it.m; caps[cap].got += it.m; }
-      logAnswer(it.c, markQuestion(it.q, m.ans[it.label]), "mock");
+      const got = scoreQuestion(it.q, m.ans[it.label], it.m, false);    /* all or nothing */
+      caps[cap].of += it.m; caps[cap].got += got; marks += got;
+      logAnswer(it.c, got === it.m, "mock");
     } else {
       it.set.t.forEach((t, j) => {
-        const ok = markQuestion(t, m.ans[answerKey(it, j)]);
-        caps[cap].of += 2;
-        if (ok) { marks += 2; caps[cap].got += 2; }
-        logAnswer(it.c, ok, "mock");
+        const got = scoreQuestion(t, m.ans[answerKey(it, j)], 2, true);  /* partial credit */
+        caps[cap].of += 2; caps[cap].got += got; marks += got;
+        logAnswer(it.c, got === 2, "mock");
       });
     }
   });
@@ -4589,7 +4608,8 @@ function mockQuestionHTML(q, key) {
   const multi = Array.isArray(q.a);
   const given = m.ans[key];
   return '<h3 class="q-stem">' + q.q + '</h3>' +
-    (multi ? '<p class="eyebrow" style="color:var(--warn);margin-top:8px">Select ' + q.a.length + ' · all or nothing</p>' : "") +
+    (multi ? '<p class="eyebrow" style="color:var(--warn);margin-top:8px">Select ' + q.a.length +
+      (key.charAt(0) === "B" ? ' · partial credit' : ' · all or nothing') + '</p>' : "") +
     '<div class="opts" data-key="' + key + '" data-multi="' + multi + '">' +
       q.o.map((o, i) => {
         const on = multi ? Array.isArray(given) && given.indexOf(i) >= 0 : given === i;
@@ -4718,7 +4738,11 @@ function renderMockResult() {
           const got = given == null ? [] : (Array.isArray(given) ? given : [given]);
           return '<div style="margin-bottom:12px">' +
             '<p class="q-stem" style="font-size:var(--step-1)">' + o.q.q + '</p>' +
-            '<p style="margin-top:6px">' + (ok ? pill("up", "Correct") : given == null ? pill("flat", "Blank") : pill("down", "Incorrect")) + '</p>' +
+            '<p style="margin-top:6px">' + (ok ? pill("up", "Correct")
+              : given == null ? pill("flat", "Blank")
+              : (it.sec === "B" && scoreQuestion(o.q, given, 2, true) > 0)
+                ? pill("warn", scoreQuestion(o.q, given, 2, true) + " of 2 marks")
+                : pill("down", "Incorrect")) + '</p>' +
             '<div class="opts">' +
               o.q.o.map((t, i) => {
                 let cls = "opt";
