@@ -153,7 +153,12 @@ all.
 ## Match — the 5×5 game
 
 A grid of five terms against five answers, lettered A–E with the answers listed
-beneath. Each answer belongs to exactly one term, so the grid is a permutation
+beneath. **All five come from the same chapter.** Drawn from across the syllabus
+the grid is solved by topic-spotting rather than knowledge — "the four roles of a
+non-executive director" obviously belongs to the answer listing four board roles
+— so the round picks a chapter with at least five usable cards, and tightens to
+one kind of card where the chapter has five of them. Inside a chapter every
+answer is plausible against every term. Each answer belongs to exactly one term, so the grid is a permutation
 and taking a column frees whoever held it — one wrong pairing always costs a
 second. Rounds are timed, scored out of five, and tracked as a best score and a
 perfect-round streak. Every round feeds the schedule: a correct pairing counts

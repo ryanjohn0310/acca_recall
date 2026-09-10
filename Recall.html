@@ -4131,7 +4131,7 @@ function renderCardsDeck() {
     '<div class="scopebar" style="margin:14px 0 8px">' +
       '<span class="chip" style="cursor:default">' + (s.i + 1) + ' of ' + s.cards.length + '</span>' +
       '<span class="sp"></span>' +
-      '<span class="hint">' + seenCount(pool) + ' seen \u00b7 ' + dueCount(pool) + ' due for review</span>' +
+      '<span class="hint">' + countLine(pool) + '</span>' +
     '</div>' +
     bar(pct(s.i, s.cards.length)) +
     '<div style="height:12px"></div>' +
@@ -4173,6 +4173,19 @@ function quickFoot() {
 }
 function wireRating(rate, quick) {
   $$("[data-rate]").forEach(b => b.addEventListener("click", () => rate(+b.dataset.rate)));
+}
+
+
+/* Every card in scope, accounted for. Showing "seen" and "due" alone reads as
+   if the rest have gone missing, when they are simply scheduled ahead. */
+function countLine(pool) {
+  const total = pool.length, fresh = unseenCount(pool), due = dueCount(pool);
+  const ahead = total - fresh - due;
+  const bits = [];
+  bits.push(due ? '<b>' + due + '</b> due today' : 'nothing due today');
+  if (ahead) bits.push('<b>' + ahead + '</b> scheduled ahead');
+  if (fresh) bits.push('<b>' + fresh + '</b> not seen yet');
+  return bits.join(" \u00b7 ") + ' \u00b7 ' + total + ' in scope';
 }
 
 /* Rebuild the browse deck whenever the chapter or the focus filter changes. */
@@ -4455,17 +4468,39 @@ const MATCH_N = 5;
 const COL = ["A", "B", "C", "D", "E"];
 
 function newMatchRound() {
-  const pool = poolNow().filter(c => !isBeyond(c));
+  const scoped = poolNow().filter(c => !isBeyond(c));
+
+  /* Five cards from ONE chapter wherever possible. Drawn from across the
+     syllabus, a matching grid is solved by topic-spotting — "the four roles of
+     a non-executive director" obviously belongs to the answer listing four
+     board roles — which tests nothing. Inside a single chapter every answer is
+     plausible against every term, so you have to actually know which is which. */
+  const byCh = {};
+  scoped.forEach(c => (byCh[c.c] = byCh[c.c] || []).push(c));
+  const roomy = shuffle(Object.keys(byCh).filter(n => byCh[n].length >= MATCH_N));
+
+  let source = scoped, from = null;
+  if (roomy.length) {
+    from = +roomy[0];
+    source = byCh[from];
+    /* tighter still: the same kind of card, if the chapter has five of one */
+    const byKind = {};
+    source.forEach(c => (byKind[c.k] = byKind[c.k] || []).push(c));
+    const tight = Object.keys(byKind).filter(k => byKind[k].length >= MATCH_N);
+    if (tight.length) source = byKind[pick(tight)];
+  }
+
   const seen = {};
   const picked = [];
-  /* distinct questions, and distinct answers, or the grid is unsolvable */
-  shuffle(pool.slice()).forEach(c => {
+  shuffle(source.slice()).forEach(c => {
     const qk = plain(c.q), ak = plain(c.a).slice(0, 60);
     if (picked.length < MATCH_N && !seen[qk] && !seen[ak]) { seen[qk] = seen[ak] = 1; picked.push(c); }
   });
   if (picked.length < MATCH_N) return null;
+
   const order = shuffle(picked.map((_, i) => i));      /* column i holds answer order[i] */
-  return { cards: picked, order, pick: new Array(MATCH_N).fill(null), checked: false, startedAt: Date.now() };
+  return { cards: picked, order, from, pick: new Array(MATCH_N).fill(null),
+           checked: false, startedAt: Date.now() };
 }
 
 function renderMatchGame() {
@@ -4499,7 +4534,8 @@ function renderMatchGame() {
 
     '<section class="panel">' +
       '<div class="panel-hd"><h3>Match each term to its answer</h3><span class="sp"></span>' +
-        '<span class="meta">' + (g.checked ? "marked" : g.pick.filter(v => v !== null).length + " of 5 placed") + '</span></div>' +
+        '<span class="meta">' + (g.from ? "Ch " + pad2(g.from) + " \u00b7 " : "") +
+        (g.checked ? "marked" : g.pick.filter(v => v !== null).length + " of 5 placed") + '</span></div>' +
       '<div class="panel-bd">' +
         '<div class="tbl-wrap"><table class="matchgrid game">' +
           '<thead><tr><th></th>' + COL.map(c => '<th scope="col">' + c + '</th>').join("") + '</tr></thead>' +
@@ -4534,7 +4570,8 @@ function renderMatchGame() {
               '<button class="btn" id="matchClear">Clear</button>') +
           '<button class="btn" id="matchNew">New five</button>' +
         '</div>' +
-        (g.checked ? "" : '<p class="hint" style="margin-top:10px">Each answer belongs to exactly one term, so placing one rules it out elsewhere.</p>') +
+        (g.checked ? "" : '<p class="hint" style="margin-top:10px">All five come from the same chapter, so every answer is plausible against every term. ' +
+          'Each answer belongs to exactly one, so placing it rules it out elsewhere.</p>') +
       '</div>' +
     '</section>';
 
