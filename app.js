@@ -89,6 +89,7 @@ function savePrefs() {
     theme: state.theme, place: state.place, mode: state.mode,
     size: state.size, diff: state.diff, focus: state.focus, view: state.view, listQ: state.listQ,
     matchBest: prefs.matchBest, matchTime: prefs.matchTime, matchStreak: prefs.matchStreak,
+    cram: prefs.cram, cramEdit: prefs.cramEdit,
     mixups, stars, bests, trapScores,
     speedBest: prefs.speedBest
   });
@@ -204,7 +205,7 @@ function nextStatus(s0, rating) {
                : s.ef;
     s.ivl = Math.round(s.ivl * mult);
   }
-  s.ivl = Math.max(1, Math.min(IVL_MAX, s.ivl));
+  s.ivl = capInterval(Math.max(1, Math.min(IVL_MAX, s.ivl)), rating);
   s.reps++;
   s.due = today() + s.ivl;
   return s;
@@ -409,7 +410,8 @@ function render() {
   stage.innerHTML = "";
   ({
     overview: renderOverview, today: renderToday, cards: renderCards,
-    quiz: renderQuiz, speed: renderSpeed, match: renderMatchGame, exam: renderExam
+    quiz: renderQuiz, speed: renderSpeed, match: renderMatchGame,
+    cram: renderCramEntry, exam: renderExam
   }[state.mode])();
   renderKeys();
 }
@@ -421,6 +423,11 @@ function paintTopBar() {
   $("#tbAcc").textContent = acc == null ? "—" : pct(acc, 1) + "%";
   $("#badgeDue").textContent = String(dueCount());
   $("#badgeCards").textContent = String(state.chapter ? (BY_CH[state.chapter] || []).length : CARDS.length);
+  const cb = $("#badgeCram"), left = cramDaysLeft();
+  if (cb) {
+    cb.hidden = left == null;
+    if (left != null) cb.textContent = left + "d";
+  }
 }
 
 /* ---- home ---------------------------------------------------------------- */
@@ -1538,6 +1545,226 @@ function renderMatchGame() {
   keyHandler = null;
 }
 
+
+/* ==========================================================================
+   Mode: Cram — the fortnight plan
+
+   Fourteen days is enough to cover BT properly, but only if the whole syllabus
+   gets touched. Section B guarantees one four-mark question per capability, so
+   there is no area you can safely skip: dropping a capability throws away four
+   marks before you start, and dropping Professional Ethics throws away a whole
+   section built on one chapter.
+
+   The plan is built from the real chapter sizes, so the daily card counts are
+   what the deck actually holds rather than a round number.
+   ========================================================================== */
+const CRAM_LEN = 14;
+
+/* Each day: the chapters to cover, and what kind of work it is. */
+const CRAM_PLAN = [
+  { d:1,  chapters:[1, 2],           kind:"learn",  title:"Organisations, stakeholders and the economy" },
+  { d:2,  chapters:[3, 4, 6],        kind:"learn",  title:"Markets, society and competition" },
+  { d:3,  chapters:[5, 7],           kind:"learn",  title:"Sustainability and structure" },
+  { d:4,  chapters:[9, 10],          kind:"learn",  title:"Culture and governance" },
+  { d:5,  chapters:[8, 11, 12],      kind:"learn",  title:"Business functions and financial information" },
+  { d:6,  chapters:[13, 14, 15],     kind:"learn",  title:"Controls, technology and financial crime" },
+  { d:7,  chapters:[16, 17],         kind:"learn",  title:"Leadership, individuals and teams" },
+  { d:8,  chapters:[18, 19],         kind:"learn",  title:"Motivation, learning and appraisal" },
+  { d:9,  chapters:[20, 21, 22],     kind:"learn",  title:"Personal effectiveness, communication and ethics" },
+  { d:10, chapters:[],               kind:"traps",  title:"Everything due, then the six examiner traps" },
+  { d:11, chapters:[],               kind:"mock",   paper:1, title:"First full mock, then review every wrong answer" },
+  { d:12, chapters:[],               kind:"weak",   title:"Your weakest chapters, from the dashboard" },
+  { d:13, chapters:[],               kind:"mock",   paper:2, title:"Second full mock, under real conditions" },
+  { d:14, chapters:[],               kind:"final",  title:"Due cards, confusions and the format briefing" }
+];
+
+const CRAM_WORK = {
+  learn: "Work through the chapters in Cards, then rate honestly. Anything you rate Again comes straight back.",
+  traps: "Clear the due queue first, then drill all 24 trap questions. This is where the cheap marks are.",
+  mock:  "Two hours, no notes, no pausing. Then read the explanation for every question you got wrong.",
+  weak:  "Open Progress and work down the weakest chapters. Do not revisit what is already strong.",
+  final: "No new material today. Clear what is due, read your confusions, and skim the exam format."
+};
+
+function cram() { return prefs.cram || null; }
+function cramDay() {
+  const c = cram();
+  if (!c) return 0;
+  return Math.min(CRAM_LEN, Math.max(1, today() - c.start + 1));
+}
+function cramDaysLeft() {
+  const c = cram();
+  return c ? Math.max(0, c.examDay - today()) : null;
+}
+
+/* Cards scheduled past the exam are wasted, so while a plan runs every interval
+   is squeezed into the time that is left. A flat ceiling would make Hard, Good
+   and Easy identical on a mature card and throw the rating away, so the cap is
+   a share of the days remaining that depends on how well you knew it. */
+const CRAM_SHARE = [0, 0.25, 0.40, 0.60];      /* again, hard, good, easy */
+function capInterval(ivl, rating) {
+  const left = cramDaysLeft();
+  if (left == null || left <= 0) return ivl;
+  const share = CRAM_SHARE[rating] != null ? CRAM_SHARE[rating] : 0.40;
+  return Math.max(1, Math.min(ivl, Math.ceil(left * share)));
+}
+/* What each rating would give at most today — used in the plan's explanation. */
+function cramCaps() {
+  const left = cramDaysLeft() || 0;
+  return [1, 2, 3].map(r => Math.max(1, Math.ceil(left * CRAM_SHARE[r])));
+}
+
+function cramCards(day) {
+  const plan = CRAM_PLAN[day - 1];
+  if (!plan || !plan.chapters.length) return [];
+  return CARDS.filter(c => plan.chapters.indexOf(c.c) >= 0 && !isBeyond(c));
+}
+
+function renderCramEntry() { return (cram() && !prefs.cramEdit) ? renderCram() : renderCramSetup(); }
+
+function renderCram() {
+  const c = cram();
+  if (!c) return renderCramSetup();
+
+  const day = cramDay();
+  const left = cramDaysLeft();
+  const done = c.done || {};
+  const doneCount = Object.keys(done).filter(k => done[k]).length;
+  const overdue = today() > c.examDay;
+
+  stage.innerHTML =
+    '<div class="scopebar"><h2>Two-week plan</h2>' +
+      '<span class="chip" style="cursor:default">Day ' + day + ' of ' + CRAM_LEN + '</span>' +
+      '<span class="sp"></span>' +
+      '<button class="btn btn-sm" id="cramEdit">Change date</button>' +
+      '<button class="btn btn-sm btn-danger" id="cramStop">Stop plan</button>' +
+    '</div>' +
+
+    (overdue
+      ? panel("The plan has finished", "",
+          '<p class="hint">Your exam date has passed. Stop the plan to let the schedule spread out again, ' +
+          'or set a new date if you are sitting later than planned.</p>')
+      : '') +
+
+    '<div class="metrics">' +
+      metricCard("Days left", left, bar(pct(CRAM_LEN - left, CRAM_LEN), left <= 3 ? "b-down" : left <= 7 ? "b-warn" : "b-up")) +
+      metricCard("Days done", doneCount + '<small> / ' + CRAM_LEN + '</small>', '<span class="hint">ticked off by you</span>') +
+      metricCard("Syllabus learned", pct(overallMastery(), 1) + '<small>%</small>',
+        bar(pct(overallMastery(), 1), overallMastery() >= .7 ? "b-up" : "b-warn")) +
+      metricCard("Cards due", dueCount(), '<span class="hint">' + unseenCount() + ' never seen</span>') +
+    '</div>' +
+
+    panel("Nothing is scheduled past your exam", "how the plan changes the schedule",
+      '<p class="hint">A card you rate <b>Easy</b> would normally go out for weeks. With ' + plural(Math.max(left, 0), "day") +
+      ' left, that means never seeing it again before you sit. While this plan runs, every interval is squeezed ' +
+      'into the time you have — but the rating still counts, so the three still differ:</p>' +
+      '<div class="tbl-wrap"><table class="tbl" style="margin-top:10px"><thead><tr>' +
+        '<th>Rating</th><th class="num">Longest it can go, today</th></tr></thead><tbody>' +
+        ["Hard", "Good", "Easy"].map((n, i) =>
+          '<tr><td><b>' + n + '</b></td><td class="num">' + plural(cramCaps()[i], "day") + '</td></tr>').join("") +
+        '<tr><td><b>Again</b></td><td class="num">back today</td></tr>' +
+      '</tbody></table></div>' +
+      '<p class="hint" style="margin-top:10px">Stopping the plan restores the normal schedule. Nothing you have ' +
+      'already learned is lost either way.</p>') +
+
+    panel("The fortnight", doneCount + " of " + CRAM_LEN + " done",
+      '<ol class="cramlist">' + CRAM_PLAN.map(pl => {
+        const cards = cramCards(pl.d);
+        const isToday = pl.d === day;
+        const isDone = !!done[pl.d];
+        const past = pl.d < day && !isDone;
+        return '<li class="' + (isDone ? "done " : "") + (isToday ? "today " : "") + (past ? "missed" : "") + '">' +
+          '<button class="cramtick" data-tick="' + pl.d + '" aria-pressed="' + isDone + '" ' +
+            'aria-label="Mark day ' + pl.d + ' done">' + (isDone ? "\u2713" : pl.d) + '</button>' +
+          '<div class="cramtx">' +
+            '<p class="cramhd">' + esc(pl.title) +
+              (isToday ? '<span class="crampill">today</span>' : "") +
+              (past ? '<span class="crampill late">missed</span>' : "") + '</p>' +
+            '<p class="hint">' + CRAM_WORK[pl.kind] +
+              (cards.length ? ' <b>' + cards.length + ' cards</b> across ' +
+                pl.chapters.map(n => "ch " + pad2(n)).join(", ") + '.' : "") + '</p>' +
+            '<div class="chips" style="margin-top:8px">' +
+              (pl.chapters.length
+                ? '<button class="chip" data-cramgo="' + pl.d + '">Study these chapters</button>' : "") +
+              (pl.kind === "traps" ? '<button class="chip" data-cramtraps="1">Open the trap drill</button>' : "") +
+              (pl.kind === "mock" ? '<button class="chip" data-crammock="' + pl.paper + '">Sit paper ' + pl.paper + '</button>' : "") +
+              (pl.kind === "weak" ? '<button class="chip" data-cramweak="1">Open Progress</button>' : "") +
+              (pl.kind === "final" ? '<button class="chip" data-cramfinal="1">Today\u2019s due cards</button>' : "") +
+            '</div>' +
+          '</div>' +
+        '</li>';
+      }).join("") + '</ol>', "flush") +
+
+    panel("What not to skip", "read this once",
+      '<ul class="edge" style="margin-top:0">' +
+        '<li><b>Every capability, however short.</b><span>Section B takes one four-mark question from each of A to F. ' +
+        'Professional ethics is one chapter and 17 cards, and it is worth the same four marks as the six chapters of capability C. ' +
+        'Skipping it throws away four marks before you sit down.</span></li>' +
+        '<li><b>Breadth beats depth here.</b><span>The examining team\u2019s own advice is to learn something about every topic ' +
+        'rather than a few in depth. Section A samples all 22 chapters across 46 questions.</span></li>' +
+        '<li><b>Do the mocks under real conditions.</b><span>Two hours, no notes, no pausing. Most marks lost in BT are lost ' +
+        'to the clock and to misreading, not to gaps in knowledge \u2014 and neither shows up unless you sit a whole paper.</span></li>' +
+        '<li><b>Guess everything.</b><span>There is no negative marking. Before you submit, no question should be blank.</span></li>' +
+      '</ul>', "flush");
+
+  $("#cramStop").addEventListener("click", () => {
+    if (!confirm("Stop the plan? Your progress is kept, and intervals go back to normal.")) return;
+    delete prefs.cram; savePrefs(); render();
+  });
+  $("#cramEdit").addEventListener("click", () => { prefs.cramEdit = 1; render(); });
+  $$("[data-tick]").forEach(b => b.addEventListener("click", () => {
+    const d = b.dataset.tick;
+    const dn = prefs.cram.done || (prefs.cram.done = {});
+    dn[d] = !dn[d]; savePrefs(); render();
+  }));
+  $$("[data-cramgo]").forEach(b => b.addEventListener("click", () => {
+    const pl = CRAM_PLAN[+b.dataset.cramgo - 1];
+    state.chapter = pl.chapters[0]; state.focus = "all"; state.view = "study";
+    state.mode = "cards"; state.session = null; savePrefs(); render();
+  }));
+  $$("[data-cramtraps]").forEach(b => b.addEventListener("click", () => {
+    state.mode = "exam"; state.examTab = "traps"; render();
+  }));
+  $$("[data-crammock]").forEach(b => b.addEventListener("click", () => {
+    state.mode = "exam"; state.examTab = "mocks"; render();
+  }));
+  $$("[data-cramweak]").forEach(b => b.addEventListener("click", () => { state.mode = "overview"; render(); }));
+  $$("[data-cramfinal]").forEach(b => b.addEventListener("click", () => {
+    state.mode = "today"; state.focus = "due"; state.session = null; savePrefs(); render();
+  }));
+  keyHandler = null;
+}
+
+function renderCramSetup() {
+  const iso = d => new Date(d * 864e5).toISOString().slice(0, 10);
+  const suggested = iso(today() + CRAM_LEN);
+  stage.innerHTML =
+    '<div class="scopebar"><h2>Two-week plan</h2></div>' +
+    panel("Cramming BT in a fortnight", "be honest with yourself first",
+      '<p class="hint">Spacing beats cramming, and if you have longer than two weeks you should use Today and let the ' +
+      'schedule do its job. But two weeks is enough to cover BT properly if every part of the syllabus gets touched, ' +
+      'and that is what this plan does \u2014 all 22 chapters in nine days, then traps, mocks and the chapters you are ' +
+      'weakest on.</p>' +
+      '<p class="hint" style="margin-top:10px">Turning it on also <b>caps the schedule</b>. Normally a card you find easy ' +
+      'goes out weeks; with days left that means never seeing it again. While the plan runs, no interval reaches past ' +
+      'your exam.</p>' +
+      '<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">' +
+        '<label class="cramdate"><span class="eyebrow">Exam date</span>' +
+          '<input type="date" id="cramWhen" value="' + suggested + '" min="' + iso(today() + 1) + '"></label>' +
+        '<button class="btn btn-primary" id="cramStart">Start the plan</button>' +
+      '</div>');
+
+  $("#cramStart").addEventListener("click", () => {
+    const v = $("#cramWhen").value;
+    if (!v) return;
+    const examDay = Math.floor(Date.parse(v + "T00:00:00") / 864e5);
+    if (!isFinite(examDay) || examDay <= today()) { alert("Pick a date after today."); return; }
+    prefs.cram = { start: today(), examDay, done: {} };
+    delete prefs.cramEdit;
+    savePrefs(); render();
+  });
+}
+
 /* ==========================================================================
    Mode: Exam — briefing, trap drill, mock simulator
    ========================================================================== */
@@ -2356,6 +2583,7 @@ function renderKeys() {
     quiz:  [["1–4", "choose"], ["Space", "next"]],
     speed: [["1–4", "choose"]],
     match: [],
+    cram: [],
     exam:  [["1–5", "choose"], ["← →", "move between questions"]]
   };
   $("#keys").innerHTML = (sets[state.mode] || [])

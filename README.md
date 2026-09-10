@@ -85,8 +85,8 @@ works offline once loaded.
 
 - **Three places** — `state.place` is `home` | `paper` | `study`, persisted.
   `render()` sets one body class; CSS hides the other two.
-- **Seven modes** inside study — `overview` | `today` | `cards` | `quiz` | `speed` |
-  `match` | `exam`. `overview` is the Progress dashboard and the default landing mode.
+- **Eight modes** inside study — `overview` | `today` | `cards` | `quiz` | `speed` |
+  `match` | `cram` | `exam`. `overview` is the Progress dashboard and the default landing mode.
 - **Spaced repetition** — SM-2, not a fixed ladder. Every card carries its own
   **ease factor** (2.5 default, floor 1.3, ceiling 2.9) and its own interval, so
   two cards answered on the same day diverge according to how hard you found
@@ -149,6 +149,28 @@ blanket rule and instead shortened to 300ms with the lift removed. This was the
 cause of a real bug: with Reduce Motion on, the earlier build honoured it by
 disabling the flip entirely, so the card snapped to the answer with no turn at
 all.
+
+## Cram — the fortnight plan
+
+For sitting in about two weeks. Set an exam date and it lays out fourteen days
+built from the real chapter sizes: all 22 chapters in nine days, then the trap
+drill, two full mocks, a pass at whichever chapters the dashboard says are
+weakest, and a final day of due cards and format only. Each day ticks off and
+links straight into the right mode with the right chapter already scoped.
+
+**The part that is not just a checklist: it caps the schedule.** SM-2 sends a
+card you find easy out for weeks, which with nine days left means never seeing
+it again — the schedule quietly works against you. While a plan runs, every
+interval is squeezed into the days remaining. A flat ceiling would make Hard,
+Good and Easy identical on a mature card and throw the rating away, so the cap
+is a *share* of the time left — 25% for Hard, 40% for Good, 60% for Easy. With
+14 days that is 4, 6 and 9 days; the ratings still differ, and nothing lands
+after the exam. Stopping the plan restores the normal schedule with no loss.
+
+The plan is opinionated about one thing: no capability can be skipped. Section B
+takes one four-mark question from each of A–F, so Professional Ethics — one
+chapter, 17 cards — is worth the same four marks as the six chapters of
+capability C.
 
 ## Match — the 5×5 game
 
