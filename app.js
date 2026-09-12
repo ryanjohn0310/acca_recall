@@ -588,15 +588,15 @@ function renderOverview() {
     panel("Activity · 21 days", plural(all.length, "answer") + " logged",
       '<svg class="spark" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Answers per day over the last 21 days">' +
       sparkBars + '</svg>' +
-      '<p class="hint" style="margin-top:8px">Each bar is one day. ' +
-      (st ? 'Current streak ' + plural(st, "day") + '.' : 'No streak yet — answer anything today to start one.') + '</p>') +
+      '<p class="hint" style="margin-top:var(--s2)">Each bar is one day. ' +
+      (st ? 'Current streak ' + plural(st, "day") + '.' : 'No streak yet. Answer anything today to start one.') + '</p>') +
 
     (weak.length
       ? panel("Worth a look", "the 5 you know least well",
           '<div class="chips">' + weak.map(w =>
             '<button class="chip wide" data-goch="' + w.n + '">' + pad2(w.n) + ' · ' + esc(CHAPTERS[w.n]) +
             ' · ' + Math.round(w.m * 100) + '%</button>').join("") + '</div>' +
-          '<p class="hint" style="margin-top:8px">Selecting one scopes every mode to that chapter.</p>')
+          '<p class="hint" style="margin-top:var(--s2)">Selecting one scopes every mode to that chapter.</p>')
       : panel("Worth a look", "nothing yet",
           emptyState("No data to rank.", "Answer some cards and the weakest chapters will be listed here, worst first."), "flush")) +
 
@@ -777,15 +777,15 @@ function renderToday() {
 
     panel("What to study", focusDef()[1].toLowerCase() + " · " + focused.length + " cards",
       focusChips(pool) +
-      '<p class="hint" style="margin-top:10px">' + esc(FOCUS_NOTE[state.focus]) + '</p>' +
-      '<p class="eyebrow" style="margin-top:16px">Session length</p>' +
-      '<div class="chips" style="margin-top:6px">' + sizes.map(n =>
+      '<p class="hint" style="margin-top:var(--s2)">' + esc(FOCUS_NOTE[state.focus]) + '</p>' +
+      '<p class="eyebrow" style="margin-top:var(--s4)">Session length</p>' +
+      '<div class="chips" style="margin-top:var(--s1)">' + sizes.map(n =>
         '<button class="chip" data-size="' + n + '" aria-pressed="' + (state.size === n) + '">' + n + '</button>').join("") +
       '</div>' +
-      '<div style="margin-top:16px"><button class="btn btn-primary" id="startSession"' +
+      '<div style="margin-top:var(--s4)"><button class="btn btn-primary" id="startSession"' +
         (focused.length ? "" : " disabled") + '>Start ' +
         Math.min(state.size, focused.length) + '-card session</button>' +
-        (focused.length ? "" : '<span class="hint" style="margin-left:10px">Nothing in this selection yet.</span>') +
+        (focused.length ? "" : '<span class="hint" style="margin-left:var(--s2)">Nothing in this selection yet.</span>') +
       '</div>') +
 
     panel("How the schedule works", "SM-2",
@@ -826,15 +826,15 @@ function mixupPanel() {
   }
   return panel("Confusions", plural(m.length, "pair"),
     m.map(x =>
-      '<div style="padding:10px 0;border-bottom:1px solid var(--line-2)">' +
+      '<div style="padding:var(--s2) 0;border-bottom:1px solid var(--line-2)">' +
         '<p class="eyebrow">Mixed up ' + plural(x.n, "time") + '</p>' +
-        '<div class="split" style="margin-top:8px">' +
+        '<div class="split" style="margin-top:var(--s2)">' +
           x.pair.map(c =>
             '<div><p class="eyebrow" style="color:var(--accent)">Ch ' + pad2(c.c) + '</p>' +
-            '<p style="font-weight:600;margin-top:4px">' + esc(c.q) + '</p>' +
-            '<div class="hint" style="margin-top:6px">' + highlight(c.a) + '</div></div>').join("") +
+            '<p style="font-weight:600;margin-top:var(--s1)">' + esc(c.q) + '</p>' +
+            '<div class="hint" style="margin-top:var(--s1)">' + highlight(c.a) + '</div></div>').join("") +
         '</div>' +
-        '<button class="btn btn-sm" data-clear-mix="' + x.k + '" style="margin-top:10px">Clear this pair</button>' +
+        '<button class="btn btn-sm" data-clear-mix="' + x.k + '" style="margin-top:var(--s2)">Clear this pair</button>' +
       '</div>').join(""));
 }
 function wireMixups() {
@@ -864,7 +864,7 @@ function renderSessionCard() {
       '<button class="btn btn-sm" id="endSession">Finish early</button>' +
     '</div>' +
     bar(pct(s.i, s.cards.length)) +
-    '<div style="height:12px"></div>' +
+    '<div style="height:var(--s3)"></div>' +
     cardShell(c, s.shown, cardMeta(c, st),
       s.shown ? gradeFoot(c)
         : '<button class="btn btn-primary" id="reveal">Show the answer</button>' +
@@ -904,7 +904,7 @@ function renderSessionDone() {
       '<p class="hint">' + (s.wrong === 0
         ? "Clean sweep. Every card in this run moved further out."
         : plural(s.wrong, "card") + " reset to the start of the schedule and will be due again tomorrow.") + '</p>' +
-      '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">' +
+      '<div style="margin-top:var(--s3);display:flex;gap:var(--s2);flex-wrap:wrap">' +
         '<button class="btn btn-primary" id="again">Another session</button>' +
         '<button class="btn" id="done">Back to Today</button>' +
         '<button class="btn" data-mode-go="overview">See my progress</button>' +
@@ -927,9 +927,12 @@ function renderSessionDone() {
    a fast pass; List drops the cards altogether and prints the chapter so it can
    be read straight through. */
 const CARD_VIEWS = [
-  ["study", "Study", "Flashcards with the full Again / Hard / Good / Easy rating. This is what feeds the schedule.", "\u{1F504}"],
-  ["quick", "Quick", "The same flashcards with one button: did you know it or not. Faster when you just want a pass through.", "\u26A1"],
-  ["list",  "List",  "Every card in the chapter printed as a readable list, question and answer together. Best for a skim before an exam.", "\u2630"]
+  ["study", "Study",
+   "Flashcards with the full Again, Hard, Good, Easy rating. This is the one that feeds the schedule."],
+  ["quick", "Quick",
+   "The same flashcards with one decision: did you know it or not. Faster when you only want a pass through."],
+  ["list",  "List",
+   "Every card in the chapter printed out, question and answer together. Best for a skim before the exam."]
 ];
 
 function renderCards() {
@@ -942,14 +945,14 @@ function renderCardsChooser() {
   const pool = poolNow();
   stage.innerHTML =
     scopeBar("Cards") +
-    panel("How would you like to work through them?", pool.length + " cards in scope",
-      '<div class="viewpick">' + CARD_VIEWS.map(v =>
-        '<button class="viewopt" data-view="' + v[0] + '">' +
-          '<span class="vi">' + v[3] + '</span>' +
-          '<span class="vn">' + v[1] + '</span>' +
-          '<span class="vd">' + esc(v[2]) + '</span>' +
-        '</button>').join("") + '</div>' +
-      '<p class="hint" style="margin-top:14px">You can switch at any time from the buttons at the top of the page.</p>');
+    panel("How would you like to work through them?", plural(pool.length, "card") + " in scope",
+      '<div class="deflist">' + CARD_VIEWS.map(v =>
+        '<div class="pickrow"><span class="nm">' + v[1] + '</span>' +
+          '<span class="tx">' + esc(v[2]) + '</span>' +
+          '<button class="btn btn-sm" data-view="' + v[0] + '">Choose</button>' +
+        '</div>').join("") + '</div>' +
+      '<p class="hint" style="padding:var(--s3) var(--s4) 0">You can switch at any time from the top of the page.</p>',
+      "flush");
   wireScope();
   $$("[data-view]").forEach(b => b.addEventListener("click", () => {
     state.view = b.dataset.view; state.session = null; savePrefs(); render();
@@ -960,7 +963,7 @@ function renderCardsChooser() {
 function viewSwitch() {
   return '<div class="chips">' + CARD_VIEWS.map(v =>
     '<button class="chip" data-view="' + v[0] + '" aria-pressed="' + (state.view === v[0]) + '">' +
-      v[3] + ' ' + v[1] + '</button>').join("") + '</div>';
+      v[1] + '</button>').join("") + '</div>';
 }
 function wireViewSwitch() {
   $$("[data-view]").forEach(b => b.addEventListener("click", () => {
@@ -979,10 +982,10 @@ function renderCardsList() {
     scopeBar("Cards", '<button class="btn btn-sm" id="hideAnswers" aria-pressed="' +
       (state.listQ ? "true" : "false") + '">' + (state.listQ ? "Show answers" : "Questions only") + '</button>') +
     viewSwitch() +
-    '<div style="height:12px"></div>' +
+    '<div style="height:var(--s3)"></div>' +
     focusChips(poolNow()) +
-    '<div style="height:14px"></div>' +
-    (state.listQ ? '<p class="hint" style="margin:0 0 14px">Answers hidden \u2014 read down the questions and check yourself.</p>' : "") +
+    '<div style="height:var(--s3)"></div>' +
+    (state.listQ ? '<p class="hint" style="margin:0 0 14px">Answers hidden. Read down the questions and check yourself.</p>' : "") +
     (pool.length
       ? chapters.map(n =>
           '<section class="panel">' +
@@ -1031,7 +1034,7 @@ function renderCardsDeck() {
   const c = s.cards[s.i];
 
   if (!c) {
-    stage.innerHTML = scopeBar("Cards") + viewSwitch() + '<div style="height:12px"></div>' +
+    stage.innerHTML = scopeBar("Cards") + viewSwitch() + '<div style="height:var(--s3)"></div>' +
       panel("Card bank", focusDef()[1].toLowerCase(),
         focusChips(poolNow()) +
         emptyState("Nothing in this selection.",
@@ -1060,15 +1063,15 @@ function renderCardsDeck() {
   stage.innerHTML =
     scopeBar("Cards", '<button class="btn btn-sm" id="shuffleDeck">Shuffle</button>') +
     viewSwitch() +
-    '<div style="height:12px"></div>' +
+    '<div style="height:var(--s3)"></div>' +
     focusChips(poolNow()) +
-    '<div class="scopebar" style="margin:14px 0 8px">' +
+    '<div class="scopebar" style="margin:var(--s3) 0 8px">' +
       '<span class="chip" style="cursor:default">' + (s.i + 1) + ' of ' + s.cards.length + '</span>' +
       '<span class="sp"></span>' +
       '<span class="hint">' + countLine(pool) + '</span>' +
     '</div>' +
     bar(pct(s.i, s.cards.length)) +
-    '<div style="height:12px"></div>' +
+    '<div style="height:var(--s3)"></div>' +
     cardShell(c, s.shown, cardMeta(c, st),
       (s.shown ? navFoot + foot
         : navFoot +
@@ -1159,17 +1162,17 @@ function renderQuiz() {
     '</div>' +
     panel("Settings", "",
       '<p class="eyebrow">Difficulty</p>' +
-      '<div class="chips" style="margin-top:6px">' +
+      '<div class="chips" style="margin-top:var(--s1)">' +
         DIFFS.map((d, i) => '<button class="chip wide" data-diff="' + i + '" aria-pressed="' + (state.diff === i) + '">' + d[0] + '</button>').join("") +
       '</div>' +
-      '<p class="hint" style="margin-top:8px">' + esc(DIFFS[state.diff][1]) + '</p>' +
-      '<p class="eyebrow" style="margin-top:16px">Length</p>' +
-      '<div class="chips" style="margin-top:6px">' +
+      '<p class="hint" style="margin-top:var(--s2)">' + esc(DIFFS[state.diff][1]) + '</p>' +
+      '<p class="eyebrow" style="margin-top:var(--s4)">Length</p>' +
+      '<div class="chips" style="margin-top:var(--s1)">' +
         [10, 20, 40].map(n => '<button class="chip" data-qn="' + n + '" aria-pressed="' + (state.size === n) + '">' + n + '</button>').join("") +
       '</div>' +
-      '<div style="margin-top:16px"><button class="btn btn-primary" id="startQuiz"' +
+      '<div style="margin-top:var(--s4)"><button class="btn btn-primary" id="startQuiz"' +
         (pool.length < 4 ? " disabled" : "") + '>Start quiz</button>' +
-      (pool.length < 4 ? '<span class="hint" style="margin-left:10px">Too few cards in this chapter — widen the scope.</span>' : "") +
+      (pool.length < 4 ? '<span class="hint" style="margin-left:var(--s2)">Too few cards in this chapter. Widen the scope.</span>' : "") +
       '</div>');
 
   wireScope();
@@ -1196,12 +1199,12 @@ function renderQuizQuestion() {
       '<button class="btn btn-sm" id="endQuiz">End</button>' +
     '</div>' +
     bar(pct(z.i, z.cards.length)) +
-    '<section class="panel" style="margin-top:12px">' +
+    '<section class="panel" style="margin-top:var(--s3)">' +
       '<div class="panel-hd"><h3>Identify</h3><span class="sp"></span>' +
         '<span class="meta">Ch ' + pad2(q.card.c) + ' · ' + KIND[q.card.k] + '</span></div>' +
       '<div class="panel-bd">' +
         '<p class="eyebrow">Which of these does the following describe?</p>' +
-        '<div class="q-lead" style="margin-top:10px">' + highlight(q.card.a) + '</div>' +
+        '<div class="q-lead" style="margin-top:var(--s2)">' + highlight(q.card.a) + '</div>' +
         '<div class="opts">' +
           q.opts.map((o, i) => {
             let cls = "opt";
@@ -1221,11 +1224,11 @@ function renderQuizQuestion() {
         '</div>' +
         (answered
           ? '<div class="verdict ' + (z.picked === q.answer ? "v-ok" : "v-no") + '">' +
-            '<span class="lbl">' + (z.picked === q.answer ? "Correct" : "Incorrect — the answer was option " + (q.answer + 1)) + '</span>' +
+            '<span class="lbl">' + (z.picked === q.answer ? "Correct" : "Incorrect. The answer was option " + (q.answer + 1)) + '</span>' +
             '<b>' + esc(q.card.q)  + '</b><br>' + highlight(q.card.a) + '</div>' +
-            '<div style="margin-top:12px"><button class="btn btn-primary" id="nextQ">' +
+            '<div style="margin-top:var(--s3)"><button class="btn btn-primary" id="nextQ">' +
             (z.i === z.cards.length - 1 ? "See result" : "Next question") + '</button>' +
-            '<span class="hint" style="margin-left:10px">Space</span></div>'
+            '<span class="hint" style="margin-left:var(--s2)">Space</span></div>'
           : "") +
       '</div>' +
     '</section>';
@@ -1261,7 +1264,7 @@ function renderQuizDone() {
       metricCard("Missed", n - z.right, '<span class="hint">due again tomorrow</span>') +
     '</div>' +
     panel("Next", "",
-      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+      '<div style="display:flex;gap:var(--s2);flex-wrap:wrap">' +
         '<button class="btn btn-primary" id="againQ">Another quiz</button>' +
         '<button class="btn" id="doneQ">Change settings</button>' +
         '<button class="btn" data-mode-go="overview">See my progress</button>' +
@@ -1295,7 +1298,7 @@ function renderSpeed() {
       panel("Rules", "",
         '<p class="hint">Sixty seconds, as many as you can get. No feedback until the clock stops, and everything you ' +
         'answer still counts towards the schedule and your accuracy. Keys 1–4 are faster than the mouse.</p>' +
-        '<div style="margin-top:12px"><button class="btn btn-primary" id="startSpeed"' +
+        '<div style="margin-top:var(--s3)"><button class="btn btn-primary" id="startSpeed"' +
         (pool.length ? "" : " disabled") + '>Start the clock</button></div>');
     wireScope();
     $("#startSpeed").addEventListener("click", () => {
@@ -1374,7 +1377,7 @@ function renderSpeedDone() {
           '</tbody></table></div>', "flush")
       : panel("Missed", "none", emptyState("Nothing missed.", "Every card you reached was right."), "flush")) +
     panel("Next", "",
-      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+      '<div style="display:flex;gap:var(--s2);flex-wrap:wrap">' +
         '<button class="btn btn-primary" id="againS">Go again</button>' +
         '<button class="btn" data-mode-go="overview">See my progress</button>' +
       '</div>');
@@ -1497,14 +1500,14 @@ function renderMatchGame() {
           '<li><span class="mk">' + L + '</span><span class="mv">' + highlight(answerFor(ci).a) + '</span></li>').join("") +
         '</ol>' +
 
-        '<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">' +
+        '<div style="margin-top:var(--s4);display:flex;gap:var(--s2);flex-wrap:wrap">' +
           (g.checked
             ? '<button class="btn btn-primary" id="matchNext">Next round</button>'
             : '<button class="btn btn-primary" id="matchCheck"' + (full ? "" : " disabled") + '>Check answers</button>' +
               '<button class="btn" id="matchClear">Clear</button>') +
           '<button class="btn" id="matchNew">New five</button>' +
         '</div>' +
-        (g.checked ? "" : '<p class="hint" style="margin-top:10px">All five come from the same chapter, so every answer is plausible against every term. ' +
+        (g.checked ? "" : '<p class="hint" style="margin-top:var(--s2)">All five come from the same chapter, so every answer is plausible against every term. ' +
           'Each answer belongs to exactly one, so placing it rules it out elsewhere.</p>') +
       '</div>' +
     '</section>';
@@ -1657,14 +1660,14 @@ function renderCram() {
     panel("Nothing is scheduled past your exam", "how the plan changes the schedule",
       '<p class="hint">A card you rate <b>Easy</b> would normally go out for weeks. With ' + plural(Math.max(left, 0), "day") +
       ' left, that means never seeing it again before you sit. While this plan runs, every interval is squeezed ' +
-      'into the time you have — but the rating still counts, so the three still differ:</p>' +
-      '<div class="tbl-wrap"><table class="tbl" style="margin-top:10px"><thead><tr>' +
+      'into the time you have, but the rating still counts, so the three still differ:</p>' +
+      '<div class="tbl-wrap"><table class="tbl" style="margin-top:var(--s2)"><thead><tr>' +
         '<th>Rating</th><th class="num">Longest it can go, today</th></tr></thead><tbody>' +
         ["Hard", "Good", "Easy"].map((n, i) =>
           '<tr><td><b>' + n + '</b></td><td class="num">' + plural(cramCaps()[i], "day") + '</td></tr>').join("") +
         '<tr><td><b>Again</b></td><td class="num">back today</td></tr>' +
       '</tbody></table></div>' +
-      '<p class="hint" style="margin-top:10px">Stopping the plan restores the normal schedule. Nothing you have ' +
+      '<p class="hint" style="margin-top:var(--s2)">Stopping the plan restores the normal schedule. Nothing you have ' +
       'already learned is lost either way.</p>') +
 
     panel("The fortnight", doneCount + " of " + CRAM_LEN + " done",
@@ -1683,7 +1686,7 @@ function renderCram() {
             '<p class="hint">' + CRAM_WORK[pl.kind] +
               (cards.length ? ' <b>' + cards.length + ' cards</b> across ' +
                 pl.chapters.map(n => "ch " + pad2(n)).join(", ") + '.' : "") + '</p>' +
-            '<div class="chips" style="margin-top:8px">' +
+            '<div class="chips" style="margin-top:var(--s2)">' +
               (pl.chapters.length
                 ? '<button class="chip" data-cramgo="' + pl.d + '">Study these chapters</button>' : "") +
               (pl.kind === "traps" ? '<button class="chip" data-cramtraps="1">Open the trap drill</button>' : "") +
@@ -1703,7 +1706,7 @@ function renderCram() {
         '<li><b>Breadth beats depth here.</b><span>The examining team\u2019s own advice is to learn something about every topic ' +
         'rather than a few in depth. Section A samples all 22 chapters across 46 questions.</span></li>' +
         '<li><b>Do the mocks under real conditions.</b><span>Two hours, no notes, no pausing. Most marks lost in BT are lost ' +
-        'to the clock and to misreading, not to gaps in knowledge \u2014 and neither shows up unless you sit a whole paper.</span></li>' +
+        'to the clock and to misreading, not to gaps in knowledge, and neither shows up unless you sit a whole paper.</span></li>' +
         '<li><b>Guess everything.</b><span>There is no negative marking. Before you submit, no question should be blank.</span></li>' +
       '</ul>', "flush");
 
@@ -1743,12 +1746,12 @@ function renderCramSetup() {
     panel("Cramming BT in a fortnight", "be honest with yourself first",
       '<p class="hint">Spacing beats cramming, and if you have longer than two weeks you should use Today and let the ' +
       'schedule do its job. But two weeks is enough to cover BT properly if every part of the syllabus gets touched, ' +
-      'and that is what this plan does \u2014 all 22 chapters in nine days, then traps, mocks and the chapters you are ' +
+      'and that is what this plan does: all 22 chapters in nine days, then traps, mocks and the chapters you are ' +
       'weakest on.</p>' +
-      '<p class="hint" style="margin-top:10px">Turning it on also <b>caps the schedule</b>. Normally a card you find easy ' +
+      '<p class="hint" style="margin-top:var(--s2)">Turning it on also <b>caps the schedule</b>. Normally a card you find easy ' +
       'goes out weeks; with days left that means never seeing it again. While the plan runs, no interval reaches past ' +
       'your exam.</p>' +
-      '<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">' +
+      '<div style="margin-top:var(--s4);display:flex;gap:var(--s2);flex-wrap:wrap;align-items:flex-end">' +
         '<label class="cramdate"><span class="eyebrow">Exam date</span>' +
           '<input type="date" id="cramWhen" value="' + suggested + '" min="' + iso(today() + 1) + '"></label>' +
         '<button class="btn btn-primary" id="cramStart">Start the plan</button>' +
@@ -1846,7 +1849,7 @@ function renderTraps(box) {
         '</tr>';
       }).join("") +
       '</tbody></table></div>', "flush") +
-    '<div style="margin-top:-8px;margin-bottom:16px"><button class="btn btn-primary" data-trap="all">Drill all ' + TRAPS.length + '</button></div>';
+    '<div style="margin-top:-8px;margin-bottom:var(--s4)"><button class="btn btn-primary" data-trap="all">Drill all ' + TRAPS.length + '</button></div>';
 
   $$("[data-trap]").forEach(b => b.addEventListener("click", () => {
     const k = b.dataset.trap;
@@ -1870,15 +1873,15 @@ function renderTrapQuestion(box) {
       panel("Next", "",
         '<p class="hint">' + (r.right === r.qs.length
           ? "Every trap spotted."
-          : "Re-read the notes on the ones you missed — the trap repeats, the topic does not.") + '</p>' +
-        '<div style="margin-top:12px"><button class="btn btn-primary" id="trapBack">Back to the traps</button></div>');
+          : "Re-read the notes on the ones you missed: the trap repeats, the topic does not.") + '</p>' +
+        '<div style="margin-top:var(--s3)"><button class="btn btn-primary" id="trapBack">Back to the traps</button></div>');
     $("#trapBack").addEventListener("click", () => { state.trapRun = null; render(); });
     return;
   }
 
   const q = r.qs[r.i], t = TRAP_TYPES[q.t], answered = r.picked !== null;
   box.innerHTML =
-    '<div class="scopebar" style="margin-bottom:8px">' +
+    '<div class="scopebar" style="margin-bottom:var(--s2)">' +
       '<span class="chip" style="cursor:default">' + (r.i + 1) + ' / ' + r.qs.length + '</span>' +
       '<span class="chip" style="cursor:default">' + esc(t.name) + '</span>' +
       '<span class="sp"></span>' +
@@ -1886,7 +1889,7 @@ function renderTrapQuestion(box) {
       '<button class="btn btn-sm" id="endT">End</button>' +
     '</div>' +
     bar(pct(r.i, r.qs.length)) +
-    '<section class="panel" style="margin-top:12px">' +
+    '<section class="panel" style="margin-top:var(--s3)">' +
       '<div class="panel-hd"><h3>' + t.tag + '</h3><span class="sp"></span>' +
         '<span class="meta">Ch ' + pad2(q.c) + '</span></div>' +
       '<div class="panel-bd">' +
@@ -1903,7 +1906,7 @@ function renderTrapQuestion(box) {
         (answered
           ? '<div class="verdict ' + (r.picked === q.a ? "v-ok" : "v-no") + '">' +
             '<span class="lbl">' + (r.picked === q.a ? "Correct" : "The trap caught you") + '</span>' + q.why + '</div>' +
-            '<div style="margin-top:12px"><button class="btn btn-primary" id="nextT">' +
+            '<div style="margin-top:var(--s3)"><button class="btn btn-primary" id="nextT">' +
             (r.i === r.qs.length - 1 ? "See result" : "Next") + '</button></div>'
           : "") +
       '</div>' +
@@ -1983,7 +1986,7 @@ function renderMocks(box) {
             ? '<b>' + Math.ceil((saved.endsAt - Date.now()) / 60000) + ' minutes</b> left on the clock.'
             : 'The clock has run out. Resume it to see how it marked.') +
           ' The clock is absolute, so closing the tab did not pause it.</p>' +
-          '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">' +
+          '<div style="margin-top:var(--s3);display:flex;gap:var(--s2);flex-wrap:wrap">' +
             '<button class="btn btn-primary" id="resumeMock">Resume paper ' + saved.p + '</button>' +
             '<button class="btn btn-danger" id="binMock">Discard</button></div>')
       : "") +
@@ -2192,7 +2195,7 @@ function renderMock() {
       '</div>' +
     '</section>' +
 
-    '<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">' +
+    '<div style="display:flex;gap:var(--s2);margin-bottom:var(--s4);flex-wrap:wrap">' +
       '<button class="btn" id="prevQ"' + (m.i === 0 ? " disabled" : "") + '>← Previous</button>' +
       '<button class="btn btn-primary" id="nextQ"' + (m.i === items.length - 1 ? " disabled" : "") + '>Next →</button>' +
     '</div>' +
@@ -2276,7 +2279,7 @@ function gapHTML(q, key, given, partial) {
   q.g.forEach((opts, gi) => {
     const sel = '<span class="gapwrap"><select class="gap" data-key="' + key + '" data-kind="gap" data-gap="' + gi + '" ' +
       'aria-label="Gap ' + (gi + 1) + '">' +
-      '<option value="">— choose —</option>' +
+      '<option value="">choose one</option>' +
       opts.map((o, oi) => '<option value="' + oi + '"' + (cur[gi] === oi ? " selected" : "") + '>' + esc(o) + '</option>').join("") +
       '</select></span>';
     html = html.replace("{" + gi + "}", sel);
@@ -2528,7 +2531,7 @@ function renderMockResult() {
       '</tbody></table></div>', "flush") +
 
     panel("Next", "",
-      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+      '<div style="display:flex;gap:var(--s2);flex-wrap:wrap">' +
         '<button class="btn btn-primary" id="reviewMock">Review every question</button>' +
         '<button class="btn" id="leaveMock">Back to the simulator</button>' +
         '<button class="btn" data-mode-go="overview">See my progress</button>' +
@@ -2554,9 +2557,9 @@ function renderMockResult() {
           const ok = markQuestion(o.q, given);
           const earned = scoreQuestion(o.q, given, it.sec === "B" ? 2 : it.m, it.sec === "B");
           const outOf = it.sec === "B" ? 2 : it.m;
-          return '<div style="margin-bottom:12px">' +
+          return '<div style="margin-bottom:var(--s3)">' +
             '<p class="q-stem" style="font-size:var(--step-1)">' + reviewStem(o.q) + '</p>' +
-            '<p style="margin-top:6px">' +
+            '<p style="margin-top:var(--s1)">' +
               (ok ? pill("up", "Correct")
                 : !isAnswered(o.q, given) && given == null ? pill("flat", "Blank")
                 : earned > 0 ? pill("warn", earned + " of " + outOf + " marks")

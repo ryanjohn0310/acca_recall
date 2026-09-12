@@ -26,8 +26,8 @@
   --tint:#f8f5ec;
   --ink:#28323f;
   --ink-2:#3d4a5c;
-  --muted:#6d7a8a;
-  --faint:#98a3b1;
+  --muted:#657180;
+  --faint:#637183;
   --line:#e6e0d3;
   --line-2:#f0ebe0;
   --rule:#d3e3f4;          /* the ruled lines of the page */
@@ -35,13 +35,13 @@
   --accent:#4263c7;
   --accent-ink:#ffffff;
   --accent-soft:#e8eeff;
-  --up:#2f8659;
+  --up:#2c7e54;
   --up-soft:#e6f4ec;
-  --down:#cf4b47;
+  --down:#cb3d39;
   --down-soft:#fdeceb;
-  --warn:#c07f14;
+  --warn:#996510;
   --warn-soft:#fdf3e0;
-  --flat:#98a3b1;
+  --flat:#637183;
   --track:#e9e4d8;
   --mark:#ffe680;
   --mark-ink:#28323f;
@@ -81,9 +81,9 @@
     --ink:#eaeff6;
     --ink-2:#d3dbe6;
     --muted:#96a3b4;
-    --faint:#6a7787;
-    --line:#2c3542;
-    --line-2:#232b37;
+    --faint:#85919f;
+    --line:#54657c;
+    --line-2:#303b4a;
     --rule:#2a3745;
     --margin:#8a5250;
     --accent:#7fa4f5;
@@ -95,7 +95,7 @@
     --down-soft:#2c1a19;
     --warn:#e2ae4e;
     --warn-soft:#2a2213;
-    --flat:#6a7787;
+    --flat:#85919f;
     --track:#28303c;
     --mark:#5a4d18;
     --mark-ink:#fdf6d8;
@@ -111,9 +111,9 @@
   --ink:#eaeff6;
   --ink-2:#d3dbe6;
   --muted:#96a3b4;
-  --faint:#6a7787;
-  --line:#2c3542;
-  --line-2:#232b37;
+  --faint:#85919f;
+  --line:#54657c;
+  --line-2:#303b4a;
   --rule:#2a3745;
   --margin:#8a5250;
   --accent:#7fa4f5;
@@ -125,7 +125,7 @@
   --down-soft:#2c1a19;
   --warn:#e2ae4e;
   --warn-soft:#2a2213;
-  --flat:#6a7787;
+  --flat:#85919f;
   --track:#28303c;
   --mark:#5a4d18;
   --mark-ink:#fdf6d8;
@@ -290,10 +290,7 @@ kbd{
 }
 .metric{
   background:var(--card);border:1px solid var(--line);border-radius:var(--r);
-  padding:var(--s4);box-shadow:var(--shadow);position:relative;overflow:hidden;
-}
-.metric::before{
-  content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent);opacity:.75;
+  padding:var(--s4);box-shadow:var(--shadow);
 }
 .metric .k{display:block;font-size:var(--step--1);font-weight:700;color:var(--muted);letter-spacing:.02em}
 .metric .v{display:block;margin-top:var(--s1);font-size:var(--step-5);font-weight:800;line-height:1.1;letter-spacing:-.02em}
@@ -451,18 +448,16 @@ kbd{
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .chip.wide{font-size:var(--step-0)}
 
-/* the "how do you want to work" chooser */
-.viewpick{display:grid;gap:var(--s3);grid-template-columns:1fr}
-@media (min-width:760px){.viewpick{grid-template-columns:repeat(3,1fr)}}
-.viewopt{
-  text-align:left;padding:var(--s4);border:1px solid var(--line);border-bottom-width:2px;
-  border-radius:var(--r);background:var(--card);display:grid;gap:var(--s1);
-  transition:all var(--dur) var(--ease);
+/* the "how do you want to work" chooser: three rows, not three icon cards */
+.deflist .pickrow{
+  display:grid;grid-template-columns:104px 1fr auto;gap:var(--s3);align-items:center;
+  padding:var(--s3) var(--s4);border-bottom:1px solid var(--line-2);
 }
-.viewopt:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow)}
-.viewopt .vi{font-size:22px;line-height:1}
-.viewopt .vn{font-weight:800;font-size:var(--step-1);color:var(--ink)}
-.viewopt .vd{font-size:var(--step--1);color:var(--muted);line-height:1.6}
+.deflist .pickrow:last-of-type{border-bottom:0}
+@media (max-width:640px){
+  .deflist .pickrow{grid-template-columns:1fr auto;align-items:start}
+  .deflist .pickrow .tx{grid-column:1/-1}
+}
 
 /* list view — a chapter printed to read straight through */
 .cardlist{counter-reset:cl}
@@ -843,7 +838,7 @@ body:not(.at-study) #study{display:none}
     <h1>ACCA Applied Knowledge</h1>
     <p class="sub">
       Flashcards, quizzes, mock exams and a progress page for the three Applied
-      Knowledge papers. Written from the syllabus, not copied from it — and free.
+      Knowledge papers. Written from the syllabus, not copied from it, and free.
     </p>
   </div>
 
@@ -869,7 +864,7 @@ body:not(.at-study) #study{display:none}
     <b>Unofficial study material.</b> Not affiliated with, endorsed by, or produced by the
     Association of Chartered Certified Accountants. ACCA is a registered trademark of its
     owner and is used here only to describe the qualification this material covers. Every
-    question, scenario, note and figure is original work written for this site — no past
+    question, scenario, note and figure is original work written for this site. No past
     exam paper, official question or answer is reproduced. Always check the current syllabus
     and exam format on ACCA’s own website before relying on anything here.
   </p>
@@ -884,7 +879,7 @@ body:not(.at-study) #study{display:none}
     <h1>Learn it, test it, then sit the whole paper.</h1>
     <p class="promise">
       Every named theorist, every definition worth learning word-for-word, and the
-      distinctions the examiner keeps testing — plus <b>five full mock papers</b> in the
+      distinctions the examiner keeps testing, plus <b>five full mock papers</b> in the
       real two-hour structure, marked against the 50% pass and broken down by capability.
     </p>
     <div class="cta">
@@ -935,9 +930,9 @@ body:not(.at-study) #study{display:none}
     <div class="panel-hd"><h2>What it does that a textbook cannot</h2></div>
     <div class="panel-bd flush">
       <div class="deflist">
-        <div><span class="nm">Explains</span><span class="tx">Every wrong option carries a written note on why it was tempting and what the examiner was testing — not just a tick against the right one.</span></div>
+        <div><span class="nm">Explains</span><span class="tx">Every wrong option carries a written note on why it was tempting and what the examiner was testing, not just a tick against the right one.</span></div>
         <div><span class="nm">Adapts</span><span class="tx">Cards you miss come back sooner and ones you know drift further out. Pairs you keep confusing get their own drill.</span></div>
-        <div><span class="nm">Measures</span><span class="tx">Accuracy by chapter and by capability, mock history and a seven-day trend — so your revision time goes where the marks are missing.</span></div>
+        <div><span class="nm">Measures</span><span class="tx">Accuracy by chapter and by capability, mock history and a seven-day trend, so your revision time goes where the marks are missing.</span></div>
         <div><span class="nm">Simulates</span><span class="tx">Whole papers: two hours, 100 marks, free navigation and flagging, auto-submitted at zero and marked by capability.</span></div>
       </div>
     </div>
@@ -947,7 +942,7 @@ body:not(.at-study) #study{display:none}
     <b>Unofficial study material.</b> Not affiliated with, endorsed by, or produced by the
     Association of Chartered Certified Accountants. ACCA is a registered trademark of its
     owner and is used here only to describe the qualification this material covers. Every
-    question, scenario, note and figure is original work written for this site — no past
+    question, scenario, note and figure is original work written for this site. No past
     exam paper, official question or answer is reproduced. Always check the current syllabus
     and exam format on ACCA’s own website before relying on anything here.
   </p>
@@ -994,7 +989,7 @@ body:not(.at-study) #study{display:none}
         <p class="smallprint" style="margin-top:var(--s4);border:0;padding:0">
           <b>Unofficial study material.</b> Not affiliated with or endorsed by the ACCA.
           All questions and explanations are original. Your progress is stored in this
-          browser only — there is no account and nothing is sent anywhere.
+          browser only. There is no account and nothing is sent anywhere.
         </p>
       </footer>
     </div>
@@ -1012,6 +1007,6 @@ body:not(.at-study) #study{display:none}
 <script src="data/paper3.js?v=9f99cc7e"></script>
 <script src="data/paper4.js?v=af4b5a0b"></script>
 <script src="data/paper5.js?v=239e82eb"></script>
-<script src="app.js?v=261d5cf7"></script>
+<script src="app.js?v=d0714ba2"></script>
 </body>
 </html>

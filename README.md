@@ -199,6 +199,43 @@ Cards opens on a chooser, and remembers what you picked:
 - **List** — the whole chapter printed out, question and answer together, with a
   *Questions only* toggle that turns it into a self-test you read down.
 
+## Design tells, audited
+
+Checked against a widely circulated list of twenty things that make an app look
+machine-generated. Most did not apply: no purple-to-blue gradient anywhere (the
+one gradient in the stylesheet draws the ruled lines on the cards), no gradient
+hero text, no glassmorphism, no icon library, no shadcn, no fade-in on scroll,
+no cursor-following beam, no grain, no Inter, no Space Grotesk.
+
+Five did apply and are fixed:
+
+| Tell | What it was | Now |
+|---|---|---|
+| Three icon boxes in a row | The Cards chooser was three emoji-topped cards | Three plain rows, name and description |
+| Emoji in the interface | Icons on the chooser and its switcher | Gone. The only symbol left is a star, which is a control |
+| Coloured border cards | A 4px accent bar down every metric card, meaning nothing | Removed |
+| Inconsistent spacing | 26 inline paddings and margins off the scale (10px, 14px, 16px, 6px) | All on the 4/8/12/18/26/38/56 scale |
+| Em dashes everywhere | 25 in user-facing copy | 1 in prose; 15 remain as the no-data placeholder in metric cards |
+
+**Low-contrast dark mode** was the interesting one, because the audit found the
+opposite: light mode was worse. Measured against WCAG, six light-mode pairs and
+two dark-mode pairs failed. All are fixed by darkening `--muted`, `--faint`,
+`--up`, `--down` and `--warn` in light, and lifting `--faint` and the hairlines
+in dark:
+
+| | Was | Now |
+|---|---|---|
+| light hint text | 4.37 | 4.56 |
+| light faint text | 2.56 | 4.56 |
+| light correct / incorrect / partial | 4.49 / 4.42 / 3.34 | 4.57 / 4.52 / 4.56 |
+| dark faint text | 3.42 | 4.52 |
+| dark hairline against a card | 1.26 | 2.62 |
+
+Two items on the list are deliberate and stay. The **eyebrow above the headline**
+is a kicker in plain tracked capitals, not a pill badge. And the **handwriting
+accent** (Caveat) is not a serif italic flourish: it does one job, marginal notes
+in a notebook, which is the whole design.
+
 ## Checked against the official syllabus
 
 Audited against *ACCA Business and Technology (BT/FBT) syllabus and study guide,
